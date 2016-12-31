@@ -4,13 +4,18 @@
 
 import type {Activity, ActivityBuilder} from "./Types";
 import React from "react";
+import update from "react-addons-update";
 import {PageHeader, Grid, Row, Col, ButtonToolbar, Button, Glyphicon} from "react-bootstrap";
 import ActivityTable from "./ActivityTable";
 import ActivityDialog from "./ActivityDialog";
+import ErrorDialog from "./ErrorDialog";
+import {parseDuration} from "./TimeUtils";
+import {parseDistance} from "./DistanceUtils";
 
 type DashboardState = {
     activities: Array<Activity>,
-    editedActivity: ?ActivityBuilder
+    editedActivity: ?ActivityBuilder,
+    error: ?Error
 };
 
 export default class Dashboard extends React.Component {
@@ -41,7 +46,8 @@ export default class Dashboard extends React.Component {
                 duration: 1547,
                 distance: 5500
             }],
-            editedActivity: null
+            editedActivity: null,
+            error: null
         };
     }
 
@@ -82,6 +88,8 @@ export default class Dashboard extends React.Component {
                 {this.state.editedActivity !== null
                 && <ActivityDialog initialActivity={this.state.editedActivity}
                                    saveHandler={(activity) => this.saveActivity(activity)}/> }
+
+                {this.state.error && <ErrorDialog error={this.state.error}/>}
             </div>
         );
     }
@@ -101,8 +109,22 @@ export default class Dashboard extends React.Component {
         });
     }
 
-    saveActivity(activity: ActivityBuilder) {
-        // TODO 
-        console.info("Save", activity);
+    saveActivity(builder: ActivityBuilder) {
+        // TODO : send it to the server
+        console.info("Saving", builder);
+
+        try {
+            const activity: Activity = {
+                id: builder.id ? builder.id : ("" + Math.random()),
+                date: builder.date,
+                duration: parseDuration(builder.duration),
+                distance: parseDistance(builder.distance)
+            };
+            this.setState(update(this.state, {activities: {$push: [activity]}}));
+        } catch (e) {
+            this.setState({error: e});
+        } finally {
+            this.setState({editedActivity: null});
+        }
     }
 }

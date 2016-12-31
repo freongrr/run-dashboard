@@ -5,6 +5,8 @@
 import type {Activity} from "./Types";
 import React from "react";
 import {Table, DropdownButton, MenuItem, Glyphicon} from "react-bootstrap";
+import {formatHourMinutes, formatMinuteSeconds} from "./TimeUtils";
+import {formatKm} from "./DistanceUtils";
 
 type ActivityTableProps = {
     activities: Array<Activity>
@@ -43,9 +45,9 @@ export default class ActivityTable extends React.Component {
                     this.props.activities.map(a => {
                         return <tr key={a.id}>
                             <td>{a.date}</td>
-                            <td>{formatDuration(a.duration)}</td>
-                            <td>{formatDistance(a.distance)}</td>
-                            <td>{formatSplit(1000 * a.duration / a.distance)}</td>
+                            <td>{formatHourMinutes(a.duration)}</td>
+                            <td>{formatKm(a.distance)}</td>
+                            <td>{formatMinuteSeconds(1000 * a.duration / a.distance)}</td>
                             <td>{actionMenu}</td>
                         </tr>;
                     })
@@ -54,50 +56,4 @@ export default class ActivityTable extends React.Component {
             </Table>
         );
     }
-}
-
-function formatDuration(durationInSeconds: number): string {
-    const hours = Math.floor(durationInSeconds / 3600);
-    const minutes = Math.floor(durationInSeconds / 60);
-
-    let interval = "";
-
-    if (hours > 0) {
-        interval += hours + " hour ";
-    }
-
-    interval += minutes + " min ";
-
-    return interval;
-}
-
-
-function formatDistance(distanceInMeters: number): string {
-    if (distanceInMeters < 1000) {
-        return distanceInMeters + " m";
-    } else {
-        const x = Math.round(distanceInMeters / 100) / 10;
-        if (x === Math.round(x)) {
-            return x + ".0 km";
-        } else {
-            return x + " km";
-        }
-    }
-}
-
-function formatSplit(durationInSeconds: number): string {
-    const minutes = Math.floor(durationInSeconds / 60);
-    const seconds = Math.round(durationInSeconds % 60);
-
-    let interval = "";
-
-    if (minutes > 0) {
-        interval += minutes + " min ";
-    }
-
-    if (minutes === 0 || seconds > 0) {
-        interval += seconds + " sec";
-    }
-
-    return interval;
 }

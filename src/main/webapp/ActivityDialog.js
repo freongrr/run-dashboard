@@ -6,6 +6,8 @@ import type {ActivityBuilder} from "./Types";
 import React from "react";
 import update from "react-addons-update";
 import {Button, FormGroup, ControlLabel, FormControl, HelpBlock, Modal} from "react-bootstrap";
+import {parseDuration} from "./TimeUtils";
+import {parseDistance} from "./DistanceUtils";
 
 type ActivityDialogProps = {
     initialActivity: ActivityBuilder,
@@ -50,9 +52,9 @@ export default class ActivityDialog extends React.Component {
 
                 <Modal.Body>
                     <form>
-                        {this.createField("activityDate", "date", "date", "Date", null)}
-                        {this.createField("activityDuration", "text", "duration", "Duration", "e.g. \"1 hour\" or \"45 min\"")}
-                        {this.createField("activityDistance", "text", "distance", "Distance", "e.g. \"10.5 km\"")}
+                        {this.createField("activityDate", "date", "date", "Date", this.hasValidDate())}
+                        {this.createField("activityDuration", "text", "duration", "Duration", this.hasValidDuration(), "e.g. \"1 hour\" or \"45 min\"")}
+                        {this.createField("activityDistance", "text", "distance", "Distance", this.hasValidDistance(), "e.g. \"10.5 km\"")}
                     </form>
                 </Modal.Body>
 
@@ -64,21 +66,20 @@ export default class ActivityDialog extends React.Component {
         );
     }
 
-    createField(id: string, type: string, property: string, label: string, placeholder: ?string, help: ?string) {
+    createField(id: string, type: string, property: string, label: string, valid: boolean, placeholder: ?string, help: ?string) {
         const value = this.state.builder[property];
-        const validationState = ActivityDialog.isDefined(value) ? "success" : "error";
+        const validationState = valid ? "success" : "error";
         console.debug(`Value of ${property}: ${value} (validationState: ${validationState})`);
         const changeHandle = (e: any) => {
-            const newState = update(this.state, {
+            console.debug(`Updating property ${property} to: ${e.target.value}`);
+            this.setState(update(this.state, {
                 builder: {
                     $apply: (b: ActivityBuilder) => {
-                        console.debug(`Updating property ${property} to: ${e.target.value}`);
                         b[property] = e.target.value;
                         return b;
                     }
                 }
-            });
-            this.setState(newState);
+            }));
         };
         return (
             <FormGroup controlId={id} validationState={validationState}>
@@ -90,15 +91,34 @@ export default class ActivityDialog extends React.Component {
         );
     }
 
-    // TODO : we need to validate distances and duration with custom functions   
-    static isDefined(value: string) {
-        return value !== undefined && value !== "0" && value !== "";
+    hasValidDate(): boolean {
+        return this.state.builder.date !== null;
+    }
+
+    hasValidDuration(): boolean {
+        try {
+            parseDuration(this.state.builder.duration);
+            return true;
+        } catch (e) {
+            // 
+        }
+        return false;
+    }
+
+    hasValidDistance(): boolean {
+        try {
+            parseDistance(this.state.builder.distance);
+            return true;
+        } catch (e) {
+            // 
+        }
+        return false;
     }
 
     isValid(): boolean {
-        return ActivityDialog.isDefined(this.state.builder.date) &&
-            ActivityDialog.isDefined(this.state.builder.duration) &&
-            ActivityDialog.isDefined(this.state.builder.distance);
+        return this.hasValidDate() &&
+            this.hasValidDuration() &&
+            this.hasValidDistance();
     }
 
     onClose() {
@@ -108,7 +128,6 @@ export default class ActivityDialog extends React.Component {
     onSave() {
         if (this.isValid()) {
             this.props.saveHandler(this.state.builder);
-            this.setState({visible: false});
         }
     }
 }
