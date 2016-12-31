@@ -2,7 +2,7 @@
 /* eslint no-console: ["off"] */
 "use strict";
 
-import type {ActivityBuilder} from "./Types";
+import type {Activity, ActivityBuilder} from "./Types";
 import React from "react";
 import ActivityDialog from "./ActivityDialog";
 import {
@@ -19,6 +19,7 @@ import {
 } from "react-bootstrap";
 
 type DashboardState = {
+    activities: Array<Activity>,
     editedActivity: ?ActivityBuilder
 };
 
@@ -29,6 +30,27 @@ export default class Dashboard extends React.Component {
         super(props);
 
         this.state = {
+            activities: [{
+                id: "1",
+                date: "2016-12-17",
+                duration: 2544,
+                distance: 8500
+            }, {
+                id: "2",
+                date: "2016-12-11",
+                duration: 2145,
+                distance: 7000
+            }, {
+                id: "3",
+                date: "2016-10-22",
+                duration: 3391,
+                distance: 11500
+            }, {
+                id: "4",
+                date: "2016-10-06",
+                duration: 1547,
+                distance: 5500
+            }],
             editedActivity: null
         };
     }
@@ -66,13 +88,26 @@ export default class Dashboard extends React.Component {
                 {/*TODO : fix the dropdown when the table is 'responsive' */}
                 <Table hover>
                     <thead>
-                    <tr><th>Date</th><th>Duration</th><th>Distance</th><th>Split time (1 km)</th><th>Actions</th></tr>
+                    <tr>
+                        <th>Date</th>
+                        <th>Duration</th>
+                        <th>Distance</th>
+                        <th>Split time (1 km)</th>
+                        <th>Actions</th>
+                    </tr>
                     </thead>
                     <tbody>
-                    <tr><td>2016-12-17</td><td>42 min</td><td>8.5 km</td><td>4 min 59 sec</td><td>{actionMenu}</td></tr>
-                    <tr><td>2016-12-11</td><td>35 min</td><td>7.0 km</td><td>5 min 6 sec</td><td>{actionMenu}</td></tr>
-                    <tr><td>2016-10-22</td><td>56 min</td><td>11.5 km</td><td>4 min 54 sec</td><td>{actionMenu}</td></tr>
-                    <tr><td>2016-10-06</td><td>25 min</td><td>5.5 km</td><td>4 min 41 sec</td><td>{actionMenu}</td></tr>
+                    {
+                        this.state.activities.map(a => {
+                            return <tr key={a.id}>
+                                <td>{a.date}</td>
+                                <td>{formatDuration(a.duration)}</td>
+                                <td>{formatDistance(a.distance)}</td>
+                                <td>{formatSplit(1000 * a.duration / a.distance)}</td>
+                                <td>{actionMenu}</td>
+                            </tr>;
+                        })
+                    }
                     </tbody>
                 </Table>
 
@@ -111,4 +146,50 @@ export default class Dashboard extends React.Component {
         // TODO 
         console.info("Save", activity);
     }
+}
+
+function formatDuration(durationInSeconds: number): string {
+    const hours = Math.floor(durationInSeconds / 3600);
+    const minutes = Math.floor(durationInSeconds / 60);
+
+    let interval = "";
+
+    if (hours > 0) {
+        interval += hours + " hour ";
+    }
+
+    interval += minutes + " min ";
+
+    return interval;
+}
+
+
+function formatDistance(distanceInMeters: number): string {
+    if (distanceInMeters < 1000) {
+        return distanceInMeters + " m";
+    } else {
+        const x = Math.round(distanceInMeters / 100) / 10;
+        if (x === Math.round(x)) {
+            return x + ".0 km";
+        } else {
+            return x + " km";
+        }
+    }
+}
+
+function formatSplit(durationInSeconds: number): string {
+    const minutes = Math.floor(durationInSeconds / 60);
+    const seconds = Math.round(durationInSeconds % 60);
+
+    let interval = "";
+
+    if (minutes > 0) {
+        interval += minutes + " min ";
+    }
+
+    if (minutes === 0 || seconds > 0) {
+        interval += seconds + " sec";
+    }
+
+    return interval;
 }
