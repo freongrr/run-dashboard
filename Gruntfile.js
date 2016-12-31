@@ -90,7 +90,7 @@ module.exports = function (grunt) {
         watch: {
             bundle: {
                 files: ['<%= dist_main %>'],
-                tasks: ['copy']
+                tasks: ['validate']
             },
             'static-files': {
                 files: ['<%= src_dir %>/*.html', '<%= src_dir %>/*.css'],

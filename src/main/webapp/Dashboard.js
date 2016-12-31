@@ -1,7 +1,10 @@
 // @flow
+/* eslint no-console: ["off"] */
 "use strict";
 
+import type {ActivityBuilder} from "./Types";
 import React from "react";
+import ActivityDialog from "./ActivityDialog";
 import {
     PageHeader,
     Grid,
@@ -11,33 +14,27 @@ import {
     ButtonToolbar,
     Button,
     Glyphicon,
-    FormGroup,
-    ControlLabel,
-    FormControl,
-    HelpBlock,
-    Modal,
     DropdownButton,
     MenuItem
 } from "react-bootstrap";
 
-function FieldGroup(props: {id: string, label: string, type: string, help?: string, placeholder?: string}) {
-    return (
-        <FormGroup controlId={props.id}>
-            <ControlLabel>{props.label}</ControlLabel>
-            <FormControl id={props.id} type={props.type} placeholder={props.placeholder}/>
-            {props.help && <HelpBlock>{props.help}</HelpBlock>}
-        </FormGroup>
-    );
-}
+type DashboardState = {
+    editedActivity: ?ActivityBuilder
+};
 
 export default class Dashboard extends React.Component {
+    state: DashboardState;
 
-    constructor(props: any) {
+    constructor(props: {}) {
         super(props);
+
+        this.state = {
+            editedActivity: null
+        };
     }
 
     render() {
-        const actionMenu = 
+        const actionMenu =
             <DropdownButton bsSize="xsmall" title={<Glyphicon glyph="cog"/>} id="foo">
                 <MenuItem eventKey="1">Edit</MenuItem>
                 <MenuItem eventKey="2">Delete</MenuItem>
@@ -66,7 +63,7 @@ export default class Dashboard extends React.Component {
                 </PageHeader>
 
                 {/*TODO : add elevation, max heart beat, temperature, etc */}
-                {/*TODO : fix the dropdowns when the table is 'responsive' */}
+                {/*TODO : fix the dropdown when the table is 'responsive' */}
                 <Table hover>
                     <thead>
                     <tr><th>Date</th><th>Duration</th><th>Distance</th><th>Split time (1 km)</th><th>Actions</th></tr>
@@ -80,35 +77,38 @@ export default class Dashboard extends React.Component {
                 </Table>
 
                 <ButtonToolbar>
-                    <Button bsStyle="primary" onClick={() => {/*TODO*/}}>
+                    <Button bsStyle="primary" onClick={() => this.refresh()}>
                         <Glyphicon glyph="refresh"/> Refresh
                     </Button>
-                    <Button bsStyle="primary" onClick={() => {/*TODO*/}}>
+                    <Button bsStyle="primary" onClick={() => this.addActivity()}>
                         <Glyphicon glyph="plus"/> Add
                     </Button>
                 </ButtonToolbar>
 
-                <Modal show={false}>
-                    <Modal.Header>
-                        <Modal.Title>Add a new activity</Modal.Title>
-                    </Modal.Header>
-
-                    <Modal.Body>
-                        <form>
-                            <FieldGroup id="newActivityDate" type="date" label="Date"/>
-                            <FieldGroup id="newActivityDuration" type="text" label="Duration"
-                                        placeholder={"e.g. \"1 hour\" or \"45 min\""}/>
-                            <FieldGroup id="newActivityDistance" type="text" label="Distance"
-                                        placeholder={"e.g. \"10.5 km\""} />
-                        </form>
-                    </Modal.Body>
-
-                    <Modal.Footer>
-                        <Button>Cancel</Button>
-                        <Button bsStyle="primary">Add Activity</Button>
-                    </Modal.Footer>
-                </Modal>
+                {this.state.editedActivity !== null
+                && <ActivityDialog initialActivity={this.state.editedActivity}
+                                   saveHandler={(activity) => this.saveActivity(activity)}/> }
             </div>
         );
+    }
+
+    refresh() {
+        // TODO
+    }
+
+    addActivity() {
+        this.setState({
+            editedActivity: {
+                id: null,
+                date: "",
+                duration: "",
+                distance: ""
+            }
+        });
+    }
+
+    saveActivity(activity: ActivityBuilder) {
+        // TODO 
+        console.info("Save", activity);
     }
 }
