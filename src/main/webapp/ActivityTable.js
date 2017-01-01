@@ -10,7 +10,8 @@ import {formatKm} from "./DistanceUtils";
 
 type ActivityTableProps = {
     activities: Array<Activity>,
-    editHandler: (Activity) => void
+    editHandler: (Activity) => void,
+    deleteHandler: (Activity) => void
 };
 
 export default class ActivityTable extends React.Component {
@@ -35,10 +36,18 @@ export default class ActivityTable extends React.Component {
                 </tr>
                 </thead>
                 <tbody>
-                {this.props.activities.map(a => this.makeRow(a))}
+                {this.props.activities.length == 0
+                    ? ActivityTable.makeEmptyRow()
+                    : this.props.activities.map(a => this.makeRow(a))}
                 </tbody>
             </Table>
         );
+    }
+
+    static makeEmptyRow() {
+        return <tr key="empty">
+            <td colSpan={5} className="text-center text-inactive">Found nothing. Go out and run!</td>
+        </tr>;
     }
 
     makeRow(a: Activity) {
@@ -50,7 +59,7 @@ export default class ActivityTable extends React.Component {
             <td>
                 <DropdownButton bsSize="xsmall" title={<Glyphicon glyph="cog"/>} id="foo">
                     <MenuItem eventKey="1" onSelect={() => this.onEdit(a)}>Edit</MenuItem>
-                    <MenuItem eventKey="2">Delete</MenuItem>
+                    <MenuItem eventKey="2" onSelect={() => this.onDelete(a)}>Delete</MenuItem>
                 </DropdownButton>
             </td>
         </tr>;
@@ -58,5 +67,9 @@ export default class ActivityTable extends React.Component {
 
     onEdit(a: Activity) {
         this.props.editHandler(a);
+    }
+
+    onDelete(a: Activity) {
+        this.props.deleteHandler(a);
     }
 }

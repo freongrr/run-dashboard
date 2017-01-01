@@ -9,12 +9,14 @@ import {PageHeader, Grid, Row, Col, ButtonToolbar, Button, Glyphicon} from "reac
 import ActivityTable from "./ActivityTable";
 import ActivityDialog from "./ActivityDialog";
 import ErrorDialog from "./ErrorDialog";
+import DeleteDialog from "./DeleteDialog";
 import {parseDuration, formatHourMinutes} from "./TimeUtils";
 import {parseDistance, formatKm} from "./DistanceUtils";
 
 type DashboardState = {
     activities: Array<Activity>,
     editedActivity: ?ActivityBuilder,
+    deletedActivity: ?Activity,
     error: ?Error
 };
 
@@ -47,6 +49,7 @@ export default class Dashboard extends React.Component {
                 distance: 5500
             }],
             editedActivity: null,
+            deletedActivity: null,
             error: null
         };
     }
@@ -74,7 +77,9 @@ export default class Dashboard extends React.Component {
                     <h3><Glyphicon glyph="list"/> Activities</h3>
                 </PageHeader>
 
-                <ActivityTable activities={this.state.activities} editHandler={(a) => this.editActivity(a)}/>
+                <ActivityTable activities={this.state.activities}
+                               editHandler={(a) => this.editActivity(a)}
+                               deleteHandler={(a) => this.deleteActivity(a)}/>
 
                 <ButtonToolbar>
                     <Button bsStyle="primary" onClick={() => this.refresh()}>
@@ -89,7 +94,13 @@ export default class Dashboard extends React.Component {
                 && <ActivityDialog initialActivity={this.state.editedActivity}
                                    saveHandler={(a) => this.saveActivity(a)}/> }
 
-                {this.state.error && <ErrorDialog error={this.state.error}/>}
+                {this.state.error
+                && <ErrorDialog error={this.state.error}/>}
+
+                {this.state.deletedActivity
+                && <DeleteDialog activity={this.state.deletedActivity}
+                                 onDismiss={() => this.cancelDeleteActivity()}
+                                 onConfirm={() => this.doDeleteActivity()}/>}
             </div>
         );
     }
@@ -118,6 +129,26 @@ export default class Dashboard extends React.Component {
                 distance: formatKm(activity.distance)
             }
         });
+    }
+
+    deleteActivity(activity: Activity) {
+        // TODO : it would be better to do it anyway and let the user undo it
+        this.setState({deletedActivity: activity});
+    }
+
+    cancelDeleteActivity() {
+        this.setState({deletedActivity: null});
+    }
+
+    doDeleteActivity() {
+        if (this.state.deletedActivity) {
+            const index = this.findIndexOfActivity(this.state.deletedActivity);
+            if (index > -1) {
+                console.debug(`Deleting activity at index ${index}`);
+                this.setState(update(this.state, {activities: {$splice: [[index, 1]]}}));
+                this.setState({deletedActivity: null});
+            }
+        }
     }
 
     saveActivity(builder: ActivityBuilder) {
