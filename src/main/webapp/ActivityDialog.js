@@ -22,6 +22,7 @@ type ActivityDialogState = {
 export default class ActivityDialog extends React.Component {
     props: ActivityDialogProps;
     state: ActivityDialogState;
+    inputs: Map<string, HTMLInputElement>;
 
     constructor(props: ActivityDialogProps) {
         super(props);
@@ -30,6 +31,15 @@ export default class ActivityDialog extends React.Component {
             visible: true,
             builder: Object.assign({}, props.initialActivity)
         };
+
+        this.inputs = new Map();
+    }
+
+    componentDidMount() {
+        const dateInput = this.inputs.get("date");
+        if (dateInput !== undefined) {
+            dateInput.focus();
+        }
     }
 
     componentWillReceiveProps(nextProps: ActivityDialogProps) {
@@ -51,11 +61,9 @@ export default class ActivityDialog extends React.Component {
                 </Modal.Header>
 
                 <Modal.Body>
-                    <form>
-                        {this.createField("activityDate", "date", "date", "Date", this.hasValidDate())}
-                        {this.createField("activityDuration", "text", "duration", "Duration", this.hasValidDuration(), "e.g. \"1 hour\" or \"45 min\"")}
-                        {this.createField("activityDistance", "text", "distance", "Distance", this.hasValidDistance(), "e.g. \"10.5 km\"")}
-                    </form>
+                    {this.createField("activityDate", "date", "date", "Date", this.hasValidDate())}
+                    {this.createField("activityDuration", "text", "duration", "Duration", this.hasValidDuration(), "e.g. \"1 hour\" or \"45 min\"")}
+                    {this.createField("activityDistance", "text", "distance", "Distance", this.hasValidDistance(), "e.g. \"10.5 km\"")}
                 </Modal.Body>
 
                 <Modal.Footer>
@@ -84,7 +92,8 @@ export default class ActivityDialog extends React.Component {
         return (
             <FormGroup controlId={id} validationState={validationState}>
                 <ControlLabel>{label}</ControlLabel>
-                <FormControl id={id} type={type} value={value} placeholder={placeholder} onChange={changeHandle}/>
+                <FormControl id={id} type={type} value={value} placeholder={placeholder}
+                             onChange={changeHandle} inputRef={ref => this.inputs.set(property, ref)}/>
                 {help && <HelpBlock>{help}</HelpBlock>}
                 <FormControl.Feedback />
             </FormGroup>
@@ -92,25 +101,29 @@ export default class ActivityDialog extends React.Component {
     }
 
     hasValidDate(): boolean {
-        return this.state.builder.date !== null;
+        return this.state.builder.date !== null && this.state.builder.date !== "";
     }
 
     hasValidDuration(): boolean {
-        try {
-            parseDuration(this.state.builder.duration);
-            return true;
-        } catch (e) {
-            // 
+        if (this.state.builder.duration !== "") {
+            try {
+                parseDuration(this.state.builder.duration);
+                return true;
+            } catch (e) {
+                // 
+            }
         }
         return false;
     }
 
     hasValidDistance(): boolean {
-        try {
-            parseDistance(this.state.builder.distance);
-            return true;
-        } catch (e) {
-            // 
+        if (this.state.builder.distance !== "") {
+            try {
+                parseDistance(this.state.builder.distance);
+                return true;
+            } catch (e) {
+                // 
+            }
         }
         return false;
     }
