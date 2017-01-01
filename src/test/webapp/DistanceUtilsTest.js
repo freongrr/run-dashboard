@@ -14,7 +14,7 @@ describe("DistanceUtils", () => {
         });
 
         it("throws an error if the parameter is not a duration", () => {
-            expect(() => parseDistance("abc")).to.throw(/Malformed distance: abc/);
+            expect(() => parseDistance("abc")).to.throw(/Unexpected: 'abc'/);
         });
 
         it("can parses 'zero'", () => {
@@ -63,6 +63,16 @@ describe("DistanceUtils", () => {
             expect(parseDistance("0")).to.equal(0);
             expect(parseDistance("1")).to.equal(1000);
             expect(parseDistance("35")).to.equal(35000);
+        });
+
+        it("assumes a string of digits after a number of km is a number of meters", () => {
+            expect(parseDistance("1 km 500")).to.equal(1500);
+        });
+
+        it("throws an error if there are unexpected characters", () => {
+            expect(() => parseDistance("2 something")).to.throw(/Unexpected: '2 something'/);
+            expect(() => parseDistance("1 km and whatever")).to.throw(/Unexpected: 'whatever'/);
+            expect(() => parseDistance("500 m 10")).to.throw(/Unexpected: '10'/);
         });
     });
 

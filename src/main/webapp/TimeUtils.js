@@ -1,10 +1,12 @@
 // @flow
 "use strict";
 
-const HOUR_REG_EXP = new RegExp(/(\d+)\s*(?:h|hour|hours)/i);
-const MINUTES_REG_EXP = new RegExp(/(\d+)\s*(?:m|min|minute|minutes)/i);
-const SECOND_REG_EXP = new RegExp(/(\d+)\s*(?:s|sec|second|seconds)/i);
+const MM_SS_REG_EXP = new RegExp(/^(\d+):([0-5]\d)$/i);
+const HH_MM_SS_REG_EXP = new RegExp(/^(\d+):([0-5]\d):([0-5]\d)$/i);
 const NUMBER_REG_EXP = new RegExp(/^(\d+)$/);
+const HOUR_REG_EXP = new RegExp(/(\d+)\s*(?:hours|hour|h)(?=\b|\d)/i);
+const MINUTES_REG_EXP = new RegExp(/(\d+)\s*(?:minutes|minute|min|m)(?=\b|\d)/i);
+const SECOND_REG_EXP = new RegExp(/(\d+)\s*(?:seconds|second|sec|s)(?=\b|\d)/i);
 
 /**
  * Parses a duration string (e.g. "1 hour 5 minutes and 36 seconds") and returns the duration in seconds. If the input
@@ -17,36 +19,48 @@ export function parseDuration(durationString: string): number {
     if (durationString === undefined || durationString === null) {
         throw new Error("Parameter is null");
     } else if (typeof durationString !== "string") {
-        throw new Error("Parameter is not a string: " + (typeof durationString));
+        throw new Error(`Parameter is not a string: ${typeof durationString}`);
     }
 
-    const str = durationString
+    let str = durationString
+        .replace(/\band\b/ig, "")
+        .replace(/,/ig, "")
         .replace(/\bzero\b/ig, "0")
         .replace(/\bone\b/ig, "1");
 
     let matches;
-    let foundSomething = false;
     let hours = 0;
     let minutes = 0;
     let seconds = 0;
 
-    if ((matches = HOUR_REG_EXP.exec(str)) != null) {
-        hours = parseInt(matches[1]);
-        foundSomething = true;
-    }
-
-    if ((matches = MINUTES_REG_EXP.exec(str)) != null || (matches = NUMBER_REG_EXP.exec(str)) != null) {
+    if ((matches = MM_SS_REG_EXP.exec(str)) != null) {
         minutes = parseInt(matches[1]);
-        foundSomething = true;
-    }
+        seconds = parseInt(matches[2]);
+    } else if ((matches = HH_MM_SS_REG_EXP.exec(str)) != null) {
+        hours = parseInt(matches[1]);
+        minutes = parseInt(matches[2]);
+        seconds = parseInt(matches[3]);
+    } else if ((matches = NUMBER_REG_EXP.exec(str)) != null) {
+        minutes = parseInt(matches[1]);
+    } else {
+        if ((matches = HOUR_REG_EXP.exec(str)) != null) {
+            hours = parseInt(matches[1]);
+            str = str.replace(HOUR_REG_EXP, "").trim();
+        }
 
-    if ((matches = SECOND_REG_EXP.exec(str)) != null) {
-        seconds = parseInt(matches[1]);
-        foundSomething = true;
-    }
+        if ((matches = MINUTES_REG_EXP.exec(str)) != null) {
+            minutes = parseInt(matches[1]);
+            str = str.replace(MINUTES_REG_EXP, "").trim();
+        }
 
-    if (!foundSomething) {
-        throw new Error("Malformed duration: " + durationString);
+        if ((matches = SECOND_REG_EXP.exec(str)) != null) {
+            seconds = parseInt(matches[1]);
+            str = str.replace(SECOND_REG_EXP, "").trim();
+        }
+
+        if (str.length > 0) {
+            throw new Error(`Unexpected: '${str}'`);
+        }
     }
 
     return hours * 3600 + minutes * 60 + seconds;

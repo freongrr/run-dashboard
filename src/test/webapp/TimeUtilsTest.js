@@ -14,7 +14,7 @@ describe("TimeUtils", () => {
         });
 
         it("throws an error if the parameter is not a duration", () => {
-            expect(() => parseDuration("abc")).to.throw(/Malformed duration: abc/);
+            expect(() => parseDuration("abc")).to.throw(/Unexpected: 'abc'/);
         });
 
         it("can parses 'zero'", () => {
@@ -58,12 +58,31 @@ describe("TimeUtils", () => {
 
         it("sums up the durations", () => {
             expect(parseDuration("2 hours, 4 minutes and 8 seconds")).to.equal(7448);
+            expect(parseDuration("2 h 4 min 8 sec")).to.equal(7448);
         });
 
         it("assumes a string of digits is a number of minutes", () => {
             expect(parseDuration("0")).to.equal(0);
             expect(parseDuration("1")).to.equal(60);
             expect(parseDuration("35")).to.equal(2100);
+        });
+
+        it("parses a duration expressed as 'MM:SS'", () => {
+            expect(parseDuration("0:00")).to.equal(0);
+            expect(parseDuration("01:01")).to.equal(61);
+            expect(parseDuration("10:20")).to.equal(620);
+        });
+
+        it("parses a duration expressed as 'HH:MM:SS'", () => {
+            expect(parseDuration("00:00:00")).to.equal(0);
+            expect(parseDuration("01:01:01")).to.equal(3661);
+            expect(parseDuration("2:10:30")).to.equal(7830);
+        });
+
+        it("throws an error if there are unexpected characters", () => {
+            expect(() => parseDuration("1 min 30")).to.throw(/Unexpected: '30'/);
+            expect(() => parseDuration("2 something")).to.throw(/Unexpected: '2 something'/);
+            expect(() => parseDuration("1 hour and whatever")).to.throw(/Unexpected: 'whatever'/);
         });
     });
 

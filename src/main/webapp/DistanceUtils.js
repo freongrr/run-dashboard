@@ -1,8 +1,8 @@
 // @flow
 "use strict";
 
-const KM_REG_EXP = new RegExp(/(\d+(?:\.\d+)?)\s*(?:k|km|kms|kilo|kilos|kilometer|kilometers|kilo meter|kilo meters)/i);
-const METER_REG_EXP = new RegExp(/(\d+)\s*(?:m|meter|meters)/i);
+const KM_REG_EXP = new RegExp(/(\d+(?:\.\d+)?)\s*(?:kilo meters|kilo meter|kilometers|kilometer|kilos|kilo|kms|km|k)(?=\b|\d)/i);
+const METER_REG_EXP = new RegExp(/(\d+)\s*(?:meters|meter|m)(?=\b|\d)/i);
 const NUMBER_REG_EXP = new RegExp(/^(\d+(?:\.\d+)?)$/);
 
 /**
@@ -14,30 +14,39 @@ export function parseDistance(distanceString: string): number {
     if (distanceString === undefined || distanceString === null) {
         throw new Error("Parameter is null");
     } else if (typeof distanceString !== "string") {
-        throw new Error("Parameter is not a string: " + (typeof distanceString));
+        throw new Error(`Parameter is not a string: ${typeof distanceString}`);
     }
 
-    const str = distanceString
+    let str = distanceString
+        .replace(/\band\b/ig, "")
+        .replace(/,/ig, "")
         .replace(/\bzero\b/ig, "0")
         .replace(/\bone\b/ig, "1");
 
     let matches;
-    let foundSomething = false;
     let kilometers = 0;
     let meters = 0;
 
-    if ((matches = KM_REG_EXP.exec(str)) != null || (matches = NUMBER_REG_EXP.exec(str)) !== null) {
+    if ((matches = NUMBER_REG_EXP.exec(str)) != null) {
         kilometers = parseFloat(matches[1]);
-        foundSomething = true;
-    }
+    } else {
+        if ((matches = KM_REG_EXP.exec(str)) != null) {
+            kilometers = parseFloat(matches[1]);
+            str = str.replace(KM_REG_EXP, "").trim();
+        }
 
-    if ((matches = METER_REG_EXP.exec(str)) != null) {
-        meters = parseInt(matches[1]);
-        foundSomething = true;
-    }
+        if ((matches = METER_REG_EXP.exec(str)) != null) {
+            meters = parseInt(matches[1]);
+            str = str.replace(METER_REG_EXP, "").trim();
+        } else if ((matches = NUMBER_REG_EXP.exec(str)) != null) {
+            meters = parseFloat(matches[1]);
+            str = str.replace(NUMBER_REG_EXP, "").trim();
+        }
 
-    if (!foundSomething) {
-        throw new Error("Malformed distance: " + distanceString);
+
+        if (str.length > 0) {
+            throw new Error(`Unexpected: '${str}'`);
+        }
     }
 
     return kilometers * 1000 + meters;
