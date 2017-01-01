@@ -9,8 +9,8 @@ import {PageHeader, Grid, Row, Col, ButtonToolbar, Button, Glyphicon} from "reac
 import ActivityTable from "./ActivityTable";
 import ActivityDialog from "./ActivityDialog";
 import ErrorDialog from "./ErrorDialog";
-import {parseDuration} from "./TimeUtils";
-import {parseDistance} from "./DistanceUtils";
+import {parseDuration, formatHourMinutes} from "./TimeUtils";
+import {parseDistance, formatKm} from "./DistanceUtils";
 
 type DashboardState = {
     activities: Array<Activity>,
@@ -74,7 +74,7 @@ export default class Dashboard extends React.Component {
                     <h3><Glyphicon glyph="list"/> Activities</h3>
                 </PageHeader>
 
-                <ActivityTable activities={this.state.activities}/>
+                <ActivityTable activities={this.state.activities} editHandler={(a) => this.editActivity(a)}/>
 
                 <ButtonToolbar>
                     <Button bsStyle="primary" onClick={() => this.refresh()}>
@@ -87,7 +87,7 @@ export default class Dashboard extends React.Component {
 
                 {this.state.editedActivity !== null
                 && <ActivityDialog initialActivity={this.state.editedActivity}
-                                   saveHandler={(activity) => this.saveActivity(activity)}/> }
+                                   saveHandler={(a) => this.saveActivity(a)}/> }
 
                 {this.state.error && <ErrorDialog error={this.state.error}/>}
             </div>
@@ -95,7 +95,7 @@ export default class Dashboard extends React.Component {
     }
 
     refresh() {
-        // TODO
+        // TODO : query the server
     }
 
     addActivity() {
@@ -109,22 +109,54 @@ export default class Dashboard extends React.Component {
         });
     }
 
+    editActivity(activity: Activity) {
+        this.setState({
+            editedActivity: {
+                id: activity.id,
+                date: activity.date,
+                duration: formatHourMinutes(activity.duration),
+                distance: formatKm(activity.distance)
+            }
+        });
+    }
+
     saveActivity(builder: ActivityBuilder) {
         // TODO : send it to the server
         console.info("Saving", builder);
 
         try {
+            const index = this.findIndexOfActivity(builder);
+
             const activity: Activity = {
                 id: builder.id ? builder.id : ("" + Math.random()),
                 date: builder.date,
                 duration: parseDuration(builder.duration),
                 distance: parseDistance(builder.distance)
             };
-            this.setState(update(this.state, {activities: {$push: [activity]}}));
+
+            if (index > -1) {
+                console.debug(`Replacing activity at index ${index}`);
+                this.setState(update(this.state, {activities: {$splice: [[index, 1, activity]]}}));
+            } else {
+                console.debug("Adding new activity");
+                this.setState(update(this.state, {activities: {$push: [activity]}}));
+            }
         } catch (e) {
             this.setState({error: e});
         } finally {
             this.setState({editedActivity: null});
         }
+    }
+
+    findIndexOfActivity(activity: Activity | ActivityBuilder) {
+        let index = -1;
+        if (activity.id !== null) {
+            this.state.activities.forEach((a, i) => {
+                if (a.id === activity.id) {
+                    index = i;
+                }
+            });
+        }
+        return index;
     }
 }

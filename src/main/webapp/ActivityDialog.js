@@ -22,6 +22,7 @@ type ActivityDialogState = {
 export default class ActivityDialog extends React.Component {
     props: ActivityDialogProps;
     state: ActivityDialogState;
+    mustFocus: boolean;
     inputs: Map<string, HTMLInputElement>;
 
     constructor(props: ActivityDialogProps) {
@@ -32,13 +33,17 @@ export default class ActivityDialog extends React.Component {
             builder: Object.assign({}, props.initialActivity)
         };
 
+        this.mustFocus = true;
         this.inputs = new Map();
     }
 
     componentDidMount() {
-        const dateInput = this.inputs.get("date");
-        if (dateInput !== undefined) {
-            dateInput.focus();
+        this.focusDateField();
+    }
+
+    componentDidUpdate(/*prevProps, prevState*/) {
+        if (this.mustFocus) {
+            this.focusDateField();
         }
     }
 
@@ -49,6 +54,16 @@ export default class ActivityDialog extends React.Component {
             visible: true,
             builder: clonedActivity
         });
+
+        this.mustFocus = true;
+    }
+
+    focusDateField() {
+        const dateInput = this.inputs.get("date");
+        if (dateInput !== undefined) {
+            dateInput.focus();
+        }
+        this.mustFocus = false;
     }
 
     render() {

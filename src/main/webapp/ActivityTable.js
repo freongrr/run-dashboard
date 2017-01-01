@@ -9,7 +9,8 @@ import {formatHourMinutes, formatMinuteSeconds} from "./TimeUtils";
 import {formatKm} from "./DistanceUtils";
 
 type ActivityTableProps = {
-    activities: Array<Activity>
+    activities: Array<Activity>,
+    editHandler: (Activity) => void
 };
 
 export default class ActivityTable extends React.Component {
@@ -20,15 +21,8 @@ export default class ActivityTable extends React.Component {
     }
 
     render() {
-        // TODO
-        const actionMenu =
-            <DropdownButton bsSize="xsmall" title={<Glyphicon glyph="cog"/>} id="foo">
-                <MenuItem eventKey="1">Edit</MenuItem>
-                <MenuItem eventKey="2">Delete</MenuItem>
-            </DropdownButton>;
-
         // TODO : add elevation, max heart beat, temperature, etc
-        // TODO : fix the dropdown when the table is 'responsive'
+        // TODO : fix the dropdown when the table is 'responsive' (with <Clearfix>?)
         return (
             <Table hover>
                 <thead>
@@ -41,19 +35,28 @@ export default class ActivityTable extends React.Component {
                 </tr>
                 </thead>
                 <tbody>
-                {
-                    this.props.activities.map(a => {
-                        return <tr key={a.id}>
-                            <td>{a.date}</td>
-                            <td>{formatHourMinutes(a.duration)}</td>
-                            <td>{formatKm(a.distance)}</td>
-                            <td>{formatMinuteSeconds(1000 * a.duration / a.distance)}</td>
-                            <td>{actionMenu}</td>
-                        </tr>;
-                    })
-                }
+                {this.props.activities.map(a => this.makeRow(a))}
                 </tbody>
             </Table>
         );
+    }
+
+    makeRow(a: Activity) {
+        return <tr key={a.id}>
+            <td>{a.date}</td>
+            <td>{formatHourMinutes(a.duration)}</td>
+            <td>{formatKm(a.distance)}</td>
+            <td>{formatMinuteSeconds(1000 * a.duration / a.distance)}</td>
+            <td>
+                <DropdownButton bsSize="xsmall" title={<Glyphicon glyph="cog"/>} id="foo">
+                    <MenuItem eventKey="1" onSelect={() => this.onEdit(a)}>Edit</MenuItem>
+                    <MenuItem eventKey="2">Delete</MenuItem>
+                </DropdownButton>
+            </td>
+        </tr>;
+    }
+
+    onEdit(a: Activity) {
+        this.props.editHandler(a);
     }
 }
