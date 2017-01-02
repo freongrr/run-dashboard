@@ -5,13 +5,18 @@
 import type {Activity, ActivityBuilder} from "./Types";
 import React from "react";
 import update from "react-addons-update";
-import {PageHeader, Grid, Row, Col, ButtonToolbar, Button, Glyphicon} from "react-bootstrap";
+import {PageHeader, Grid, Row, Col, Nav, NavItem, ButtonToolbar, Button, Glyphicon} from "react-bootstrap";
+import RPC from "./RPC";
 import ActivityTable from "./ActivityTable";
 import ActivityDialog from "./ActivityDialog";
 import ErrorDialog from "./ErrorDialog";
 import DeleteDialog from "./DeleteDialog";
 import {parseDuration, formatHourMinutes} from "./TimeUtils";
 import {parseDistance, formatKm} from "./DistanceUtils";
+
+type DashboardProps = {
+    rpc: RPC
+};
 
 type DashboardState = {
     activities: Array<Activity>,
@@ -21,33 +26,14 @@ type DashboardState = {
 };
 
 export default class Dashboard extends React.Component {
+    props: DashboardProps;
     state: DashboardState;
 
-    constructor(props: {}) {
+    constructor(props: DashboardProps) {
         super(props);
 
         this.state = {
-            activities: [{
-                id: "1",
-                date: "2016-12-17",
-                duration: 2544,
-                distance: 8500
-            }, {
-                id: "2",
-                date: "2016-12-11",
-                duration: 2145,
-                distance: 7000
-            }, {
-                id: "3",
-                date: "2016-10-22",
-                duration: 3391,
-                distance: 11500
-            }, {
-                id: "4",
-                date: "2016-10-06",
-                duration: 1547,
-                distance: 5500
-            }],
+            activities: [],
             editedActivity: null,
             deletedActivity: null,
             error: null
@@ -63,11 +49,20 @@ export default class Dashboard extends React.Component {
 
                 <Grid>
                     <Row className="show-grid">
+                        <Col md={12}>
+                            <Nav bsStyle="tabs" activeKey="m" onSelect={() => {/* TODO */}}>
+                                <NavItem eventKey="y">Year</NavItem>
+                                <NavItem eventKey="m">Month</NavItem>
+                                <NavItem eventKey="w">Week</NavItem>
+                            </Nav>
+                        </Col>
+                    </Row>
+                    <Row className="show-grid">
                         <Col xs={12} md={5}>
-                            <div style={{minHeight: "200px"}}>Month Graph</div>
+                            <div style={{minHeight: "200px"}}>Graph</div>
                         </Col>
                         <Col xs={12} md={5}>
-                            <div style={{minHeight: "200px"}}>Year Graph</div>
+                            <div style={{minHeight: "200px"}}>Trend</div>
                         </Col>
                     </Row>
                 </Grid>
@@ -105,8 +100,21 @@ export default class Dashboard extends React.Component {
         );
     }
 
+    componentDidMount() {
+        this.refresh();
+    }
+
     refresh() {
-        // TODO : query the server
+        this.props.rpc.get("/activities")
+            .then((activities) => {
+                this.setState({
+                    activities: activities,
+                    error: null
+                });
+            })
+            .catch((e) => {
+                this.setState({error: e});
+            });
     }
 
     addActivity() {
@@ -152,30 +160,30 @@ export default class Dashboard extends React.Component {
     }
 
     saveActivity(builder: ActivityBuilder) {
-        // TODO : send it to the server
         console.info("Saving", builder);
 
-        try {
-            const index = this.findIndexOfActivity(builder);
+        // TODO : it would be better to generate the id on the server!
+        const activity = {
+            id: builder.id ? builder.id : ("" + Math.round(1000 * Math.random())),
+            date: builder.date,
+            duration: parseDuration(builder.duration),
+            distance: parseDistance(builder.distance)
+        };
 
-            const activity: Activity = {
-                id: builder.id ? builder.id : ("" + Math.random()),
-                date: builder.date,
-                duration: parseDuration(builder.duration),
-                distance: parseDistance(builder.distance)
-            };
+        this.props.rpc.post("/activities", {activity: activity})
+            .then(() => this.updateState(activity))
+            .then(() => this.setState({editedActivity: null}))
+            .catch((e) => this.setState({error: e, editedActivity: null}));
+    }
 
-            if (index > -1) {
-                console.debug(`Replacing activity at index ${index}`);
-                this.setState(update(this.state, {activities: {$splice: [[index, 1, activity]]}}));
-            } else {
-                console.debug("Adding new activity");
-                this.setState(update(this.state, {activities: {$push: [activity]}}));
-            }
-        } catch (e) {
-            this.setState({error: e});
-        } finally {
-            this.setState({editedActivity: null});
+    updateState(activity: Activity) {
+        const index = this.findIndexOfActivity(activity);
+        if (index > -1) {
+            console.debug(`Replacing activity at index ${index}`);
+            this.setState(update(this.state, {activities: {$splice: [[index, 1, activity]]}}));
+        } else {
+            console.debug("Adding new activity");
+            this.setState(update(this.state, {activities: {$push: [activity]}}));
         }
     }
 
