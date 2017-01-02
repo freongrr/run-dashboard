@@ -36,8 +36,8 @@ export default class DeleteDialog extends React.Component {
                     <p>Do you want to proceed?</p>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={() => this.props.onDismiss()}>Cancel</Button>
-                    <Button bsStyle="danger" onClick={() => this.props.onConfirm()}>Delete</Button>
+                    <Button key="dismiss" onClick={() => this.props.onDismiss()}>Cancel</Button>
+                    <Button key="delete" bsStyle="danger" onClick={() => this.props.onConfirm()}>Delete</Button>
                 </Modal.Footer>
             </Modal>);
     }

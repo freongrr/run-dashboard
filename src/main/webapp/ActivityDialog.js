@@ -11,64 +11,48 @@ import {parseDistance} from "./DistanceUtils";
 
 type ActivityDialogProps = {
     initialActivity: ActivityBuilder,
-    saveHandler: (ActivityBuilder) => void
+    onDismiss: () => void,
+    onSave: (ActivityBuilder) => void
 };
 
 type ActivityDialogState = {
-    visible: boolean,
     builder: ActivityBuilder
 };
 
 export default class ActivityDialog extends React.Component {
     props: ActivityDialogProps;
     state: ActivityDialogState;
-    mustFocus: boolean;
     inputs: Map<string, HTMLInputElement>;
 
     constructor(props: ActivityDialogProps) {
         super(props);
 
         this.state = {
-            visible: true,
             builder: Object.assign({}, props.initialActivity)
         };
 
-        this.mustFocus = true;
+        // Is there a better way to focus the first input field?
         this.inputs = new Map();
-    }
-
-    componentDidMount() {
-        this.focusDateField();
-    }
-
-    componentDidUpdate(/*prevProps, prevState*/) {
-        if (this.mustFocus) {
-            this.focusDateField();
-        }
     }
 
     componentWillReceiveProps(nextProps: ActivityDialogProps) {
         const clonedActivity = Object.assign({}, nextProps.initialActivity);
 
         this.setState({
-            visible: true,
             builder: clonedActivity
         });
-
-        this.mustFocus = true;
     }
 
-    focusDateField() {
+    componentDidMount() {
         const dateInput = this.inputs.get("date");
         if (dateInput !== undefined) {
             dateInput.focus();
         }
-        this.mustFocus = false;
     }
 
     render() {
         return (
-            <Modal show={this.state.visible} onHide={() => this.onClose()}>
+            <Modal show={true} onHide={() => this.props.onDismiss()}>
                 <Modal.Header closeButton>
                     <Modal.Title>
                         {this.props.initialActivity.id ? "Edit an activity" : "Add a new activity"}
@@ -82,7 +66,7 @@ export default class ActivityDialog extends React.Component {
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button onClick={() => this.onClose()}>Cancel</Button>
+                    <Button onClick={() => this.props.onDismiss()}>Cancel</Button>
                     <Button bsStyle="primary" disabled={!this.isValid()} onClick={() => this.onSave()}>Save</Button>
                 </Modal.Footer>
             </Modal>
@@ -149,13 +133,9 @@ export default class ActivityDialog extends React.Component {
             this.hasValidDistance();
     }
 
-    onClose() {
-        this.setState({visible: false});
-    }
-
     onSave() {
         if (this.isValid()) {
-            this.props.saveHandler(this.state.builder);
+            this.props.onSave(this.state.builder);
         }
     }
 }

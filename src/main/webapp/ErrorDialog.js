@@ -5,37 +5,20 @@ import React from "react";
 import {Modal, Button} from "react-bootstrap";
 
 type ErrorDialogProps = {
-    error: Error
-};
-
-type ErrorDialogState = {
-    visible: boolean
+    error: Error,
+    onDismiss: () => void
 };
 
 export default class ErrorDialog extends React.Component {
     props: ErrorDialogProps;
-    state: ErrorDialogState;
 
     constructor(props: ErrorDialogProps) {
         super(props);
-
-        this.state = {
-            visible: true
-        };
-    }
-
-    componentWillReceiveProps(nextProps: ErrorDialogProps) {
-        // Show the dialog  again when a new error is assigned 
-        this.setState({visible: nextProps.error !== undefined});
-    }
-
-    hide() {
-        this.setState({visible: false});
     }
 
     render() {
         return (
-            <Modal show={this.state.visible} onHide={() => this.hide()}>
+            <Modal show={true} onHide={() => this.props.onDismiss()}>
                 <Modal.Header closeButton>
                     <Modal.Title>Error</Modal.Title>
                 </Modal.Header>
@@ -43,7 +26,7 @@ export default class ErrorDialog extends React.Component {
                     {this.errorMessage()}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={() => this.hide()}>Close</Button>
+                    <Button onClick={() => this.props.onDismiss()}>Close</Button>
                 </Modal.Footer>
             </Modal>
         );

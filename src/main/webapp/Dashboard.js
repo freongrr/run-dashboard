@@ -87,10 +87,12 @@ export default class Dashboard extends React.Component {
 
                 {this.state.editedActivity !== null
                 && <ActivityDialog initialActivity={this.state.editedActivity}
-                                   saveHandler={(a) => this.saveActivity(a)}/> }
+                                   onDismiss={() => this.setState({editedActivity: null})}
+                                   onSave={(a) => this.saveActivity(a)}/> }
 
                 {this.state.error
-                && <ErrorDialog error={this.state.error}/>}
+                && <ErrorDialog error={this.state.error}
+                                onDismiss={() => this.setState({error: null})}/>}
 
                 {this.state.deletedActivity
                 && <DeleteDialog activity={this.state.deletedActivity}
@@ -113,11 +115,13 @@ export default class Dashboard extends React.Component {
                 });
             })
             .catch((e) => {
+                // TODO : this should be cleared when the dialog is dismissed (just like the delete dialog)
                 this.setState({error: e});
             });
     }
 
     addActivity() {
+        // TODO : this should be cleared when the dialog is dismissed (just like the delete dialog)
         this.setState({
             editedActivity: {
                 id: null,
@@ -129,6 +133,7 @@ export default class Dashboard extends React.Component {
     }
 
     editActivity(activity: Activity) {
+        // TODO : this should be cleared when the dialog is dismissed (just like the delete dialog)
         this.setState({
             editedActivity: {
                 id: activity.id,
