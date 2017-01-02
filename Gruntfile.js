@@ -1,14 +1,14 @@
-module.exports = function (grunt) {
+module.exports = (grunt) => {
     'use strict';
 
-    var pkg = grunt.file.readJSON('package.json');
+    const pkg = grunt.file.readJSON('package.json');
 
     // Project configuration.
     grunt.initConfig({
         src_dir: 'src/main/webapp',
         src_main: 'src/main/webapp/index.js',
-        dist_dir: 'target/java-react-webapp/',
-        dist_main: 'target/java-react-webapp/bundle.js',
+        dist_dir: 'target/' + pkg.name + '/',
+        dist_main: 'target/' + pkg.name + '/bundle.js',
         test_dir: 'src/test/webapp/',
         test_reports_dir: 'target/istanbul-reports/',
 
@@ -124,7 +124,7 @@ module.exports = function (grunt) {
 
     });
 
-    grunt.event.on('coverage', function (lcov, done) {
+    grunt.event.on('coverage', (lcov, done) => {
         // Let Grunt know the test coverage is done
         done();
     });

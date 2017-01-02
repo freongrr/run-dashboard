@@ -41,7 +41,7 @@
     "when": "3.7.7"
   },
   "scripts": {
-    "make": "grunt",
-    "debug": "grunt debug"
+    "make": "./node_modules/.bin/grunt",
+    "debug": "./node_modules/.bin/grunt debug"
   }
 }
