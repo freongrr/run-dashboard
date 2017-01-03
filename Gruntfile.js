@@ -10,7 +10,7 @@ module.exports = (grunt) => {
         dist_dir: 'target/' + pkg.name + '/',
         dist_main: 'target/' + pkg.name + '/bundle.js',
         test_dir: 'src/test/webapp/',
-        test_reports_dir: 'target/istanbul-reports/',
+        test_reports_dir: 'target/test-reports/',
 
         // Delete output files
         clean: {
@@ -80,9 +80,18 @@ module.exports = (grunt) => {
                     mochaOptions: ['--compilers', 'js:babel-register'],
                     recursive: true,
                     coverageFolder: '<%= test_reports_dir %>',
-                    reportFormats: ['html']
+                    reportFormats: ['lcovonly', 'html']
                 }
             }
+        },
+
+        coveralls: {
+            options: {
+                force: true
+            },
+            lcov: {
+                src: '<%= test_reports_dir %>/*.info',
+            },
         },
 
         // This keeps grunt running and copy the compiled bundle and static resources as they change
@@ -121,7 +130,6 @@ module.exports = (grunt) => {
                 openBrowser: true
             }
         }
-
     });
 
     grunt.event.on('coverage', (lcov, done) => {
@@ -134,6 +142,7 @@ module.exports = (grunt) => {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-coveralls');
     grunt.loadNpmTasks('grunt-eslint');
     grunt.loadNpmTasks('grunt-flowbin');
     grunt.loadNpmTasks('grunt-http-server');
@@ -147,4 +156,5 @@ module.exports = (grunt) => {
     // Aliases
     grunt.registerTask('default', ['build', 'test']);
     grunt.registerTask('debug', ['clean', 'validate', 'browserify:compile-and-watch', 'copy', 'http-server', 'watch']);
+    grunt.registerTask('ci', ['build', 'test', 'coveralls']);
 };
