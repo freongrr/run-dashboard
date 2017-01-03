@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/freongrr/run-dashboard.svg)](https://travis-ci.org/freongrr/run-dashboard)
+[![Build Status](https://travis-ci.org/freongrr/run-dashboard.svg)](https://travis-ci.org/freongrr/run-dashboard) [![Coverage Status](https://coveralls.io/repos/github/freongrr/run-dashboard/badge.svg)](https://coveralls.io/github/freongrr/run-dashboard)
 
 An other experiment with React, using my running data, and maybe graphs.
 
