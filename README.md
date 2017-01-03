@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/freongrr/run-dashboard.svg)](https://travis-ci.org/freongrr/run-dashboard)
+
 An other experiment with React, using my running data, and maybe graphs.
 
 Running
