@@ -1,5 +1,4 @@
 // @flow
-/* eslint no-console: ["off"] */
 "use strict";
 
 import type {Activity} from "./Types";
@@ -58,8 +57,8 @@ export default class ActivityTable extends React.Component {
             <td>{formatMinuteSeconds(1000 * a.duration / a.distance)}</td>
             <td>
                 <DropdownButton bsSize="xsmall" title={<Glyphicon glyph="cog"/>} id="foo">
-                    <MenuItem eventKey="1" onSelect={() => this.onEdit(a)}>Edit</MenuItem>
-                    <MenuItem eventKey="2" onSelect={() => this.onDelete(a)}>Delete</MenuItem>
+                    <MenuItem eventKey="edit" onSelect={() => this.onEdit(a)}>Edit</MenuItem>
+                    <MenuItem eventKey="delete" onSelect={() => this.onDelete(a)}>Delete</MenuItem>
                 </DropdownButton>
             </td>
         </tr>;

@@ -35,14 +35,6 @@ export default class ActivityDialog extends React.Component {
         this.inputs = new Map();
     }
 
-    componentWillReceiveProps(nextProps: ActivityDialogProps) {
-        const clonedActivity = Object.assign({}, nextProps.initialActivity);
-
-        this.setState({
-            builder: clonedActivity
-        });
-    }
-
     componentDidMount() {
         const dateInput = this.inputs.get("date");
         if (dateInput !== undefined) {
@@ -66,8 +58,12 @@ export default class ActivityDialog extends React.Component {
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button onClick={() => this.props.onDismiss()}>Cancel</Button>
-                    <Button bsStyle="primary" disabled={!this.isValid()} onClick={() => this.onSave()}>Save</Button>
+                    <Button key="dismiss" onClick={() => this.props.onDismiss()}>
+                        Cancel
+                    </Button>
+                    <Button key="save" bsStyle="primary" disabled={!this.isValid()} onClick={() => this.onSave()}>
+                        Save
+                    </Button>
                 </Modal.Footer>
             </Modal>
         );
