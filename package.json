@@ -2,9 +2,14 @@
   "name": "run-dashboard",
   "description": "Training log",
   "version": "1.0.0",
+  "homepage": "https://github.com/freongrr/run-dashboard",
   "author": {
     "name": "Fabien Cortina",
     "email": "fabien.cortina@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:freongrr/run-dashboard.git"
   },
   "devDependencies": {
     "babel-eslint": "7.1.1",
@@ -27,6 +32,7 @@
     "grunt-contrib-jshint": "1.1.0",
     "grunt-contrib-uglify": "2.0.0",
     "grunt-contrib-watch": "1.0.0",
+    "grunt-coveralls": "1.0.1",
     "grunt-eslint": "19.0.0",
     "grunt-flowbin": "0.1.6",
     "grunt-http-server": "2.0.0",
@@ -42,7 +48,7 @@
   },
   "scripts": {
     "make": "./node_modules/.bin/grunt",
-    "test": "./node_modules/.bin/grunt test",
+    "ci": "./node_modules/.bin/grunt ci",
     "debug": "./node_modules/.bin/grunt debug"
   }
 }
