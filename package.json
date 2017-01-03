@@ -42,6 +42,7 @@
   },
   "scripts": {
     "make": "./node_modules/.bin/grunt",
+    "test": "./node_modules/.bin/grunt test",
     "debug": "./node_modules/.bin/grunt debug"
   }
 }
