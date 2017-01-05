@@ -5,8 +5,7 @@
 import type {Activity, ActivityBuilder} from "./Types";
 import React from "react";
 import update from "react-addons-update";
-import {PageHeader, Grid, Row, Col, Nav, NavItem, ButtonToolbar, Button, Glyphicon} from "react-bootstrap";
-import {Link} from "react-router";
+import {PageHeader, Nav, NavItem, ButtonToolbar, Button, Glyphicon} from "react-bootstrap";
 import RPC from "./RPC";
 import ActivityTable from "./ActivityTable";
 import ActivityDialog from "./ActivityDialog";
@@ -17,7 +16,8 @@ import {parseDistance, formatKm} from "./DistanceUtils";
 
 type DashboardProps = {
     rpc: RPC,
-    // graph: React.Component<*>
+    graph: React.Component<*>,
+    graphEventKey: string
 };
 
 type DashboardState = {
@@ -49,18 +49,16 @@ export default class Dashboard extends React.Component {
                     <Glyphicon glyph="stats"/> Stats
                 </PageHeader>
 
-                <Grid>
-                    <Row>
-                        <Col md={12}>
-                            <Nav bsStyle="tabs" activeKey="m" onSelect={() => {/* TODO */}}>
-                                <NavItem eventKey="y"><Link to={"/Year"}>Year</Link></NavItem>
-                                <NavItem eventKey="m"><Link to={"/Month"}>Month</Link></NavItem>
-                                <NavItem eventKey="w"><Link to={"/Week"}>Week</Link></NavItem>
-                            </Nav>
-                        </Col>
-                    </Row>
-                    {/*{this.props.graph}*/}
-                </Grid>
+                <Nav bsStyle="tabs" activeKey={this.props.graphEventKey}>
+                    {/*HACK - I can't use Link here because it put a <a> inside a <a> ...*/}
+                    <NavItem eventKey="y" href="/#/Year">Year</NavItem>
+                    <NavItem eventKey="m" href="/#/Month">Month</NavItem>
+                    <NavItem eventKey="w" href="/#/Week">Week</NavItem>
+                </Nav>
+
+                <div className="dashboard-graph">
+                    {this.props.graph}
+                </div>
 
                 <PageHeader>
                     {/* TODO : the browser complains about having a h3 in a h1... */}
