@@ -44,11 +44,12 @@
     "react-addons-update": "15.4.1",
     "react-bootstrap": "0.30.7",
     "react-dom": "15.4.1",
+    "react-router": "3.0.0",
     "when": "3.7.7"
   },
   "scripts": {
     "make": "./node_modules/.bin/grunt",
     "ci": "./node_modules/.bin/grunt ci",
-    "debug": "./node_modules/.bin/grunt debug"
+    "start": "./node_modules/.bin/grunt debug"
   }
 }

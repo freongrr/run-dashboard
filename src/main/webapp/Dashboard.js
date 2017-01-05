@@ -6,6 +6,7 @@ import type {Activity, ActivityBuilder} from "./Types";
 import React from "react";
 import update from "react-addons-update";
 import {PageHeader, Grid, Row, Col, Nav, NavItem, ButtonToolbar, Button, Glyphicon} from "react-bootstrap";
+import {Link} from "react-router";
 import RPC from "./RPC";
 import ActivityTable from "./ActivityTable";
 import ActivityDialog from "./ActivityDialog";
@@ -15,7 +16,8 @@ import {parseDuration, formatHourMinutes} from "./TimeUtils";
 import {parseDistance, formatKm} from "./DistanceUtils";
 
 type DashboardProps = {
-    rpc: RPC
+    rpc: RPC,
+    // graph: React.Component<*>
 };
 
 type DashboardState = {
@@ -48,23 +50,16 @@ export default class Dashboard extends React.Component {
                 </PageHeader>
 
                 <Grid>
-                    <Row className="show-grid">
+                    <Row>
                         <Col md={12}>
                             <Nav bsStyle="tabs" activeKey="m" onSelect={() => {/* TODO */}}>
-                                <NavItem eventKey="y">Year</NavItem>
-                                <NavItem eventKey="m">Month</NavItem>
-                                <NavItem eventKey="w">Week</NavItem>
+                                <NavItem eventKey="y"><Link to={"/Year"}>Year</Link></NavItem>
+                                <NavItem eventKey="m"><Link to={"/Month"}>Month</Link></NavItem>
+                                <NavItem eventKey="w"><Link to={"/Week"}>Week</Link></NavItem>
                             </Nav>
                         </Col>
                     </Row>
-                    <Row className="show-grid">
-                        <Col xs={12} md={5}>
-                            <div style={{minHeight: "200px"}}>Graph</div>
-                        </Col>
-                        <Col xs={12} md={5}>
-                            <div style={{minHeight: "200px"}}>Trend</div>
-                        </Col>
-                    </Row>
+                    {/*{this.props.graph}*/}
                 </Grid>
 
                 <PageHeader>
