@@ -1,3 +1,7 @@
 .text-inactive {
     color: #888;
 }
+
+.dashboard-graph {
+    padding: 1em;
+}

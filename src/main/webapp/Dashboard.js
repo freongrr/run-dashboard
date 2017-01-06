@@ -5,7 +5,7 @@
 import type {Activity, ActivityBuilder} from "./Types";
 import React from "react";
 import update from "react-addons-update";
-import {PageHeader, Grid, Row, Col, Nav, NavItem, ButtonToolbar, Button, Glyphicon} from "react-bootstrap";
+import {PageHeader, Nav, NavItem, ButtonToolbar, Button, Glyphicon} from "react-bootstrap";
 import RPC from "./RPC";
 import ActivityTable from "./ActivityTable";
 import ActivityDialog from "./ActivityDialog";
@@ -15,7 +15,9 @@ import {parseDuration, formatHourMinutes} from "./TimeUtils";
 import {parseDistance, formatKm} from "./DistanceUtils";
 
 type DashboardProps = {
-    rpc: RPC
+    rpc: RPC,
+    graph: React.Component<*>,
+    graphEventKey: string
 };
 
 type DashboardState = {
@@ -47,25 +49,16 @@ export default class Dashboard extends React.Component {
                     <Glyphicon glyph="stats"/> Stats
                 </PageHeader>
 
-                <Grid>
-                    <Row className="show-grid">
-                        <Col md={12}>
-                            <Nav bsStyle="tabs" activeKey="m" onSelect={() => {/* TODO */}}>
-                                <NavItem eventKey="y">Year</NavItem>
-                                <NavItem eventKey="m">Month</NavItem>
-                                <NavItem eventKey="w">Week</NavItem>
-                            </Nav>
-                        </Col>
-                    </Row>
-                    <Row className="show-grid">
-                        <Col xs={12} md={5}>
-                            <div style={{minHeight: "200px"}}>Graph</div>
-                        </Col>
-                        <Col xs={12} md={5}>
-                            <div style={{minHeight: "200px"}}>Trend</div>
-                        </Col>
-                    </Row>
-                </Grid>
+                <Nav bsStyle="tabs" activeKey={this.props.graphEventKey}>
+                    {/*HACK - I can't use Link here because it put a <a> inside a <a> ...*/}
+                    <NavItem eventKey="y" href="/#/Year">Year</NavItem>
+                    <NavItem eventKey="m" href="/#/Month">Month</NavItem>
+                    <NavItem eventKey="w" href="/#/Week">Week</NavItem>
+                </Nav>
+
+                <div className="dashboard-graph">
+                    {this.props.graph}
+                </div>
 
                 <PageHeader>
                     {/* TODO : the browser complains about having a h3 in a h1... */}
