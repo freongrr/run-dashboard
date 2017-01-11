@@ -85,7 +85,17 @@
                             <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                         </manifest>
                     </archive>
+                    <!-- Attention! we don't want to copy the source JS and CSS files (images and HTML files could
+                         be filtered out too, but they are not modified by the grunt compilation anyway) -->
+                    <warSourceExcludes>**/*.js, **/*.css</warSourceExcludes>
                 </configuration>
+            </plugin>
+
+            <!--Test the packaged application with "jetty:run-war"-->
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>9.4.0.v20161208</version>
             </plugin>
         </plugins>
     </build>
