@@ -6,16 +6,22 @@ module.exports = (grunt) => {
     // Project configuration.
     grunt.initConfig({
         src_dir: 'src/main/webapp',
-        src_main: 'src/main/webapp/index.js',
-        dist_dir: 'target/' + pkg.name + '/',
+        src_main: 'src/main/webapp/main.js',
+        dist_dir: 'target/' + pkg.name,
         dist_main: 'target/' + pkg.name + '/bundle.js',
         test_dir: 'src/test/webapp/',
         test_reports_dir: 'target/test-reports/',
+        css_src_files: ['css/**/*.scss', 'css/**/*.css'],
+        static_files: ['*.html', '*.ico', 'images/*', 'fonts/*'],
 
         // Delete output files
         clean: {
             'app-bundle': ['<%= dist_main %>'],
-            'static-files': ['<%= dist_dir %>/*.html', '<%= dist_dir %>/*.css'],
+            'static-files': {
+                expand: true,
+                cwd: '<%= dist_dir %>',
+                src: ['*.html', 'css/', 'images/', 'fonts/'],
+            },
             'test-reports': ['<%= test_reports_dir %>']
         },
 
@@ -55,12 +61,28 @@ module.exports = (grunt) => {
             }
         },
 
+        // Compile scss files
+        sass: {
+            // TODO : only when debugging
+            options: {
+                sourceMap: true,
+                sourceMapContents: true
+            },
+            compile: {
+                cwd: '<%= src_dir %>',
+                src: ['<%= css_src_files %>'],
+                dest: '<%= dist_dir %>',
+                expand: true,
+                ext: '.css'
+            }
+        },
+
         // Copy static files to the dist directory
         copy: {
             'static-files': {
                 expand: true,
                 cwd: '<%= src_dir %>',
-                src: ['*.html', '*.css', '*.gif', '*.jpg', '*.svg'],
+                src: ['<%= static_files %>'],
                 dest: '<%= dist_dir %>'
             },
             bootstrap: {
@@ -101,9 +123,19 @@ module.exports = (grunt) => {
                 files: ['<%= dist_main %>'],
                 tasks: ['validate']
             },
+            sass: {
+                files: ['<%= css_src_files %>'],
+                tasks: ['sass'],
+                options: {
+                    cwd: '<%= src_dir %>'
+                }
+            },
             'static-files': {
-                files: ['<%= src_dir %>/*.html', '<%= src_dir %>/*.css'],
-                tasks: ['copy']
+                files: ['<%= static_files %>'],
+                tasks: ['copy'],
+                options: {
+                    cwd: '<%= src_dir %>'
+                }
             }
         },
 
@@ -147,14 +179,17 @@ module.exports = (grunt) => {
     grunt.loadNpmTasks('grunt-flowbin');
     grunt.loadNpmTasks('grunt-http-server');
     grunt.loadNpmTasks('grunt-mocha-istanbul');
+    grunt.loadNpmTasks('grunt-sass');
 
+    // Lifecycle
     grunt.registerTask('validate', ['eslint', 'flowbin']);
-    grunt.registerTask('compile', ['browserify:compile', 'copy']);
-    grunt.registerTask('build', ['clean', 'validate', 'compile', 'uglify']);
+    grunt.registerTask('compile', ['browserify:compile']);
     grunt.registerTask('test', ['mocha_istanbul']);
+    grunt.registerTask('prepare', ['sass', 'copy']);
 
     // Aliases
-    grunt.registerTask('default', ['build', 'test']);
-    grunt.registerTask('debug', ['clean', 'validate', 'browserify:compile-and-watch', 'copy', 'http-server', 'watch']);
-    grunt.registerTask('ci', ['build', 'test', 'coveralls']);
+    grunt.registerTask('build', ['clean', 'validate', 'compile', 'test', 'prepare', 'uglify']);
+    grunt.registerTask('default', ['build']);
+    grunt.registerTask('debug', ['clean', 'validate', 'browserify:compile-and-watch', 'prepare', 'http-server', 'watch']);
+    grunt.registerTask('ci', ['build', 'coveralls']);
 };
