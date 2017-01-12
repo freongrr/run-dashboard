@@ -11,7 +11,7 @@ Build the WAR file:
 
 Watch for changes in the JS code and static resources:
 
-    npm run debug
+    npm start
 
 Links
 =====
