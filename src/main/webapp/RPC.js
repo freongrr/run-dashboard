@@ -14,4 +14,8 @@ export default class RPC {
     post(path: string, data: {[key: string]: any}): Promise<any> {
         return when.reject(new Error("Not implemented"));
     }
+
+    _delete(path: string, data: {[key: string]: any}): Promise<any> {
+        return when.reject(new Error("Not implemented"));
+    }
 }

@@ -2,8 +2,8 @@ import React from "react";
 import Dashboard from "./Dashboard";
 import ReactDOM from "react-dom";
 import {Router, Route, IndexRoute, hashHistory} from "react-router";
-import RPCImpl from "./DummyRPC";
-// import RPCImpl from "./AJAX";
+// import RPCImpl from "./DummyRPC";
+import RPCImpl from "./AJAX";
 
 document.addEventListener("DOMContentLoaded", () => {
     const content = document.getElementById("content");
