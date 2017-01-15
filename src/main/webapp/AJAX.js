@@ -7,71 +7,42 @@ import when from "when";
 import RPC from "./RPC";
 
 export default class AJAX extends RPC {
+
     get(path: string): Promise<string> {
         const deferred = when.defer();
-        this.rawGet(path)
-            .then((response) => {
-                let result;
-                if (isJSON(response)) {
-                    result = JSON.parse(response);
-                } else {
-                    result = response;
-                }
-                deferred.resolve(result);
-            })
+        this.open("GET", path)
+            .then(resolveResponse.bind(null, deferred))
             .catch((e) => deferred.reject(e));
-        return deferred.promise;
-    }
-
-    rawGet(path: string): Promise<string> {
-        const deferred = when.defer();
-        try {
-            const xhr = getXMLHttpRequest();
-            console.debug(`GET-ing from ${path}`);
-            xhr.open("GET", path, true);
-            xhr.onreadystatechange = () => {
-                if (xhr.readyState == 4) {
-                    console.debug(`Handling response from GET: ${xhr.status}`);
-                    if (xhr.status == 200) {
-                        deferred.resolve(xhr.response);
-                    } else {
-                        const errorMessage = extractErrorMessage(xhr.status, xhr.response);
-                        deferred.reject(new Error(errorMessage));
-                    }
-                }
-            };
-            xhr.send();
-        } catch (e) {
-            deferred.reject(e);
-        }
         return deferred.promise;
     }
 
     post(path: string, data: {[key: string]: any}): Promise<any> {
         const deferred = when.defer();
         const json = JSON.stringify(data);
-        this.rawPost(path, json)
-            .then((response) => {
-                let result;
-                if (isJSON(response)) {
-                    result = JSON.parse(response);
-                } else {
-                    result = response;
-                }
-                deferred.resolve(result);
-            })
+        this.open("POST", path, json)
+            .then(resolveResponse.bind(null, deferred))
             .catch((e) => deferred.reject(e));
         return deferred.promise;
     }
 
-    rawPost(path: string, data: string): Promise<any> {
+    _delete(path: string, data: {[key: string]: any}): Promise<any> {
+        const deferred = when.defer();
+        const json = JSON.stringify(data);
+        this.open("DELETE", path, json)
+            .then(resolveResponse.bind(null, deferred))
+            .catch((e) => deferred.reject(e));
+        return deferred.promise;
+    }
+
+    open(method: string, path: string, data?: any): Promise<any> {
         const deferred = when.defer();
         try {
             const xhr = getXMLHttpRequest();
-            xhr.open("POST", path, true);
+            console.debug(`Sending ${method} to ${path}`);
+            xhr.open(method, path, true);
             xhr.onreadystatechange = () => {
                 if (xhr.readyState == 4) {
-                    console.debug(`Handling response from POST: ${xhr.status}`);
+                    console.debug(`Handling response from ${method}: ${xhr.status}`);
                     if (xhr.status == 200) {
                         deferred.resolve(xhr.response);
                     } else {
@@ -80,7 +51,6 @@ export default class AJAX extends RPC {
                     }
                 }
             };
-            console.debug(`POST-ing ${data.length} bytes of data to ${path}`);
             xhr.send(data);
         } catch (e) {
             deferred.reject(e);
@@ -112,5 +82,13 @@ function extractErrorMessage(statusCode: number, responseContent: string): strin
         return "Internal Server Error";
     } else {
         return statusCode + ": " + responseContent;
+    }
+}
+
+function resolveResponse(deferred: {resolve: (any) => {}}, response: any) {
+    if (isJSON(response)) {
+        deferred.resolve(JSON.parse(response));
+    } else {
+        deferred.resolve(response);
     }
 }

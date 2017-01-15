@@ -125,15 +125,15 @@ describe("AJAX", () => {
                 });
         });
 
-        it("returns an error when the server fails", (done) => {
-            mockPOST("/endpoint", "{}", 500, "Boom");
+        it("returns an error when the server fails (custom code)", (done) => {
+            mockPOST("/endpoint", "{}", 403, "Unauthorized");
 
             ajax.post("/endpoint", {})
                 .then((result) => {
                     done(new Error("Unexpected result: " + result));
                 })
                 .catch((e) => {
-                    if (e.message.indexOf("Internal Server Error") >= 0) {
+                    if (e.message.indexOf("Unauthorized") >= 0) {
                         done();
                     } else {
                         done(new Error("Unexpected error: " + e));
@@ -158,39 +158,56 @@ describe("AJAX", () => {
         });
     });
 
+    describe("#_delete()", () => {
+
+        it("works", (done) => {
+            mockRequest("DELETE", "/endpoint", "{\"foo\":\"bar\"}", 200, "");
+
+            ajax._delete("/endpoint", {foo: "bar"})
+                .then(() => {
+                    done();
+                })
+                .catch((e) => {
+                    done(e);
+                });
+        });
+
+        it("fails (e.g. if it can't connect to the server)", (done) => {
+            mockRequest("DELETE", "/endpoint", "{\"foo\":\"bar\"}", 0, "");
+
+            ajax._delete("/endpoint", {foo: "bar"})
+                .then(() => {
+                    done(new Error("Unexpected result: " + result));
+                })
+                .catch((e) => {
+                    if (e.message.indexOf("Could not connect to the server") >= 0) {
+                        done();
+                    } else {
+                        done(new Error("Unexpected error: " + e));
+                    }
+                });
+        });
+    });
+
     afterEach(() => {
         global.XMLHttpRequest = undefined;
     });
 });
 
 function mockGET(expectedUrl, responseStatus, responseContent) {
-    global.XMLHttpRequest = class {
-
-        open(method, url) {
-            this.hasCalledOpen = true;
-            expect(method).to.equal("GET");
-            expect(url).to.equal(expectedUrl);
-        }
-
-        send(data) {
-            expect(data).to.equal(undefined);
-            expect(this.hasCalledOpen).to.equal(true);
-            this.status = responseStatus;
-            this.response = responseContent;
-            this.readyState = 2;
-            this.onreadystatechange();
-            this.readyState = 4;
-            this.onreadystatechange();
-        }
-    };
+    mockRequest("GET", expectedUrl, undefined, responseStatus, responseContent);
 }
 
 function mockPOST(expectedUrl, expectedData, responseStatus, responseContent) {
+    mockRequest("POST", expectedUrl, expectedData, responseStatus, responseContent);
+}
+
+function mockRequest(expectedMethod, expectedUrl, expectedData, responseStatus, responseContent) {
     global.XMLHttpRequest = class {
 
         open(method, url) {
             this.hasCalledOpen = true;
-            expect(method).to.equal("POST");
+            expect(method).to.equal(expectedMethod);
             expect(url).to.equal(expectedUrl);
         }
 

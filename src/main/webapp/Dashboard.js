@@ -137,39 +137,18 @@ export default class Dashboard extends React.Component {
         });
     }
 
-    deleteActivity(activity: Activity) {
-        // TODO : it would be better to do it anyway and let the user undo it
-        this.setState({deletedActivity: activity});
-    }
-
-    cancelDeleteActivity() {
-        this.setState({deletedActivity: null});
-    }
-
-    doDeleteActivity() {
-        if (this.state.deletedActivity) {
-            const index = this.findIndexOfActivity(this.state.deletedActivity);
-            if (index > -1) {
-                console.debug(`Deleting activity at index ${index}`);
-                this.setState(update(this.state, {activities: {$splice: [[index, 1]]}}));
-                this.setState({deletedActivity: null});
-            }
-        }
-    }
-
     saveActivity(builder: ActivityBuilder) {
         console.info("Saving", builder);
 
-        // TODO : it would be better to generate the id on the server!
-        const activity = {
-            id: builder.id ? builder.id : ("" + Math.round(1000 * Math.random())),
+        const activity: {} = {
+            id: builder.id ? builder.id : null,
             date: builder.date,
             duration: parseDuration(builder.duration),
             distance: parseDistance(builder.distance)
         };
 
         this.props.rpc.post("/activities", {activity: activity})
-            .then(() => this.updateState(activity))
+            .then((result) => this.updateState(result))
             .then(() => this.setState({editedActivity: null}))
             .catch((e) => this.setState({error: e, editedActivity: null}));
     }
@@ -180,8 +159,9 @@ export default class Dashboard extends React.Component {
             console.debug(`Replacing activity at index ${index}`);
             this.setState(update(this.state, {activities: {$splice: [[index, 1, activity]]}}));
         } else {
+            // TODO : insert at the correct position or refresh from the server!
             console.debug("Adding new activity");
-            this.setState(update(this.state, {activities: {$push: [activity]}}));
+            this.setState(update(this.state, {activities: {$splice: [[0, 0, activity]]}}));
         }
     }
 
@@ -195,5 +175,32 @@ export default class Dashboard extends React.Component {
             });
         }
         return index;
+    }
+
+    deleteActivity(activity: Activity) {
+        // TODO : it would be better to do it anyway and let the user undo it
+        this.setState({deletedActivity: activity});
+    }
+
+    cancelDeleteActivity() {
+        this.setState({deletedActivity: null});
+    }
+
+    doDeleteActivity() {
+        const activity = this.state.deletedActivity;
+        if (activity) {
+            this.props.rpc._delete("/activities", {activity: activity})
+                .then(() => this.deleteFromState(activity))
+                .then(() => this.setState({deletedActivity: null}))
+                .catch((e) => this.setState({error: e, deletedActivity: null}));
+        }
+    }
+
+    deleteFromState(activity: Activity) {
+        const index = this.findIndexOfActivity(activity);
+        if (index > -1) {
+            console.debug(`Deleting activity at index ${index}`);
+            this.setState(update(this.state, {activities: {$splice: [[index, 1]]}}));
+        }
     }
 }
