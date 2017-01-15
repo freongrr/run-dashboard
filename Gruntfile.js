@@ -20,7 +20,7 @@ module.exports = (grunt) => {
             'static-files': {
                 expand: true,
                 cwd: '<%= dist_dir %>',
-                src: ['*.html', 'css/', 'images/', 'fonts/'],
+                src: ['*.html', '*.js', 'css/', 'images/', 'fonts/'],
             },
             'test-reports': ['<%= test_reports_dir %>']
         },
@@ -85,11 +85,29 @@ module.exports = (grunt) => {
                 src: ['<%= static_files %>'],
                 dest: '<%= dist_dir %>'
             },
+            // TODO : copy the css maps, but only when debugging
             bootstrap: {
                 expand: true,
                 cwd: 'node_modules/bootstrap/dist/',
-                // TODO : only copy the css maps when debugging
-                src: ['css/*.min.css', 'css/*.min.css.map', 'fonts/*'],
+                src: ['css/*.min.css', 'fonts/*'],
+                dest: '<%= dist_dir %>'
+            },
+            c3: {
+                expand: true,
+                cwd: 'node_modules/c3/',
+                src: ['c3.min.js'],
+                dest: '<%= dist_dir %>'
+            },
+            'c3-css': {
+                expand: true,
+                cwd: 'node_modules/c3/',
+                src: ['c3.min.css'],
+                dest: '<%= dist_dir %>/css/'
+            },
+            d3: {
+                expand: true,
+                cwd: 'node_modules/d3/',
+                src: ['d3.min.js'],
                 dest: '<%= dist_dir %>'
             }
         },

@@ -3,6 +3,8 @@
 "use strict";
 
 import type {Activity, ActivityBuilder} from "./Types";
+import type {GraphBuilder} from "./TestGraph";
+import TestGraph from "./TestGraph";
 import React from "react";
 import update from "react-addons-update";
 import {PageHeader, Nav, NavItem, ButtonToolbar, Button, Glyphicon} from "react-bootstrap";
@@ -11,7 +13,7 @@ import ActivityTable from "./ActivityTable";
 import ActivityDialog from "./ActivityDialog";
 import ErrorDialog from "./ErrorDialog";
 import DeleteDialog from "./DeleteDialog";
-import {parseDuration, formatHourMinutes} from "./TimeUtils";
+import {parseDuration, formatHourMinutes, formatMinuteSeconds} from "./TimeUtils";
 import {parseDistance, formatKm} from "./DistanceUtils";
 
 type DashboardProps = {
@@ -57,7 +59,12 @@ export default class Dashboard extends React.Component {
                 </Nav>
 
                 <div className="dashboard-graph">
-                    {this.props.graph}
+                    {/* TODO : the graph is instantiated by the router in main.js, how an I pass it value?*/}
+                    {/* this.props.graph */}
+                    <TestGraph id="graph1" activities={this.state.activities} builder={this.monthGraphBuilder()}/>
+                    <TestGraph id="graph2" activities={this.state.activities} builder={this.lineGraphBuilder()}/>
+                    <TestGraph id="graph3" activities={this.state.activities}
+                               builder={this.averageSplitTimePerMonthGraphBuilder()}/>
                 </div>
 
                 <PageHeader>
@@ -203,4 +210,92 @@ export default class Dashboard extends React.Component {
             this.setState(update(this.state, {activities: {$splice: [[index, 1]]}}));
         }
     }
+
+    // Graph samples
+
+    monthGraphBuilder(): GraphBuilder {
+        return {
+            type: "bar",
+            time: false,
+            x: {
+                id: "month",
+                name: "Month",
+                provider: (a: Activity) => a.date.substr(0, 7),
+                format: (value: number) => "" + value,
+                values: getPreviousMonths(12)
+            },
+            series: [{
+                id: "duration",
+                name: "Duration",
+                provider: (a: Activity) => a.duration,
+                format: (value: number) => formatHourMinutes(value),
+                secondY: false
+            }, {
+                id: "distance",
+                name: "Distance",
+                provider: (a: Activity) => a.distance,
+                format: (value: number) => formatKm(value),
+                secondY: true
+            }]
+        };
+    }
+
+    lineGraphBuilder(): GraphBuilder {
+        return {
+            type: "line",
+            time: true,
+            x: {
+                id: "date",
+                name: "Date",
+                provider: (a: Activity) => a.date,
+                format: (value: number) => "" + value
+            },
+            series: [{
+                id: "duration",
+                name: "Duration",
+                provider: (a: Activity) => a.duration,
+                format: (value: number) => formatHourMinutes(value),
+                secondY: false
+            }, {
+                id: "distance",
+                name: "Distance",
+                provider: (a: Activity) => a.distance,
+                format: (value: number) => formatKm(value),
+                secondY: true
+            }]
+        };
+    }
+
+    averageSplitTimePerMonthGraphBuilder(): GraphBuilder {
+        return {
+            type: "line",
+            time: false,
+            x: {
+                id: "month",
+                name: "Month",
+                provider: (a: Activity) => a.date.substr(0, 7),
+                format: (value: number) => "" + value,
+                values: getPreviousMonths(24)
+            },
+            series: [{
+                id: "splitTime",
+                name: "Avg. Split Time",
+                provider: (a: Activity) => 1000 * a.duration / a.distance,
+                aggregator: "AVG",
+                format: (value: number) => formatMinuteSeconds(value),
+                secondY: false
+            }]
+        };
+    }
+}
+
+function getPreviousMonths(n) {
+    const months = [];
+    const d = new Date();
+    for (let x = 0; x < n; x++) {
+        const realMonth = d.getMonth() + 1;
+        months.push(d.getFullYear() + "-" + (realMonth < 10 ? "0" : "") + realMonth);
+        d.setMonth(d.getMonth() - 1);
+    }
+    return months;
 }

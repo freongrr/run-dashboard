@@ -1,3 +1,6 @@
+// @flow
+"use strict";
+
 import React from "react";
 import Dashboard from "./Dashboard";
 import ReactDOM from "react-dom";
@@ -20,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ), content);
 });
 
-function RoutedDashboard(props : any) {
+function RoutedDashboard(props: any) {
     return <Dashboard rpc={new RPCImpl()}
                       graph={props.graph}
                       graphEventKey={props.graph.props.route.eventKey}/>;
