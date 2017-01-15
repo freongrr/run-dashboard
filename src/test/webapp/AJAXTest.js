@@ -125,15 +125,15 @@ describe("AJAX", () => {
                 });
         });
 
-        it("returns an error when the server fails", (done) => {
-            mockPOST("/endpoint", "{}", 500, "Boom");
+        it("returns an error when the server fails (custom code)", (done) => {
+            mockPOST("/endpoint", "{}", 403, "Unauthorized");
 
             ajax.post("/endpoint", {})
                 .then((result) => {
                     done(new Error("Unexpected result: " + result));
                 })
                 .catch((e) => {
-                    if (e.message.indexOf("Internal Server Error") >= 0) {
+                    if (e.message.indexOf("Unauthorized") >= 0) {
                         done();
                     } else {
                         done(new Error("Unexpected error: " + e));
@@ -169,6 +169,22 @@ describe("AJAX", () => {
                 })
                 .catch((e) => {
                     done(e);
+                });
+        });
+
+        it("fails (e.g. if it can't connect to the server)", (done) => {
+            mockRequest("DELETE", "/endpoint", "{\"foo\":\"bar\"}", 0, "");
+
+            ajax._delete("/endpoint", {foo: "bar"})
+                .then(() => {
+                    done(new Error("Unexpected result: " + result));
+                })
+                .catch((e) => {
+                    if (e.message.indexOf("Could not connect to the server") >= 0) {
+                        done();
+                    } else {
+                        done(new Error("Unexpected error: " + e));
+                    }
                 });
         });
     });
