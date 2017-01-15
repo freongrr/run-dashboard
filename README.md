@@ -9,9 +9,13 @@ Build the WAR file:
 
     mvn clean deploy
 
+Debug using Jetty:
+
+    mvn clean jetty:run-war
+
 Watch for changes in the JS code and static resources:
 
-    npm run debug
+    npm start
 
 Links
 =====
