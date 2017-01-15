@@ -4,15 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.sql.DataSource;
-
-import org.sqlite.javax.SQLiteConnectionPoolDataSource;
 
 import com.github.freongrr.run.beans.Activity;
 import com.github.freongrr.run.components.ActivityStore;
@@ -20,72 +17,68 @@ import com.github.freongrr.run.components.Logger;
 
 final class SQLiteStore implements ActivityStore {
 
-    /* Schema (for now)
-    
-       CREATE TABLE activity (
-           type TEXT,
-           date INT,
-           time INT,
-           distance INT,
-           elevation INT
-       );
-     */
+    private static final String SCHEMA_SQL = "" +
+            "CREATE TABLE activity (" +
+            "    id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            "    type TEXT," +
+            "    date INT," +
+            "    time INT," +
+            "    distance INT," +
+            "    elevation INT)";
 
+    private final DataSource dataSource;
     private final Logger logger;
-    private final String databaseUrl;
-
-    private SQLiteConnectionPoolDataSource dataSource;
 
     @Inject
-    public SQLiteStore(Logger logger, @Named("databaseUrl") String databaseUrl) {
+    public SQLiteStore(DataSource dataSource, Logger logger) {
+        this.dataSource = dataSource;
         this.logger = logger;
-        this.databaseUrl = databaseUrl;
     }
 
-    private synchronized DataSource getDataSource() {
-        if (dataSource == null) {
-            dataSource = new SQLiteConnectionPoolDataSource();
-            dataSource.setUrl(databaseUrl);
+    // For tests
+    void createSchema() {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(SCHEMA_SQL)) {
+            statement.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not delete the record", e);
         }
-        return dataSource;
     }
 
     @Override
     public List<Activity> getAll() {
         List<Activity> activities = new LinkedList<>();
 
-        // TODO : do I need to use getPooledConnection?
-        try (Connection connection = getDataSource().getConnection();
-             PreparedStatement statement = connection.prepareStatement(
-                     "SELECT " +
-                             "date, " +
-                             "time, distance, (time * 1000.0 / 60 / distance) " +
-                             "FROM activity " +
-                             "WHERE type != 'Walk' " +
-                             "ORDER BY 1");
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = prepareSelectAll(connection);
              ResultSet resultSet = statement.executeQuery()) {
 
-            int index = 1;
             while (resultSet.next()) {
                 try {
                     Activity activity = new Activity();
-                    // TODO : use a proper id!
-                    activity.setId(String.valueOf(++index));
+                    activity.setId(String.valueOf(resultSet.getLong("id")));
                     activity.setDate(toLocalDate(resultSet.getInt("date")));
                     activity.setDuration(resultSet.getInt("time"));
                     activity.setDistance(resultSet.getInt("distance"));
                     activities.add(activity);
-                } catch (SQLException e) {
+                } catch (SQLException | RuntimeException e) {
                     logger.warn("Could not read record", e);
                 }
             }
         } catch (SQLException e) {
-            logger.error("Could not query the data source", e);
+            throw new RuntimeException("Could not query activities", e);
         }
 
-        Collections.reverse(activities);
-//        return activities.subList(0, 50);
         return activities;
+    }
+
+    private static PreparedStatement prepareSelectAll(Connection connection) throws SQLException {
+        return connection.prepareStatement(
+                "SELECT " +
+                        "id, date, time, distance, (time * 1000.0 / 60 / distance) " +
+                        "FROM activity " +
+                        "WHERE type != 'Walk' " +
+                        "ORDER BY date DESC");
     }
 
     private static LocalDate toLocalDate(int date) throws SQLException {
@@ -97,14 +90,71 @@ final class SQLiteStore implements ActivityStore {
     }
 
     @Override
-    public void update(Activity activity) {
-        // TODO : implement method
+    public Activity update(Activity activity) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = prepareUpdate(connection, activity)) {
 
+            int updateRows = statement.executeUpdate();
+            if (updateRows != 1) {
+                throw new SQLException("Could not insert the record");
+            }
+
+            if (activity.getId() == null) {
+                long id = selectLastAutoId(connection);
+                activity.setId(String.valueOf(id));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not insert/update the record", e);
+        }
+        return activity;
+    }
+
+    private static PreparedStatement prepareUpdate(Connection connection, Activity activity) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(
+                "INSERT OR REPLACE INTO activity (id, type, date, time, distance) VALUES (?, ?, ?, ?, ?)");
+        if (activity.getId() == null) {
+            statement.setNull(1, Types.INTEGER);
+        } else {
+            statement.setInt(1, Integer.parseInt(activity.getId()));
+        }
+        statement.setString(2, "Run");
+        statement.setInt(3, fromLocalDate(activity.getDate()));
+        statement.setInt(4, activity.getDuration());
+        statement.setInt(5, activity.getDistance());
+        return statement;
+    }
+
+    private static int fromLocalDate(LocalDate date) throws SQLException {
+        // e.g. "20160811"
+        return date.getYear() * 10000 + date.getMonthValue() * 100 + date.getDayOfMonth();
+    }
+
+    private long selectLastAutoId(Connection connection) throws SQLException {
+        // HACK - This class could work with any JDBC data source, except this...
+        try (PreparedStatement idStatement = connection.prepareStatement("SELECT last_insert_rowid()");
+             ResultSet resultSet = idStatement.executeQuery()) {
+
+            if (!resultSet.next()) {
+                throw new SQLException("Could not fetch the new activity id");
+            }
+            return resultSet.getLong(1);
+        }
     }
 
     @Override
     public void delete(Activity activity) {
-        // TODO : implement method
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = prepareDelete(connection, activity)) {
 
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not delete the record", e);
+        }
+    }
+
+    private static PreparedStatement prepareDelete(Connection connection, Activity activity) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("DELETE FROM activity WHERE id = ?");
+        statement.setInt(1, Integer.parseInt(activity.getId()));
+        return statement;
     }
 }

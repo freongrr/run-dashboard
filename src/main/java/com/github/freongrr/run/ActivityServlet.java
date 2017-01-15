@@ -3,7 +3,6 @@ package com.github.freongrr.run;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
@@ -85,15 +84,10 @@ public final class ActivityServlet extends HttpServlet {
         ActivityRequest updateRequest = serializer.deserializeRequest(json);
         Activity activity = updateRequest.getActivity();
 
-        if (activity.getId() == null) {
-            // TODO : ...
-            activity.setId(UUID.randomUUID().toString());
-        }
-
         logger.info("Updating activity: %s", activity);
-        store.update(activity);
+        Activity updatedActivity = store.update(activity);
 
-        String responseJson = serializer.serialize(activity);
+        String responseJson = serializer.serialize(updatedActivity);
         writeJsonResponse(response, responseJson);
     }
 

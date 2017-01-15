@@ -22,20 +22,18 @@ final class DummyStore implements ActivityStore {
     DummyStore() {
         this.activities = new ConcurrentHashMap<>();
 
-        addActivity("1", LocalDate.of(2016, 12, 17), 2544, 8500);
-        addActivity("2", LocalDate.of(2016, 12, 11), 2145, 7000);
-        addActivity("3", LocalDate.of(2016, 10, 22), 3391, 11500);
-        addActivity("4", LocalDate.of(2016, 10, 6), 1547, 5500);
+        addActivity(LocalDate.of(2016, 12, 17), 2544, 8500);
+        addActivity(LocalDate.of(2016, 12, 11), 2145, 7000);
+        addActivity(LocalDate.of(2016, 10, 22), 3391, 11500);
+        addActivity(LocalDate.of(2016, 10, 6), 1547, 5500);
     }
 
-    private void addActivity(String id, LocalDate date, int duration, int distance) {
+    private void addActivity(LocalDate date, int duration, int distance) {
         Activity activity = new Activity();
-        activity.setId(id);
         activity.setDate(date);
         activity.setDuration(duration);
         activity.setDistance(distance);
-
-        this.activities.put(id, activity);
+        this.update(activity);
     }
 
     @Override
@@ -46,8 +44,12 @@ final class DummyStore implements ActivityStore {
     }
 
     @Override
-    public void update(Activity activity) {
+    public Activity update(Activity activity) {
+        if (activity.getId() == null) {
+            activity.setId(String.valueOf(this.activities.size() + 1));
+        }
         this.activities.put(activity.getId(), activity);
+        return activity;
     }
 
     @Override

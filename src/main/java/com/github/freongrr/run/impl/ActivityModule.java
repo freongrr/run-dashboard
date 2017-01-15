@@ -2,6 +2,9 @@ package com.github.freongrr.run.impl;
 
 import javax.inject.Named;
 import javax.servlet.ServletContext;
+import javax.sql.DataSource;
+
+import org.sqlite.javax.SQLiteConnectionPoolDataSource;
 
 import com.github.freongrr.run.components.ActivityStore;
 import com.github.freongrr.run.components.JsonSerializer;
@@ -28,6 +31,14 @@ public final class ActivityModule extends AbstractModule {
         bind(ActivityStore.class).to(SQLiteStore.class).in(Scopes.SINGLETON);
         bind(JsonSerializer.class).to(GsonSerializer.class).in(Scopes.SINGLETON);
         bind(Logger.class).to(ServletLogger.class).in(Scopes.SINGLETON);
+    }
+
+    @Provides
+    @Singleton
+    public DataSource getDataSource(@Named("databaseUrl") String url) {
+        SQLiteConnectionPoolDataSource dataSource = new SQLiteConnectionPoolDataSource();
+        dataSource.setUrl(url);
+        return dataSource;
     }
 
     @Provides

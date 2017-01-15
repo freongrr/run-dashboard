@@ -8,7 +8,7 @@ public interface ActivityStore {
 
     List<Activity> getAll();
 
-    void update(Activity activity);
+    Activity update(Activity activity);
 
     void delete(Activity activity);
 }
