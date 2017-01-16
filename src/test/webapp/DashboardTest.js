@@ -17,7 +17,7 @@ describe("Dashboard", () => {
     });
 
     it("TODO", () => {
-        const wrapper = shallow(<Dashboard rpc={rpc}/>);
+        const wrapper = shallow(<Dashboard route={{rpc: rpc}}/>);
         expect(wrapper).not.to.equal(null);
     });
 });

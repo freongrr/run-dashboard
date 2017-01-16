@@ -1,46 +1,22 @@
 // @flow
 "use strict";
 // TODO : import c3 here?
-import type {Activity} from "./Types";
+import type {GraphBuilder, GraphSeriesBuilder} from "./Types";
 import React from "react";
 
-export type GraphSeriesBuilder = {
-    id: string,
-    name: string,
-    provider: (a: Activity) => number,
-    aggregator?: string | (values: number[]) => number,
-    format: (value: number) => string,
-    secondY: boolean
-    // TODO : tick config
-};
-
-// TODO : move?
-export type GraphBuilder = {
-    type: "line" | "bar",
-    time: boolean,
-    x: {
-        id: string,
-        name: string,
-        provider: (a: Activity) => any,
-        format: (value: number) => string,
-        values?: any[]
-    },
-    series: Array<GraphSeriesBuilder>
-};
-
-type TestGraphProps = {
+type C3GraphProps = {
     id: string,
     builder: GraphBuilder,
-    activities: Activity[]
+    data: any[]
 };
 
 const SUM = (values: number[]) => values.reduce((a, b) => a + b, 0);
 const AVG = (values: number[]) => SUM(values) / values.length;
 
-export default class TestGraph extends React.Component {
-    props: TestGraphProps;
+export default class C3Graph extends React.Component {
+    props: C3GraphProps;
 
-    constructor(props: TestGraphProps) {
+    constructor(props: C3GraphProps) {
         super(props);
     }
 
@@ -114,8 +90,8 @@ export default class TestGraph extends React.Component {
         if (this.props.builder.x.values) {
             this.props.builder.x.values.forEach(x => categories.add(x));
         } else {
-            this.props.activities.forEach((a) => {
-                categories.add(this.props.builder.x.provider(a));
+            this.props.data.forEach((d) => {
+                categories.add(this.props.builder.x.provider(d));
             });
         }
         return categories;
@@ -126,11 +102,11 @@ export default class TestGraph extends React.Component {
         const rows = [headers];
 
         categories.forEach((category) => {
-            const groupedActivities = this.props.activities.filter((a) => category === this.props.builder.x.provider(a));
+            const groupedActivities = this.props.data.filter((d) => category === this.props.builder.x.provider(d));
             const row = [category];
             this.props.builder.series.forEach(s => {
                 const groupedValues = groupedActivities.map((a) => s.provider(a));
-                const aggregatedValue = TestGraph.aggregatorFunction(s)(groupedValues);
+                const aggregatedValue = C3Graph.aggregatorFunction(s)(groupedValues);
                 row.push(aggregatedValue);
             });
             rows.push(row);

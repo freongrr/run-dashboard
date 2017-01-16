@@ -2,28 +2,29 @@
 /* eslint no-console: ["off"] */
 "use strict";
 
-import type {Activity, ActivityBuilder} from "./Types";
-import type {GraphBuilder} from "./TestGraph";
-import TestGraph from "./TestGraph";
+import type {RouteLocation, Activity, ActivityBuilder} from "./Types";
 import React from "react";
 import update from "react-addons-update";
-import {PageHeader, Nav, NavItem, ButtonToolbar, Button, Glyphicon} from "react-bootstrap";
+import {PageHeader, ButtonToolbar, Button, Glyphicon} from "react-bootstrap";
 import RPC from "./RPC";
+import ChartPanel from "./ChartPanel";
 import ActivityTable from "./ActivityTable";
 import ActivityDialog from "./ActivityDialog";
 import ErrorDialog from "./ErrorDialog";
 import DeleteDialog from "./DeleteDialog";
-import {parseDuration, formatHourMinutes, formatMinuteSeconds} from "./TimeUtils";
+import {parseDuration, formatHourMinutes} from "./TimeUtils";
 import {parseDistance, formatKm} from "./DistanceUtils";
 
 type DashboardProps = {
-    rpc: RPC,
-    graph: React.Component<*>,
-    graphEventKey: string
+    route: {
+        rpc: RPC
+    },
+    location: RouteLocation
 };
 
 type DashboardState = {
     activities: Array<Activity>,
+    lastUpdate: Date,
     editedActivity: ?ActivityBuilder,
     deletedActivity: ?Activity,
     error: ?Error
@@ -33,15 +34,20 @@ export default class Dashboard extends React.Component {
     props: DashboardProps;
     state: DashboardState;
 
+    rpc: RPC;
+
     constructor(props: DashboardProps) {
         super(props);
 
         this.state = {
             activities: [],
+            lastUpdate: new Date(),
             editedActivity: null,
             deletedActivity: null,
             error: null
         };
+
+        this.rpc = props.route.rpc;
     }
 
     render() {
@@ -51,20 +57,11 @@ export default class Dashboard extends React.Component {
                     <Glyphicon glyph="stats"/> Stats
                 </PageHeader>
 
-                <Nav bsStyle="tabs" activeKey={this.props.graphEventKey}>
-                    {/*HACK - I can't use Link here because it put a <a> inside a <a> ...*/}
-                    <NavItem eventKey="y" href="/#/Year">Year</NavItem>
-                    <NavItem eventKey="m" href="/#/Month">Month</NavItem>
-                    <NavItem eventKey="w" href="/#/Week">Week</NavItem>
-                </Nav>
-
                 <div className="dashboard-graph">
-                    {/* TODO : the graph is instantiated by the router in main.js, how an I pass it value?*/}
-                    {/* this.props.graph */}
-                    <TestGraph id="graph1" activities={this.state.activities} builder={this.monthGraphBuilder()}/>
-                    <TestGraph id="graph2" activities={this.state.activities} builder={this.lineGraphBuilder()}/>
-                    <TestGraph id="graph3" activities={this.state.activities}
-                               builder={this.averageSplitTimePerMonthGraphBuilder()}/>
+                    {/* I gave up on using the route here because I need to keep it up to date when saving or deleting 
+                     activities. I could pass it the activities, but I plan on moving the generation of the graph data 
+                     to the server. Instead I only pass it the last time the local data was updated at. */}
+                    <ChartPanel location={this.props.location} rpc={this.rpc} lastUpdate={this.state.lastUpdate}/>
                 </div>
 
                 <PageHeader>
@@ -107,21 +104,20 @@ export default class Dashboard extends React.Component {
     }
 
     refresh() {
-        this.props.rpc.get("/activities")
+        this.rpc.get("/activities")
             .then((activities) => {
                 this.setState({
                     activities: activities,
+                    lastUpdate: new Date(),
                     error: null
                 });
             })
             .catch((e) => {
-                // TODO : this should be cleared when the dialog is dismissed (just like the delete dialog)
                 this.setState({error: e});
             });
     }
 
     addActivity() {
-        // TODO : this should be cleared when the dialog is dismissed (just like the delete dialog)
         this.setState({
             editedActivity: {
                 id: null,
@@ -133,7 +129,6 @@ export default class Dashboard extends React.Component {
     }
 
     editActivity(activity: Activity) {
-        // TODO : this should be cleared when the dialog is dismissed (just like the delete dialog)
         this.setState({
             editedActivity: {
                 id: activity.id,
@@ -154,7 +149,7 @@ export default class Dashboard extends React.Component {
             distance: parseDistance(builder.distance)
         };
 
-        this.props.rpc.post("/activities", {activity: activity})
+        this.rpc.post("/activities", {activity: activity})
             .then((result) => this.updateState(result))
             .then(() => this.setState({editedActivity: null}))
             .catch((e) => this.setState({error: e, editedActivity: null}));
@@ -164,11 +159,17 @@ export default class Dashboard extends React.Component {
         const index = this.findIndexOfActivity(activity);
         if (index > -1) {
             console.debug(`Replacing activity at index ${index}`);
-            this.setState(update(this.state, {activities: {$splice: [[index, 1, activity]]}}));
+            this.setState(update(this.state, {
+                activities: {$splice: [[index, 1, activity]]},
+                lastUpdate: {$set: new Date}
+            }));
         } else {
             // TODO : insert at the correct position or refresh from the server!
             console.debug("Adding new activity");
-            this.setState(update(this.state, {activities: {$splice: [[0, 0, activity]]}}));
+            this.setState(update(this.state, {
+                activities: {$splice: [[0, 0, activity]]},
+                lastUpdate: {$set: new Date}
+            }));
         }
     }
 
@@ -196,7 +197,7 @@ export default class Dashboard extends React.Component {
     doDeleteActivity() {
         const activity = this.state.deletedActivity;
         if (activity) {
-            this.props.rpc._delete("/activities", {activity: activity})
+            this.rpc._delete("/activities", {activity: activity})
                 .then(() => this.deleteFromState(activity))
                 .then(() => this.setState({deletedActivity: null}))
                 .catch((e) => this.setState({error: e, deletedActivity: null}));
@@ -207,95 +208,10 @@ export default class Dashboard extends React.Component {
         const index = this.findIndexOfActivity(activity);
         if (index > -1) {
             console.debug(`Deleting activity at index ${index}`);
-            this.setState(update(this.state, {activities: {$splice: [[index, 1]]}}));
+            this.setState(update(this.state, {
+                activities: {$splice: [[index, 1]]},
+                lastUpdate: {$set: new Date}
+            }));
         }
     }
-
-    // Graph samples
-
-    monthGraphBuilder(): GraphBuilder {
-        return {
-            type: "bar",
-            time: false,
-            x: {
-                id: "month",
-                name: "Month",
-                provider: (a: Activity) => a.date.substr(0, 7),
-                format: (value: number) => "" + value,
-                values: getPreviousMonths(12)
-            },
-            series: [{
-                id: "duration",
-                name: "Duration",
-                provider: (a: Activity) => a.duration,
-                format: (value: number) => formatHourMinutes(value),
-                secondY: false
-            }, {
-                id: "distance",
-                name: "Distance",
-                provider: (a: Activity) => a.distance,
-                format: (value: number) => formatKm(value),
-                secondY: true
-            }]
-        };
-    }
-
-    lineGraphBuilder(): GraphBuilder {
-        return {
-            type: "line",
-            time: true,
-            x: {
-                id: "date",
-                name: "Date",
-                provider: (a: Activity) => a.date,
-                format: (value: number) => "" + value
-            },
-            series: [{
-                id: "duration",
-                name: "Duration",
-                provider: (a: Activity) => a.duration,
-                format: (value: number) => formatHourMinutes(value),
-                secondY: false
-            }, {
-                id: "distance",
-                name: "Distance",
-                provider: (a: Activity) => a.distance,
-                format: (value: number) => formatKm(value),
-                secondY: true
-            }]
-        };
-    }
-
-    averageSplitTimePerMonthGraphBuilder(): GraphBuilder {
-        return {
-            type: "line",
-            time: false,
-            x: {
-                id: "month",
-                name: "Month",
-                provider: (a: Activity) => a.date.substr(0, 7),
-                format: (value: number) => "" + value,
-                values: getPreviousMonths(24)
-            },
-            series: [{
-                id: "splitTime",
-                name: "Avg. Split Time",
-                provider: (a: Activity) => 1000 * a.duration / a.distance,
-                aggregator: "AVG",
-                format: (value: number) => formatMinuteSeconds(value),
-                secondY: false
-            }]
-        };
-    }
-}
-
-function getPreviousMonths(n) {
-    const months = [];
-    const d = new Date();
-    for (let x = 0; x < n; x++) {
-        const realMonth = d.getMonth() + 1;
-        months.push(d.getFullYear() + "-" + (realMonth < 10 ? "0" : "") + realMonth);
-        d.setMonth(d.getMonth() - 1);
-    }
-    return months;
 }
