@@ -17,7 +17,11 @@ describe("Dashboard", () => {
     });
 
     it("TODO", () => {
-        const wrapper = shallow(<Dashboard route={{rpc: rpc}}/>);
+        const wrapper = shallow(<Dashboard route={{rpc: rpc}} chart={ChartTest}/>);
         expect(wrapper).not.to.equal(null);
     });
 });
+
+function ChartTest() {
+    return <div></div>;
+}

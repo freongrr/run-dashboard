@@ -52,6 +52,7 @@ export default class ActivityDialog extends React.Component {
                 </Modal.Header>
 
                 <Modal.Body>
+                    {/* TODO : this is the wrong format (i.e. DD/MM/YYYY) */}
                     {this.createField("activityDate", "date", "date", "Date", this.hasValidDate())}
                     {this.createField("activityDuration", "text", "duration", "Duration", this.hasValidDuration(), "e.g. \"1 hour\" or \"45 min\"")}
                     {this.createField("activityDistance", "text", "distance", "Distance", this.hasValidDistance(), "e.g. \"10.5 km\"")}

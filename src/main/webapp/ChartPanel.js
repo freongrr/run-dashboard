@@ -1,18 +1,19 @@
 // @flow
 /* eslint no-console: ["off"] */
 "use strict";
-import type {RouteLocation, Activity, GraphBuilder} from "./Types";
+import type {Activity, GraphBuilder} from "./Types";
 import React from "react";
 import {Nav, NavItem} from "react-bootstrap";
-import RPC from "./RPC";
+import DataStore from "./DataStore";
 import C3Graph from "./C3Graph";
 import {formatHourMinutes} from "./TimeUtils";
 import {formatKm} from "./DistanceUtils";
 
 type ChartPanelProps = {
-    rpc: RPC,
-    location: RouteLocation,
-    lastUpdate: Date
+    route: {
+        dataStore: DataStore,
+        zoom: string
+    }
 };
 
 type ChartPanelState = {
@@ -53,7 +54,7 @@ export default class ChartPanel extends React.Component {
         };
 
 
-        // TODO : use the route location to update the zoom, builder, etc
+        // TODO : use the route location to update the zoom, builder, etc?
         this.state = {
             builder: hardCodedBuilder,
             activities: []
@@ -63,7 +64,7 @@ export default class ChartPanel extends React.Component {
     render() {
         return (
             <div>
-                <Nav bsStyle="tabs" activeHref={"/#" + this.props.location.pathname}>
+                <Nav bsStyle="tabs" activeKey={this.props.route.zoom}>
                     {/*HACK - I can't use Link here because it put a <a> inside a <a> ...*/}
                     <NavItem eventKey="year" href="/#/Year">Year</NavItem>
                     <NavItem eventKey="month" href="/#/Month">Month</NavItem>
@@ -78,28 +79,15 @@ export default class ChartPanel extends React.Component {
     }
 
     componentDidMount() {
-        this.refresh();
-    }
-
-    componentWillReceiveProps(nextProps: ChartPanelProps) {
-        if (nextProps.lastUpdate !== this.props.lastUpdate) {
-            this.refresh();
-        }
-    }
-
-    refresh() {
-        // TODO : build the graph data on the server instead of loading hundreds (thousands?) of activities
-        // it will also be easier to aggregate data in SQL
-        this.props.rpc.get("/activities")
-            .then((activities) => {
+        this.props.route.dataStore.subscribe((activities, e) => {
+            if (activities) {
                 this.setState({
                     activities: activities
                 });
-            })
-            .catch((e) => {
-                // TODO : show that error somewhere...
-                console.error("Error loading graph data", e);
-            });
+            } else if (e) {
+                // TODO
+            }
+        });
     }
 
     // Graph samples

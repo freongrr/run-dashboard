@@ -85,7 +85,7 @@ public final class ActivityServlet extends HttpServlet {
         ActivityRequest updateRequest = serializer.deserializeRequest(json);
         Activity activity = updateRequest.getActivity();
 
-        if (activity.getId() == null) {
+        if (activity.getId() == null || activity.getId().isEmpty()) {
             // TODO : ...
             activity.setId(UUID.randomUUID().toString());
         }

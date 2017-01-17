@@ -26,6 +26,10 @@ export default class C3Graph extends React.Component {
         );
     }
 
+    shouldComponentUpdate(nextProps: C3GraphProps) {
+        return nextProps.builder !== this.props.builder || nextProps.data !== this.props.data;
+    }
+
     componentDidUpdate() {
         const builder = this.props.builder;
 

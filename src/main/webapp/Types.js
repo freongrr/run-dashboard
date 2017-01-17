@@ -1,13 +1,13 @@
 // @flow
 "use strict";
 
-export type RouteLocation = {
-    pathname: string,
-    search: string,
-    state: any,
-    action: string,
-    key: string
-};
+// export type RouteLocation = {
+//     pathname: string,
+//     search: string,
+//     state: any,
+//     action: string,
+//     key: string
+// };
 
 export type Activity = {
     id: string,
