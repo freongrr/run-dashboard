@@ -2,9 +2,8 @@
 /* eslint no-console: ["off"] */
 "use strict";
 
-import type {Activity, ActivityBuilder} from "./Types";
+import type {RPC, Activity, ActivityBuilder} from "./Types";
 import update from "react-addons-update";
-import RPC from "./RPC";
 
 type Callback = (activities: ?Activity[], error: ?Error) => void;
 
