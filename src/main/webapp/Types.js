@@ -41,15 +41,17 @@ export type GraphSeriesBuilder = {
     // TODO : tick config
 };
 
+export type GraphAxisBuilder = {
+    id: string,
+    name: string,
+    provider: (a: Activity) => any,
+    format: (value: number) => string,
+    values?: any[]
+};
+
 export type GraphBuilder = {
     type: "line" | "bar",
     time: boolean,
-    x: {
-        id: string,
-        name: string,
-        provider: (a: Activity) => any,
-        format: (value: number) => string,
-        values?: any[]
-    },
+    x: GraphAxisBuilder,
     series: Array<GraphSeriesBuilder>
 };

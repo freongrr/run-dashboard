@@ -10,7 +10,7 @@ module.exports = (grunt) => {
         dist_dir: 'target/' + pkg.name,
         dist_main: 'target/' + pkg.name + '/bundle.js',
         test_dir: 'src/test/webapp/',
-        test_reports_dir: 'target/test-reports/',
+        test_reports_dir: 'target/test-reports',
         css_src_files: ['css/**/*.scss', 'css/**/*.css'],
         static_files: ['*.html', '*.ico', 'images/*', 'fonts/*'],
 

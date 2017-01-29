@@ -4,6 +4,14 @@
 
 .dashboard-graph {
   padding: 1em;
+
+  form {
+    padding-bottom: 1em;
+
+    label {
+      padding-right: 1em;
+    }
+  }
 }
 
 #content {

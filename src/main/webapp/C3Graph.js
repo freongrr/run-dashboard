@@ -77,6 +77,9 @@ export default class C3Graph extends React.Component {
                     }
                 }
             },
+            line: {
+                connectNull: true
+            },
             // grid: {
             //     y: {
             //         lines: [
