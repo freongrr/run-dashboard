@@ -9,6 +9,12 @@ import C3Graph from "./C3Graph";
 import {formatHourMinutes, formatMinuteSeconds} from "./TimeUtils";
 import {formatKm} from "./DistanceUtils";
 
+type GraphType = {
+    id: string,
+    label: string,
+    category: ?string
+};
+
 type ChartPanelProps = {
     route: {
         dataStore: DataStore,
@@ -18,16 +24,65 @@ type ChartPanelProps = {
 
 type ChartPanelState = {
     zoom: string,
-    graphType: string,
+    graphTypes: GraphType[],
+    graphType: GraphType,
     builder: GraphBuilder,
     activities: Activity[]
 };
 
-const DURATION = "duration";
-const DISTANCE = "distance";
-const AVERAGE_SPLIT_TIME = "averageSplitTime";
+// TODO : graph types
 
-const DEFAULT_GRAPH_TYPE = DISTANCE;
+const LAST_12_MONTHS = "last12Months";
+const LAST_30_DAYS = "last30Days";
+
+const GRAPH_TYPES = {};
+GRAPH_TYPES[LAST_12_MONTHS] = [
+    {
+        id: "last12MonthsDuration",
+        label: "Duration",
+        category: "duration"
+    },
+    {
+        id: "last12MonthsDistance",
+        label: "Distance",
+        category: "distance"
+    },
+    {
+        id: "last12MonthsSplitTime",
+        label: "Average split time",
+        category: "averageSplitTime"
+    },
+];
+GRAPH_TYPES[LAST_30_DAYS] = [
+    {
+        id: "last30DaysDuration",
+        label: "Duration",
+        category: "duration"
+    },
+    {
+        id: "last30DaysDistance",
+        label: "Distance",
+        category: "distance"
+    },
+    {
+        id: "last30DaysSplitTime",
+        label: "Average split time",
+        category: "averageSplitTime"
+    },
+    {
+        id: "last30DaysVsPrevious30Days",
+        label: "Comparison with previous 30 days",
+        category: null
+    },
+    {
+        id: "last30DaysVsAYearAgo",
+        label: "Comparison with a year ago",
+        category: null
+    },
+];
+
+// TODO : other graph types
+// - (pie chart) distance objective (but then, what if it goes above 100%?)
 
 export default class ChartPanel extends React.Component {
     props: ChartPanelProps;
@@ -37,12 +92,14 @@ export default class ChartPanel extends React.Component {
         super(props);
 
         const initialZoom = props.route.zoom;
-        const initialGraphType = DEFAULT_GRAPH_TYPE;
+        const initialTypes = GRAPH_TYPES[initialZoom];
+        const initialGraphType = initialTypes[0];
         const initialBuilder = ChartPanel.createBuilder(initialZoom, initialGraphType);
 
         // TODO : store/read the chart type in the route
         this.state = {
             zoom: initialZoom,
+            graphTypes: initialTypes,
             graphType: initialGraphType,
             builder: initialBuilder,
             activities: []
@@ -52,11 +109,12 @@ export default class ChartPanel extends React.Component {
     render() {
         return (
             <div>
+                {/* TODO : rename the routes to match */}
                 <Nav bsStyle="tabs" activeKey={this.state.zoom}>
                     {/*HACK - I can't use Link here because it put a <a> inside a <a> ...*/}
-                    <NavItem eventKey="year" href="/#/Year">Year</NavItem>
-                    <NavItem eventKey="month" href="/#/Month">Month</NavItem>
-                    <NavItem eventKey="week" href="/#/Week">Week</NavItem>
+                    {/*TODO : loop on all types*/}
+                    <NavItem eventKey={LAST_12_MONTHS} href="/#/Last12Months">Past 12 Months</NavItem>
+                    <NavItem eventKey={LAST_30_DAYS} href="/#/Last30Days">Past 30 Days</NavItem>
                 </Nav>
 
                 <div className="dashboard-graph">
@@ -65,11 +123,9 @@ export default class ChartPanel extends React.Component {
                         <FormGroup controlId="formControlsSelect">
                             <ControlLabel>Graph type:{" "}</ControlLabel>
                             <FormControl componentClass="select" placeholder="select"
-                                         value={this.state.graphType}
+                                         value={this.state.graphType.id}
                                          onChange={(e) => this.changeType(e.target.value)}>
-                                <option value={DISTANCE}>Distance</option>
-                                <option value={DURATION}>Duration</option>
-                                <option value={AVERAGE_SPLIT_TIME}>Average Split Time</option>
+                                {this.state.graphTypes.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
                             </FormControl>
                         </FormGroup>
                     </Form>
@@ -92,24 +148,42 @@ export default class ChartPanel extends React.Component {
     }
 
     componentWillReceiveProps(nextProps: ChartPanelProps) {
-        if (nextProps.route.zoom !== this.props.route.zoom) {
+        const newZoom = nextProps.route.zoom;
+        if (newZoom !== this.props.route.zoom) {
+            const newTypes: GraphType[] = GRAPH_TYPES[newZoom];
+
+            let newGraphType = newTypes.find(t => t.category === this.state.graphType.category);
+            if (newGraphType === null || newGraphType === undefined) {
+                newGraphType = newTypes[0];
+            }
+
+            // Change the list of types, the selected (or default) type, and rebuild the graph
             this.setState({
-                zoom: nextProps.route.zoom,
-                builder: ChartPanel.createBuilder(nextProps.route.zoom, this.state.graphType)
+                zoom: newZoom,
+                graphTypes: newTypes,
+                graphType: newGraphType,
+                builder: ChartPanel.createBuilder(newZoom, newGraphType),
             });
         }
     }
 
-    changeType(newType: string) {
-        this.setState({
-            graphType: newType,
-            builder: ChartPanel.createBuilder(this.state.zoom, newType)
-        });
+    changeType(graphTypeId: string) {
+        const graphType = this.state.graphTypes.find(t => t.id === graphTypeId);
+        if (graphType === null || graphType === undefined) {
+            console.error("Could not find graph for type: " + graphTypeId);
+        } else {
+            // Changes the selected type and rebuild the graph
+            this.setState({
+                graphType: graphType,
+                builder: ChartPanel.createBuilder(this.state.zoom, graphType)
+            });
+        }
     }
 
-    static createBuilder(zoom: string, graphType: string): GraphBuilder {
-        console.info(`Rebuilding graph for zoom level: ${zoom} and type: ${graphType}`);
-        if (graphType === DISTANCE) {
+    // TODO : move all that to the server
+    static createBuilder(zoom: string, graphType: GraphType): GraphBuilder {
+        console.info(`Rebuilding graph: ${graphType.id}`);
+        if (graphType.id === "last12MonthsDistance" || graphType.id === "last30DaysDistance") {
             return ChartPanel.buildBarGraph(zoom, [{
                 id: "distance",
                 name: "Distance",
@@ -117,7 +191,7 @@ export default class ChartPanel extends React.Component {
                 format: (value: number) => formatKm(value),
                 secondY: false
             }]);
-        } else if (graphType === DURATION) {
+        } else if (graphType.id === "last12MonthsDuration" || graphType.id === "last30DaysDuration") {
             return ChartPanel.buildBarGraph(zoom, [{
                 id: "duration",
                 name: "Duration",
@@ -125,7 +199,7 @@ export default class ChartPanel extends React.Component {
                 format: (value: number) => formatHourMinutes(value),
                 secondY: false
             }]);
-        } else if (graphType === AVERAGE_SPLIT_TIME) {
+        } else if (graphType.id === "last12MonthsSplitTime" || graphType.id === "last30DaysSplitTime") {
             return ChartPanel.buildLineGraph(zoom, [{
                 id: "splitTime",
                 name: "Avg. Split Time",
@@ -135,30 +209,32 @@ export default class ChartPanel extends React.Component {
                 secondY: false
             }]);
         } else {
-            throw new Error("Illegal graph type: " + graphType);
+            throw new Error("Illegal graph type: " + graphType.id);
         }
     }
 
     static buildBarGraph(zoom: string, series: Array<GraphSeriesBuilder>): GraphBuilder {
+        // TODO : this should be done elsewhere...
         return {
             type: "bar",
-            time: false,
+            time: zoom === LAST_30_DAYS,
             x: ChartPanel.buildAxis(zoom),
             series: series
         };
     }
 
     static buildLineGraph(zoom: string, series: Array<GraphSeriesBuilder>): GraphBuilder {
+        // TODO : this should be done elsewhere...
         return {
             type: "line",
-            time: false,
+            time: zoom === LAST_30_DAYS,
             x: ChartPanel.buildAxis(zoom),
             series: series
         };
     }
 
     static buildAxis(zoom: string): GraphAxisBuilder {
-        if (zoom === "year") {
+        if (zoom === LAST_12_MONTHS) {
             return {
                 id: "month",
                 name: "Month",
@@ -166,7 +242,7 @@ export default class ChartPanel extends React.Component {
                 format: (value: number) => "" + value,
                 values: getPreviousMonths(12)
             };
-        } else if (zoom === "month") {
+        } else if (zoom === LAST_30_DAYS) {
             return {
                 id: "day",
                 name: "Day",
@@ -195,7 +271,7 @@ function getPreviousDays(n): string[] {
     const d = new Date();
     for (let x = 0; x < n; x++) {
         const s = dateToString(d);
-        console.debug(`Date ${d.toDateString()} -> ${s}`);
+        // console.debug(`Date ${d.toDateString()} -> ${s}`);
         days.push(s);
         d.setDate(d.getDate() - 1);
     }

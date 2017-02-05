@@ -22,6 +22,7 @@ final class DummyStore implements ActivityStore {
     DummyStore() {
         this.activities = new ConcurrentHashMap<>();
 
+        addActivity("31", LocalDate.of(2017, 2, 5), 2897, 10000);
         addActivity("12", LocalDate.of(2017, 1, 14), 1769, 6200);
         addActivity("2", LocalDate.of(2017, 1, 8), 3033, 10300);
         addActivity("3", LocalDate.of(2017, 1, 3), 1441, 5000);

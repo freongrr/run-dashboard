@@ -92,7 +92,7 @@ export default class C3Graph extends React.Component {
         });
     }
 
-    extractCategories() {
+    extractCategories(): Set<string> {
         const categories = new Set();
         if (this.props.builder.x.values) {
             this.props.builder.x.values.forEach(x => categories.add(x));
@@ -126,15 +126,18 @@ export default class C3Graph extends React.Component {
 
         if (this.props.builder.time) {
             xAxis.type = "timeseries";
-            // TODO : customize
             xAxis.tick = {
-                format: "%Y-%m-%d",
-                culling: {
-                    max: 8
-                }
+                format: "%Y-%m-%d"
             };
         } else {
             xAxis.type = "category";
+            // Tick count/culling does not work well with categories
+            // (because the ticks fall in between...)
+            xAxis.tick = {
+                culling: {
+                    max: 13
+                }
+            };
         }
 
         return xAxis;
