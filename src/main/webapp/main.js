@@ -1,39 +1,28 @@
+// @flow
+"use strict";
+
 import React from "react";
-import Dashboard from "./Dashboard";
 import ReactDOM from "react-dom";
-import {Router, Route, IndexRoute, hashHistory} from "react-router";
+import {Router, IndexRoute, Route, hashHistory} from "react-router";
 // import RPCImpl from "./DummyRPC";
 import RPCImpl from "./AJAX";
+import DataStore from "./DataStore";
+import ChartPanel from "./ChartPanel";
+import Dashboard from "./Dashboard";
 
 document.addEventListener("DOMContentLoaded", () => {
+    const rpc = new RPCImpl();
+    const dataStore = new DataStore(rpc);
+
     const content = document.getElementById("content");
     ReactDOM.render((
         <Router history={hashHistory}>
-            <Route path="/" component={RoutedDashboard}>
-                {/*TODO : can I use a redirect instead of copy/pasting?*/}
-                <IndexRoute components={{graph: YearGraph}} eventKey="y"/>
-                <Route path="Year" components={{graph: YearGraph}} eventKey="y"/>
-                <Route path="Month" components={{graph: MonthGraph}} eventKey="m"/>
-                <Route path="Week" components={{graph: WeekDashboard}} eventKey="w"/>
+            {/* TODO : If the graph component does not change, should I hard code it in Dashboard? */}
+            <Route path="/" component={Dashboard} dataStore={dataStore}>
+                <IndexRoute components={{chart: ChartPanel}} dataStore={dataStore} zoom="last12Months"/>
+                <Route path="/Last12Months" components={{chart: ChartPanel}} dataStore={dataStore} zoom="last12Months"/>
+                <Route path="/Last30Days" components={{chart: ChartPanel}} dataStore={dataStore} zoom="last30Days"/>
             </Route>
         </Router>
     ), content);
 });
-
-function RoutedDashboard(props : any) {
-    return <Dashboard rpc={new RPCImpl()}
-                      graph={props.graph}
-                      graphEventKey={props.graph.props.route.eventKey}/>;
-}
-
-function YearGraph() {
-    return <div>Year Graph</div>;
-}
-
-function MonthGraph() {
-    return <div>Month Graph</div>;
-}
-
-function WeekDashboard() {
-    return <div>Week Graph</div>;
-}

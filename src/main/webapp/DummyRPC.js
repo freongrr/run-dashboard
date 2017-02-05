@@ -2,9 +2,9 @@
 "use strict";
 
 import when from "when";
-import RPC from "./RPC";
 
-export default class DummyRPC extends RPC {
+export default class DummyRPC {
+
     get(path: string): Promise<any> {
         if (path === "/activities") {
             return when.resolve([

@@ -4,9 +4,8 @@
 "use strict";
 
 import when from "when";
-import RPC from "./RPC";
 
-export default class AJAX extends RPC {
+export default class AJAX {
 
     get(path: string): Promise<string> {
         const deferred = when.defer();

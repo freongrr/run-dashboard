@@ -23,6 +23,7 @@ Links
 * React: https://facebook.github.io/react/
 * React components for bootstrap: http://react-bootstrap.github.io/
 * React Router for routing: https://github.com/ReactTraining/react-router/
+* C3.js for charts: http://c3js.org/
 * ESLint plugin for React: https://github.com/yannickcr/eslint-plugin-react
 * Test runner: https://mochajs.org/
 * BDD API: http://chaijs.com/api/bdd/
