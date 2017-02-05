@@ -38,7 +38,11 @@ final class GsonSerializer implements JsonSerializer {
 
     @Override
     public ActivityRequest deserializeRequest(String json) {
-        return gson.fromJson(json, ActivityRequest.class);
+        ActivityRequest activityRequest = gson.fromJson(json, ActivityRequest.class);
+        if (activityRequest.getActivity() != null && "".equals(activityRequest.getActivity().getId())) {
+            activityRequest.getActivity().setId(null);
+        }
+        return activityRequest;
     }
 
     // Use "YYYY-MM-DD" for LocalDate
