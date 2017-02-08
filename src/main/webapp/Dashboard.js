@@ -5,6 +5,7 @@
 import type {Activity, ActivityBuilder} from "./Types";
 import React from "react";
 import {PageHeader, ButtonToolbar, Button, Glyphicon} from "react-bootstrap";
+import type {Subscription} from "./DataStore";
 import DataStore from "./DataStore";
 import ActivityTable from "./ActivityTable";
 import ActivityDialog from "./ActivityDialog";
@@ -27,11 +28,14 @@ type DashboardState = {
     error: ?Error
 };
 
+const RESOURCE = "activities";
+
 export default class Dashboard extends React.Component {
     props: DashboardProps;
     state: DashboardState;
 
     dataStore: DataStore;
+    subscription: Subscription;
 
     constructor(props: DashboardProps) {
         super(props);
@@ -93,19 +97,20 @@ export default class Dashboard extends React.Component {
     }
 
     componentDidMount() {
-        this.dataStore.subscribe((activities, e) => {
+        this.refresh();
+    }
+
+    refresh() {
+        if (this.subscription) {
+            this.subscription.cancel();
+        }
+        this.subscription = this.dataStore.subscribe(RESOURCE, (activities, e) => {
             if (activities) {
                 this.setState({activities: activities, error: null});
             } else if (e) {
                 this.setState({error: e});
             }
         });
-
-        this.refresh();
-    }
-
-    refresh() {
-        this.dataStore.refresh();
     }
 
     promptAdd() {
@@ -132,14 +137,14 @@ export default class Dashboard extends React.Component {
 
     saveActivity(builder: ActivityBuilder) {
         const activity: Activity = {
-            id: "", /* HACK */
+            id: builder.id ? builder.id : "" /* HACK */,
             date: builder.date,
             duration: parseDuration(builder.duration),
             distance: parseDistance(builder.distance)
         };
 
         this.setState({editedActivity: null});
-        this.dataStore.put(activity);
+        this.dataStore.put(RESOURCE, activity);
     }
 
     promptDelete(activity: Activity) {
@@ -151,7 +156,7 @@ export default class Dashboard extends React.Component {
         const activity = this.state.deletedActivity;
         if (activity) {
             this.setState({deletedActivity: null});
-            this.dataStore.remove(activity);
+            this.dataStore.remove(RESOURCE, activity);
         }
     }
 }

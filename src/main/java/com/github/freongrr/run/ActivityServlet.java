@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.github.freongrr.run.beans.Activity;
-import com.github.freongrr.run.beans.ActivityRequest;
 import com.github.freongrr.run.components.ActivityStore;
 import com.github.freongrr.run.components.JsonSerializer;
 import com.github.freongrr.run.components.Logger;
@@ -81,13 +80,15 @@ public final class ActivityServlet extends HttpServlet {
         }
 
         String json = consoleRequestData(request);
-        ActivityRequest updateRequest = serializer.deserializeRequest(json);
-        Activity activity = updateRequest.getActivity();
+        Activity activity = serializer.deserialize(json);
 
         logger.info("Updating activity: %s", activity);
-        Activity updatedActivity = store.update(activity);
+        store.update(activity);
 
-        String responseJson = serializer.serialize(updatedActivity);
+        // TODO : only return the updated activity and the index it was inserted/updated at
+        List<Activity> activities = store.getAll();
+
+        String responseJson = serializer.serialize(activities);
         writeJsonResponse(response, responseJson);
     }
 
@@ -100,14 +101,16 @@ public final class ActivityServlet extends HttpServlet {
         }
 
         String json = consoleRequestData(request);
-        ActivityRequest updateRequest = serializer.deserializeRequest(json);
-        Activity activity = updateRequest.getActivity();
+        Activity activity = serializer.deserialize(json);
 
         logger.info("Deleting activity: %s", activity);
         store.delete(activity);
 
-        // No response
-        writeJsonResponse(response, "{}");
+        // TODO : only return the index of the deleted activity
+        List<Activity> activities = store.getAll();
+
+        String responseJson = serializer.serialize(activities);
+        writeJsonResponse(response, responseJson);
     }
 
     private static String consoleRequestData(HttpServletRequest request) throws IOException {

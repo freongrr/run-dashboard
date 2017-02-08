@@ -6,7 +6,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import com.github.freongrr.run.beans.Activity;
-import com.github.freongrr.run.beans.ActivityRequest;
 import com.github.freongrr.run.components.JsonSerializer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -27,22 +26,17 @@ final class GsonSerializer implements JsonSerializer {
     }
 
     @Override
-    public String serialize(Activity activity) {
-        return gson.toJson(activity);
-    }
-
-    @Override
     public String serialize(List<Activity> activities) {
         return gson.toJson(activities);
     }
 
     @Override
-    public ActivityRequest deserializeRequest(String json) {
-        ActivityRequest activityRequest = gson.fromJson(json, ActivityRequest.class);
-        if (activityRequest.getActivity() != null && "".equals(activityRequest.getActivity().getId())) {
-            activityRequest.getActivity().setId(null);
+    public Activity deserialize(String json) {
+        Activity activity = gson.fromJson(json, Activity.class);
+        if (activity != null && "".equals(activity.getId())) {
+            activity.setId(null);
         }
-        return activityRequest;
+        return activity;
     }
 
     // Use "YYYY-MM-DD" for LocalDate

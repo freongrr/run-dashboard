@@ -2,97 +2,78 @@
 /* eslint no-console: ["off"] */
 "use strict";
 
-import type {RPC, Activity, ActivityBuilder} from "./Types";
-import update from "react-addons-update";
+import type {RPC, Activity} from "./Types";
 
-type Callback = (activities: ?Activity[], error: ?Error) => void;
+export type Callback = (result: ?any[], error: ?Error) => void;
+export type Subscription = {cancel: () => void};
 
+// TODO : define an interface/abstract class
+// TODO : use Redux?
 export default class DataStore {
     rpc: RPC;
-    callbacks: Callback[];
-    activities: Activity[];
+    callbacks: {[key: string]: Callback[]};
+    cachedValues: {[key: string]: any[]};
 
     constructor(rpc: RPC) {
         this.rpc = rpc;
-        this.callbacks = [];
-        this.activities = [];
+        this.callbacks = {};
+        this.cachedValues = {};
     }
 
-    // TODO : there will be multiple calls and/or parameters
-    subscribe(callback: Callback) {
-        this.callbacks.push(callback);
-    }
-
-    _fetchActivities() {
-        this.rpc.get("/activities")
-            .then((activities) => {
-                this.activities = activities;
-                this._notifySubscriptions();
-            })
-            .catch((e) => {
-                this._notifyError(e);
-            });
-    }
-
-    _notifySubscriptions() {
-        console.debug(`Notifying ${this.callbacks.length} subscribers that the data has changed`);
-        this.callbacks.forEach((c) => c(this.activities, null));
-    }
-
-    _notifyError(e: Error) {
-        console.debug(`Notifying ${this.callbacks.length} subscribers of an error`);
-        this.callbacks.forEach((c) => c(null, e));
-    }
-
-    refresh() {
-        this._fetchActivities();
-    }
-
-    put(activity: Activity) {
-        console.info("Putting", activity);
-        this.rpc.post("/activities", {activity: activity})
-            .then((result) => this._updateCache(result))
-            .catch((e) => this._notifyError(e));
-    }
-
-    _updateCache(activity: Activity) {
-        const index = this._findIndexOfActivity(activity);
-        if (index > -1) {
-            console.debug(`Replacing activity at index ${index}`);
-            this.activities = update(this.activities, {$splice: [[index, 1, activity]]});
-        } else {
-            // TODO : insert at the correct position or refresh from the server!
-            console.debug("Adding new activity");
-            this.activities = update(this.activities, {$splice: [[0, 0, activity]]});
+    subscribe(resource: string, callback: Callback): Subscription {
+        if (!this.callbacks[resource]) {
+            this.callbacks[resource] = [];
         }
-        this._notifySubscriptions();
-    }
+        this.callbacks[resource].push(callback);
 
-    _findIndexOfActivity(activity: Activity | ActivityBuilder) {
-        let index = -1;
-        if (activity.id !== null) {
-            this.activities.forEach((a, i) => {
-                if (a.id === activity.id) {
-                    index = i;
+        // TODO : if there's already a subscription we should not query the server
+        // it there's something in the cache we should use it, otherwise do nothing
+        console.info("Querying " + resource + "...");
+        this.rpc.get("/" + resource)
+            .then((values: any[]) => this._updateCache(resource, values))
+            .catch((e) => this._notifyError(resource, e));
+
+        return {
+            cancel: () => {
+                this.callbacks[resource] = this.callbacks[resource].filter(c => c !== callback);
+                if (this.callbacks[resource].length === 0) {
+                    delete this.callbacks[resource];
+                    delete this.cachedValues[resource];
                 }
-            });
-        }
-        return index;
+            }
+        };
     }
 
-    remove(activity: Activity) {
-        console.info("Removing", activity);
-        this.rpc._delete("/activities", {activity: activity})
-            .then(() => this._deleteFromCache(activity))
-            .catch((e) => this._notifyError(e));
+    _updateCache(resource: string, values: any[]) {
+        console.debug(`Cached ${values.length} value(s) for resource ${resource}`);
+        this.cachedValues[resource] = values;
+        this._notifySubscriptions(resource);
     }
 
-    _deleteFromCache(activity: Activity) {
-        const index = this._findIndexOfActivity(activity);
-        if (index > -1) {
-            console.debug(`Deleting activity at index ${index}`);
-            this.activities = update(this.activities, {$splice: [[index, 1]]});
-            this._notifySubscriptions();
-        }
+    _notifySubscriptions(resource: string) {
+        const callbacks = this.callbacks[resource];
+        const values = this.cachedValues[resource];
+        console.debug(`Notifying ${callbacks.length} subscriber(s) that ${resource} has changed`);
+        callbacks.forEach((c) => c(values, null));
+    }
+
+    _notifyError(resource: string, e: Error) {
+        const callbacks = this.callbacks[resource];
+        console.debug(`Notifying ${callbacks.length} subscriber(s) thar ${resource} had an error`);
+        callbacks.forEach((c) => c(null, e));
+    }
+
+    put(resource: string, activity: Activity) {
+        console.info("Putting into " + resource + ": ", activity);
+        this.rpc.post("/" + resource, activity)
+            .then((values: any[]) => this._updateCache(resource, values))
+            .catch((e) => this._notifyError(resource, e));
+    }
+
+    remove(resource: string, value: any) {
+        console.info("Removing from: " + resource, value);
+        this.rpc._delete("/" + resource, value)
+            .then((values: any[]) => this._updateCache(resource, values))
+            .catch((e) => this._notifyError(resource, e));
     }
 }
