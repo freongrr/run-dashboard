@@ -32,21 +32,14 @@ export type ActivityBuilder = {
 };
 
 export type GraphSeriesBuilder = {
-    id: string,
     name: string,
-    provider: (a: Activity) => number,
-    aggregator?: string | (values: number[]) => number,
-    format: (value: number) => string,
-    secondY: boolean
-    // TODO : tick config
+    secondY: boolean,
+    format: (value: number) => string
 };
 
 export type GraphAxisBuilder = {
-    id: string,
     name: string,
-    provider: (a: Activity) => any,
-    format: (value: number) => string,
-    values?: any[]
+    format: (value: number) => string
 };
 
 export type GraphBuilder = {

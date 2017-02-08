@@ -1,17 +1,14 @@
 // @flow
 "use strict";
 // TODO : import c3 here?
-import type {GraphBuilder, GraphSeriesBuilder} from "./Types";
+import type {GraphBuilder} from "./Types";
 import React from "react";
 
 type C3GraphProps = {
     id: string,
     builder: GraphBuilder,
-    data: any[]
+    rows: number[][]
 };
-
-const SUM = (values: number[]) => values.reduce((a, b) => a + b, 0);
-const AVG = (values: number[]) => SUM(values) / values.length;
 
 export default class C3Graph extends React.Component {
     props: C3GraphProps;
@@ -27,34 +24,35 @@ export default class C3Graph extends React.Component {
     }
 
     shouldComponentUpdate(nextProps: C3GraphProps) {
-        return nextProps.builder !== this.props.builder || nextProps.data !== this.props.data;
+        return nextProps.builder !== this.props.builder || nextProps.rows !== this.props.rows;
     }
 
     componentDidUpdate() {
         const builder = this.props.builder;
 
-        const categories = this.extractCategories();
-
         const axes = {};
-        builder.series.forEach(s => {
-            axes[s.id] = s.secondY ? "y2" : "y";
+        builder.series.forEach((s, i) => {
+            axes["series_" + i] = s.secondY ? "y2" : "y";
         });
 
         const names = {};
-        builder.series.forEach(s => {
-            names[s.id] = s.name;
+        builder.series.forEach((s, i) => {
+            names["series_" + i] = s.name;
         });
+
+        const headers = ["x"].concat(builder.series.map((s, i) => "series_" + i));
+        const rows = [headers].concat(this.props.rows);
 
         // TODO : only if the data has really changed...
         window.c3.generate({
             bindto: "#" + this.props.id,
             data: {
                 type: builder.type,
-                x: builder.x.id,
-                rows: this.buildRows(categories),
+                x: "x",
+                rows: rows,
                 keys: {
-                    x: builder.x.id,
-                    value: builder.series.map(s => s.id),
+                    x: "x",
+                    value: builder.series.map((s, i) => "series_" + i),
                 },
                 axes: axes,
                 names: names
@@ -92,35 +90,6 @@ export default class C3Graph extends React.Component {
         });
     }
 
-    extractCategories(): Set<string> {
-        const categories = new Set();
-        if (this.props.builder.x.values) {
-            this.props.builder.x.values.forEach(x => categories.add(x));
-        } else {
-            this.props.data.forEach((d) => {
-                categories.add(this.props.builder.x.provider(d));
-            });
-        }
-        return categories;
-    }
-
-    buildRows(categories: Set<string>) {
-        const headers = [this.props.builder.x.id].concat(this.props.builder.series.map(s => s.id));
-        const rows = [headers];
-
-        categories.forEach((category) => {
-            const groupedActivities = this.props.data.filter((d) => category === this.props.builder.x.provider(d));
-            const row = [category];
-            this.props.builder.series.forEach(s => {
-                const groupedValues = groupedActivities.map((a) => s.provider(a));
-                const aggregatedValue = C3Graph.aggregatorFunction(s)(groupedValues);
-                row.push(aggregatedValue);
-            });
-            rows.push(row);
-        });
-        return rows;
-    }
-
     buildXAxis() {
         const xAxis = {};
 
@@ -143,7 +112,7 @@ export default class C3Graph extends React.Component {
         return xAxis;
     }
 
-    buildYAxis(seriesFilter: (GraphSeriesBuilder) => boolean) {
+    buildYAxis(seriesFilter: (any) => boolean) {
         const series = this.props.builder.series.filter(seriesFilter);
 
         const yAxis = {};
@@ -159,17 +128,5 @@ export default class C3Graph extends React.Component {
         }
 
         return yAxis;
-    }
-
-    static aggregatorFunction(series: GraphSeriesBuilder): (values: number[]) => number {
-        if (series.aggregator === "SUM") {
-            return SUM;
-        } else if (series.aggregator === "AVG") {
-            return AVG;
-        } else if (typeof series.aggregator === "function") {
-            return series.aggregator;
-        } else {
-            return SUM;
-        }
     }
 }

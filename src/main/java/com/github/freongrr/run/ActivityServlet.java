@@ -1,13 +1,10 @@
 package com.github.freongrr.run;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -15,31 +12,16 @@ import com.github.freongrr.run.beans.Activity;
 import com.github.freongrr.run.components.ActivityStore;
 import com.github.freongrr.run.components.JsonSerializer;
 import com.github.freongrr.run.components.Logger;
-import com.github.freongrr.run.impl.ActivityModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 /**
  * TODO : documentation
  */
 @WebServlet({"/activities"})
-public final class ActivityServlet extends HttpServlet {
+public final class ActivityServlet extends BaseJsonServlet {
 
     private Logger logger;
     private ActivityStore store;
     private JsonSerializer serializer;
-
-    @Override
-    public void init() throws ServletException {
-        super.init();
-
-        try {
-            Injector injector = Guice.createInjector(new ActivityModule(getServletContext()));
-            injector.injectMembers(this);
-        } catch (RuntimeException e) {
-            log("Could not initialize the data source", e);
-        }
-    }
 
     @Inject
     public void setLogger(Logger logger) {
@@ -79,7 +61,7 @@ public final class ActivityServlet extends HttpServlet {
             throw new IllegalStateException("Boom!");
         }
 
-        String json = consoleRequestData(request);
+        String json = consumeRequestData(request);
         Activity activity = serializer.deserialize(json);
 
         logger.info("Updating activity: %s", activity);
@@ -100,7 +82,7 @@ public final class ActivityServlet extends HttpServlet {
             throw new IllegalStateException("Boom!");
         }
 
-        String json = consoleRequestData(request);
+        String json = consumeRequestData(request);
         Activity activity = serializer.deserialize(json);
 
         logger.info("Deleting activity: %s", activity);
@@ -111,19 +93,5 @@ public final class ActivityServlet extends HttpServlet {
 
         String responseJson = serializer.serialize(activities);
         writeJsonResponse(response, responseJson);
-    }
-
-    private static String consoleRequestData(HttpServletRequest request) throws IOException {
-        try (BufferedReader reader = request.getReader()) {
-            return reader.lines().collect(Collectors.joining(""));
-        }
-    }
-
-    private static void writeJsonResponse(HttpServletResponse response, String json) throws IOException {
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.setContentLength(json.length());
-        response.getWriter().print(json);
     }
 }

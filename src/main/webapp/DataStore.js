@@ -5,7 +5,10 @@
 import type {RPC, Activity} from "./Types";
 
 export type Callback = (result: ?any[], error: ?Error) => void;
-export type Subscription = {cancel: () => void};
+export type Subscription = {
+    refresh: () => void,
+    cancel: () => void
+};
 
 // TODO : define an interface/abstract class
 // TODO : use Redux?
@@ -26,14 +29,17 @@ export default class DataStore {
         }
         this.callbacks[resource].push(callback);
 
-        // TODO : if there's already a subscription we should not query the server
-        // it there's something in the cache we should use it, otherwise do nothing
-        console.info("Querying " + resource + "...");
-        this.rpc.get("/" + resource)
-            .then((values: any[]) => this._updateCache(resource, values))
-            .catch((e) => this._notifyError(resource, e));
+        if (this.cachedValues[resource] !== undefined) {
+            callback(this.cachedValues[resource], null);
+        } else if (this.callbacks[resource].length === 1) {
+            this._fetch(resource);
+        }
 
         return {
+            refresh: () => {
+                this._fetch(resource);
+            },
+
             cancel: () => {
                 this.callbacks[resource] = this.callbacks[resource].filter(c => c !== callback);
                 if (this.callbacks[resource].length === 0) {
@@ -42,6 +48,13 @@ export default class DataStore {
                 }
             }
         };
+    }
+
+    _fetch(resource: string) {
+        console.info("Querying " + resource + "...");
+        this.rpc.get("/" + resource)
+            .then((values: any[]) => this._updateCache(resource, values))
+            .catch((e) => this._notifyError(resource, e));
     }
 
     _updateCache(resource: string, values: any[]) {
@@ -59,7 +72,7 @@ export default class DataStore {
 
     _notifyError(resource: string, e: Error) {
         const callbacks = this.callbacks[resource];
-        console.debug(`Notifying ${callbacks.length} subscriber(s) thar ${resource} had an error`);
+        console.debug(`Notifying ${callbacks.length} subscriber(s) that ${resource} had an error`);
         callbacks.forEach((c) => c(null, e));
     }
 

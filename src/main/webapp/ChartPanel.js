@@ -1,9 +1,10 @@
 // @flow
 /* eslint no-console: ["off"] */
 "use strict";
-import type {Activity, GraphBuilder, GraphSeriesBuilder, GraphAxisBuilder} from "./Types";
+import type {GraphBuilder} from "./Types";
 import React from "react";
-import {Nav, NavItem, Form, FormGroup, ControlLabel, FormControl} from "react-bootstrap";
+import {Nav, NavItem, Form, FormGroup, ControlLabel, FormControl, Alert} from "react-bootstrap";
+import type {Subscription} from "./DataStore";
 import DataStore from "./DataStore";
 import C3Graph from "./C3Graph";
 import {formatHourMinutes, formatMinuteSeconds} from "./TimeUtils";
@@ -26,11 +27,13 @@ type ChartPanelState = {
     zoom: string,
     graphTypes: GraphType[],
     graphType: GraphType,
+    // TODO : move out of the state, we can generate in in render()
     builder: GraphBuilder,
-    activities: Activity[]
+    rows: number[][],
+    error: ?Error
 };
 
-// TODO : graph types
+// TODO : fetch these fron the server too!
 
 const LAST_12_MONTHS = "last12Months";
 const LAST_30_DAYS = "last30Days";
@@ -52,6 +55,11 @@ GRAPH_TYPES[LAST_12_MONTHS] = [
         label: "Average split time",
         category: "averageSplitTime"
     },
+    {
+        id: "last12MonthsVsPrevious12Months",
+        label: "Comparison with previous 12 months",
+        category: "vsPreviousPeriod"
+    },
 ];
 GRAPH_TYPES[LAST_30_DAYS] = [
     {
@@ -72,7 +80,7 @@ GRAPH_TYPES[LAST_30_DAYS] = [
     {
         id: "last30DaysVsPrevious30Days",
         label: "Comparison with previous 30 days",
-        category: null
+        category: "vsPreviousPeriod"
     },
     {
         id: "last30DaysVsAYearAgo",
@@ -88,13 +96,15 @@ export default class ChartPanel extends React.Component {
     props: ChartPanelProps;
     state: ChartPanelState;
 
+    subscription: Subscription;
+
     constructor(props: ChartPanelProps) {
         super(props);
 
         const initialZoom = props.route.zoom;
         const initialTypes = GRAPH_TYPES[initialZoom];
         const initialGraphType = initialTypes[0];
-        const initialBuilder = ChartPanel.createBuilder(initialZoom, initialGraphType);
+        const initialBuilder = ChartPanel.createBuilder(initialGraphType);
 
         // TODO : store/read the chart type in the route
         this.state = {
@@ -102,22 +112,23 @@ export default class ChartPanel extends React.Component {
             graphTypes: initialTypes,
             graphType: initialGraphType,
             builder: initialBuilder,
-            activities: []
+            rows: [],
+            error: null
         };
     }
 
     render() {
         return (
             <div>
-                {/* TODO : rename the routes to match */}
-                <Nav bsStyle="tabs" activeKey={this.state.zoom}>
-                    {/*HACK - I can't use Link here because it put a <a> inside a <a> ...*/}
-                    {/*TODO : loop on all types*/}
-                    <NavItem eventKey={LAST_12_MONTHS} href="/#/Last12Months">Past 12 Months</NavItem>
-                    <NavItem eventKey={LAST_30_DAYS} href="/#/Last30Days">Past 30 Days</NavItem>
-                </Nav>
-
                 <div className="dashboard-graph">
+
+                    {/*TODO : loop on all types*/}
+                    <Nav bsStyle="tabs" activeKey={this.state.zoom}>
+                        {/*HACK - I can't use Link here because it put a <a> inside a <a> ...*/}
+                        <NavItem eventKey={LAST_12_MONTHS} href="/#/Last12Months">Past 12 Months</NavItem>
+                        <NavItem eventKey={LAST_30_DAYS} href="/#/Last30Days">Past 30 Days</NavItem>
+                    </Nav>
+
                     <Form inline>
                         {/* TODO : use 2 combos to show 2 graph types */}
                         <FormGroup controlId="formControlsSelect">
@@ -129,20 +140,21 @@ export default class ChartPanel extends React.Component {
                             </FormControl>
                         </FormGroup>
                     </Form>
-                    <C3Graph id="chartGoesHere" builder={this.state.builder} data={this.state.activities}/>
+
+                    { /* TODO : overlay? */
+                        this.state.error
+                            ? <Alert bsStyle="danger"><h4>Error</h4>{this.state.error.toString()}</Alert>
+                            : <C3Graph id="chartGoesHere" builder={this.state.builder} rows={this.state.rows}/> }
                 </div>
             </div>
         );
     }
 
     componentDidMount() {
-        this.props.route.dataStore.subscribe((activities, e) => {
-            if (activities) {
-                this.setState({
-                    activities: activities
-                });
-            } else if (e) {
-                // TODO
+        // Subscribe once to activity updates
+        this.props.route.dataStore.subscribe("activities", (activities, e) => {
+            if (!e) {
+                this.refreshData();
             }
         });
     }
@@ -162,8 +174,10 @@ export default class ChartPanel extends React.Component {
                 zoom: newZoom,
                 graphTypes: newTypes,
                 graphType: newGraphType,
-                builder: ChartPanel.createBuilder(newZoom, newGraphType),
+                builder: ChartPanel.createBuilder(newGraphType)
             });
+
+            this.subscribe();
         }
     }
 
@@ -175,113 +189,132 @@ export default class ChartPanel extends React.Component {
             // Changes the selected type and rebuild the graph
             this.setState({
                 graphType: graphType,
-                builder: ChartPanel.createBuilder(this.state.zoom, graphType)
+                builder: ChartPanel.createBuilder(graphType)
             });
+
+            this.subscribe();
         }
     }
 
-    // TODO : move all that to the server
-    static createBuilder(zoom: string, graphType: GraphType): GraphBuilder {
-        console.info(`Rebuilding graph: ${graphType.id}`);
-        if (graphType.id === "last12MonthsDistance" || graphType.id === "last30DaysDistance") {
-            return ChartPanel.buildBarGraph(zoom, [{
-                id: "distance",
-                name: "Distance",
-                provider: (a: Activity) => a.distance,
-                format: (value: number) => formatKm(value),
-                secondY: false
-            }]);
-        } else if (graphType.id === "last12MonthsDuration" || graphType.id === "last30DaysDuration") {
-            return ChartPanel.buildBarGraph(zoom, [{
-                id: "duration",
-                name: "Duration",
-                provider: (a: Activity) => a.duration,
-                format: (value: number) => formatHourMinutes(value),
-                secondY: false
-            }]);
-        } else if (graphType.id === "last12MonthsSplitTime" || graphType.id === "last30DaysSplitTime") {
-            return ChartPanel.buildLineGraph(zoom, [{
-                id: "splitTime",
-                name: "Avg. Split Time",
-                provider: (a: Activity) => 1000 * a.duration / a.distance,
-                aggregator: "AVG",
-                format: (value: number) => formatMinuteSeconds(value),
-                secondY: false
-            }]);
+    refreshData() {
+        // TODO : we should not have to do that if the server could push updates
+        if (this.subscription) {
+            this.subscription.refresh();
+        } else {
+            this.subscribe();
+        }
+    }
+
+    subscribe() {
+        if (this.subscription) {
+            this.subscription.cancel();
+        }
+
+        const graphTypeId = this.state.graphType.id;
+        this.subscription = this.props.route.dataStore.subscribe("graph/" + graphTypeId, (rows, e) => {
+            if (rows) {
+                this.setState({
+                    rows: rows,
+                    error: null
+                });
+            } else if (e) {
+                this.setState({
+                    error: e
+                });
+            }
+        });
+    }
+
+    static createBuilder(graphType: GraphType): GraphBuilder {
+        console.info("Rebuilding graph: " + graphType.id);
+
+        const monthAxis = {
+            name: "Month",
+            format: (value: number) => "" + value
+        };
+
+        const dayAxis = {
+            name: "Day",
+            format: (value: number) => "" + value
+        };
+
+        const distanceSeries = {
+            name: "Distance",
+            format: (value: number) => formatKm(value),
+            secondY: false
+        };
+
+        const durationSeries = {
+            name: "Duration",
+            format: (value: number) => formatHourMinutes(value),
+            secondY: false
+        };
+
+        const splitTimeSeries = {
+            name: "Avg. Split Time",
+            format: (value: number) => formatMinuteSeconds(value),
+            secondY: false
+        };
+
+        if (graphType.id === "last12MonthsDistance") {
+            return {
+                type: "bar",
+                time: false,
+                x: monthAxis,
+                series: [distanceSeries]
+            };
+        } else if (graphType.id === "last30DaysDistance") {
+            return {
+                type: "bar",
+                time: true,
+                x: dayAxis,
+                series: [distanceSeries]
+            };
+        } else if (graphType.id === "last12MonthsDuration") {
+            return {
+                type: "bar",
+                time: false,
+                x: monthAxis,
+                series: [durationSeries]
+            };
+        } else if (graphType.id === "last30DaysDuration") {
+            return {
+                type: "bar",
+                time: true,
+                x: dayAxis,
+                series: [durationSeries]
+            };
+        } else if (graphType.id === "last12MonthsSplitTime") {
+            return {
+                type: "line",
+                time: false,
+                x: monthAxis,
+                series: [splitTimeSeries]
+            };
+        } else if (graphType.id === "last30DaysSplitTime") {
+            return {
+                type: "line",
+                time: true,
+                x: dayAxis,
+                series: [splitTimeSeries]
+            };
+        } else if (graphType.id === "last12MonthsVsPrevious12Months") {
+            return {
+                type: "bar",
+                time: false,
+                x: {
+                    id: "cat",
+                    name: "Categories",
+                    format: (value: number) => "" + value
+                },
+                series: [{
+                    name: "Diff",
+                    format: (value: number) => "" + value,
+                    secondY: false
+                }]
+            };
         } else {
             throw new Error("Illegal graph type: " + graphType.id);
         }
     }
-
-    static buildBarGraph(zoom: string, series: Array<GraphSeriesBuilder>): GraphBuilder {
-        // TODO : this should be done elsewhere...
-        return {
-            type: "bar",
-            time: zoom === LAST_30_DAYS,
-            x: ChartPanel.buildAxis(zoom),
-            series: series
-        };
-    }
-
-    static buildLineGraph(zoom: string, series: Array<GraphSeriesBuilder>): GraphBuilder {
-        // TODO : this should be done elsewhere...
-        return {
-            type: "line",
-            time: zoom === LAST_30_DAYS,
-            x: ChartPanel.buildAxis(zoom),
-            series: series
-        };
-    }
-
-    static buildAxis(zoom: string): GraphAxisBuilder {
-        if (zoom === LAST_12_MONTHS) {
-            return {
-                id: "month",
-                name: "Month",
-                provider: (a: Activity) => a.date.substr(0, 7),
-                format: (value: number) => "" + value,
-                values: getPreviousMonths(12)
-            };
-        } else if (zoom === LAST_30_DAYS) {
-            return {
-                id: "day",
-                name: "Day",
-                provider: (a: Activity) => a.date,
-                format: (value: number) => "" + value,
-                values: getPreviousDays(30)
-            };
-        } else {
-            throw new Error("Illegal zoom: " + zoom);
-        }
-    }
-}
-
-function getPreviousMonths(n): string[] {
-    const months = [];
-    const d = new Date();
-    for (let x = 0; x < n; x++) {
-        months.push(d.getFullYear() + "-" + pad(d.getMonth() + 1));
-        d.setMonth(d.getMonth() - 1);
-    }
-    return months;
-}
-
-function getPreviousDays(n): string[] {
-    const days = [];
-    const d = new Date();
-    for (let x = 0; x < n; x++) {
-        const s = dateToString(d);
-        // console.debug(`Date ${d.toDateString()} -> ${s}`);
-        days.push(s);
-        d.setDate(d.getDate() - 1);
-    }
-    return days;
-}
-
-function pad(x: number): string {
-    return (x < 10 ? "0" : "") + x;
-}
-
-function dateToString(d: Date): string {
-    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
 }
