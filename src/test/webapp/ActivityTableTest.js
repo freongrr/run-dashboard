@@ -1,5 +1,5 @@
-/* eslint-env mocha */
-/* eslint no-console: ["off"] */
+// @flow
+import {describe, it} from "mocha";
 import React from "react";
 import {shallow} from "enzyme";
 import {expect} from "chai";
@@ -49,30 +49,26 @@ describe("ActivityTable", () => {
         expect(cells.at(4).find("DropdownButton")).to.have.length(1); // actions
     });
 
-    it("invokes the edit callback", () => {
-        let edited = null;
-        let deleted = null;
+    it("invokes the edit callback", (done) => {
         const wrapper = shallow(<ActivityTable activities={activities}
-                                               editHandler={(a) => edited = a}
-                                               deleteHandler={(a) => deleted = a}/>);
+                                               editHandler={(a) => {
+                                                   expect(a).to.deep.equal(activities[0]);
+                                                   done();
+                                               }}
+                                               deleteHandler={() => done(new Error())}/>);
 
         getMenuItem(wrapper, 0, "edit").simulate("select");
-
-        expect(edited).to.deep.equal(activities[0]);
-        expect(deleted).to.equal(null);
     });
 
-    it("invokes the delete callback", () => {
-        let edited = null;
-        let deleted = null;
+    it("invokes the delete callback", (done) => {
         const wrapper = shallow(<ActivityTable activities={activities}
-                                               editHandler={(a) => edited = a}
-                                               deleteHandler={(a) => deleted = a}/>);
+                                               editHandler={() => done(new Error())}
+                                               deleteHandler={(a) => {
+                                                   expect(a).to.deep.equal(activities[0]);
+                                                   done();
+                                               }}/>);
 
         getMenuItem(wrapper, 0, "delete").simulate("select");
-
-        expect(edited).to.equal(null);
-        expect(deleted).to.deep.equal(activities[0]);
     });
 });
 

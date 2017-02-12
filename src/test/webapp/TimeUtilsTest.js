@@ -1,17 +1,10 @@
-/* eslint-env mocha */
+// @flow
+import {describe, it} from "mocha";
 import {expect} from "chai";
 import {parseDuration, formatHourMinutes, formatMinuteSeconds} from "../../main/webapp/TimeUtils";
 
 describe("TimeUtils", () => {
     describe("#parseDuration()", () => {
-
-        it("throws an error if the parameter is null", () => {
-            expect(() => parseDuration(null)).to.throw(/Parameter is null/);
-        });
-
-        it("throws an error if the parameter is not a string", () => {
-            expect(() => parseDuration(123)).to.throw(/Parameter is not a string: number/);
-        });
 
         it("throws an error if the parameter is not a duration", () => {
             expect(() => parseDuration("abc")).to.throw(/Unexpected: 'abc'/);

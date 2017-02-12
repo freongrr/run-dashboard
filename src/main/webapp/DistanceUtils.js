@@ -11,12 +11,6 @@ const NUMBER_REG_EXP = new RegExp(/^(\d+(?:\.\d+)?)$/);
  * @returns {string}
  */
 export function parseDistance(distanceString: string): number {
-    if (distanceString === undefined || distanceString === null) {
-        throw new Error("Parameter is null");
-    } else if (typeof distanceString !== "string") {
-        throw new Error(`Parameter is not a string: ${typeof distanceString}`);
-    }
-
     let str = distanceString
         .replace(/\band\b/ig, "")
         .replace(/,/ig, "")

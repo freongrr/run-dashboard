@@ -1,13 +1,12 @@
-/* eslint-env mocha */
-/* eslint no-console: ["off"] */
+// @flow
+import TestUtils from "./TestUtils";
+import {describe, it} from "mocha";
 import React from "react";
 import {shallow} from "enzyme";
 import {expect} from "chai";
 import ActivityDialog from "../../main/webapp/ActivityDialog";
 
-// The Console class in NodeJS does not have a console.debug(...) method
-console.debug = function () {
-};
+TestUtils.defineConsole();
 
 describe("ActivityDialog", () => {
 
@@ -65,25 +64,20 @@ describe("ActivityDialog", () => {
         expectField(wrapper, 2, "text", "5", "success");
     });
 
-    it("invokes the callback when clicking the Cancel button", () => {
-        let dismissed = false;
-        let saved = null;
+    it("invokes the callback when clicking the Cancel button", (done) => {
         const wrapper = shallow(<ActivityDialog initialActivity={editBuilder}
-                                                onDismiss={() => dismissed = true}
-                                                onSave={(b) => saved = b}/>);
+                                                onDismiss={() => done()}
+                                                onSave={() => done(new Error())}/>);
 
         wrapper.findWhere((w) => w.key() === "dismiss").simulate("click");
-
-        expect(dismissed).to.equal(true);
-        expect(saved).to.equal(null);
     });
 
     it("does not invoke the callback when clicking the Save button with invalid values", () => {
         let dismissed = false;
         let saved = null;
         const wrapper = shallow(<ActivityDialog initialActivity={newBuilder}
-                                                onDismiss={() => dismissed = true}
-                                                onSave={(b) => saved = b}/>);
+                                                onDismiss={() => {dismissed = true;}}
+                                                onSave={(b) => {saved = b;}}/>);
 
         wrapper.findWhere((w) => w.key() === "save").simulate("click");
 
@@ -91,17 +85,15 @@ describe("ActivityDialog", () => {
         expect(saved).to.equal(null);
     });
 
-    it("invokes the callback when clicking the Save button", () => {
-        let dismissed = false;
-        let saved = null;
+    it("invokes the callback when clicking the Save button", (done) => {
         const wrapper = shallow(<ActivityDialog initialActivity={editBuilder}
-                                                onDismiss={() => dismissed = true}
-                                                onSave={(b) => saved = b}/>);
+                                                onDismiss={() => done(new Error())}
+                                                onSave={(b) => {
+                                                    expect(b).to.deep.equal(editBuilder);
+                                                    done();
+                                                }}/>);
 
         wrapper.findWhere((w) => w.key() === "save").simulate("click");
-
-        expect(dismissed).to.equal(false);
-        expect(saved).to.deep.equal(editBuilder);
     });
 });
 

@@ -1,17 +1,10 @@
-/* eslint-env mocha */
+// @flow
+import {describe, it} from "mocha";
 import {expect} from "chai";
 import {parseDistance, formatKm, formatMeters} from "../../main/webapp/DistanceUtils";
 
 describe("DistanceUtils", () => {
     describe("#parseDistance()", () => {
-
-        it("throws an error if the parameter is null", () => {
-            expect(() => parseDistance(null)).to.throw(/Parameter is null/);
-        });
-
-        it("throws an error if the parameter is not a string", () => {
-            expect(() => parseDistance(123)).to.throw(/Parameter is not a string: number/);
-        });
 
         it("throws an error if the parameter is not a duration", () => {
             expect(() => parseDistance("abc")).to.throw(/Unexpected: 'abc'/);

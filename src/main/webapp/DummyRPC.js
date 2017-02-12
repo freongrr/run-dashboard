@@ -36,8 +36,16 @@ export default class DummyRPC {
     }
 
     post(path: string, data: {[key: string]: any}): Promise<any> {
-        if (path === "/activities" && data["activity"]) {
-            return when.resolve(data["activity"]);
+        if (path === "/activities" && data !== null && data !== undefined) {
+            return when.resolve(data);
+        } else {
+            return when.reject(new Error("404"));
+        }
+    }
+
+    _delete(path: string, data: {[key: string]: any}): Promise<any> {
+        if (path === "/activities" && data !== null && data !== undefined) {
+            return when.resolve(data);
         } else {
             return when.reject(new Error("404"));
         }

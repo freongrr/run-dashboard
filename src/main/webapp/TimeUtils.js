@@ -16,12 +16,6 @@ const SECOND_REG_EXP = new RegExp(/(\d+)\s*(?:seconds|second|sec|s)(?=\b|\d)/i);
  * @returns {string}
  */
 export function parseDuration(durationString: string): number {
-    if (durationString === undefined || durationString === null) {
-        throw new Error("Parameter is null");
-    } else if (typeof durationString !== "string") {
-        throw new Error(`Parameter is not a string: ${typeof durationString}`);
-    }
-
     let str = durationString
         .replace(/\band\b/ig, "")
         .replace(/,/ig, "")

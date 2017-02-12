@@ -1,12 +1,10 @@
-/* eslint-env mocha */
-/* eslint no-console: ["off"] */
+// @flow
 /* eslint no-undef: ["off"] */
-import {expect} from "chai";
+import TestUtils from "./TestUtils";
+import {describe, it, afterEach} from "mocha";
 import AJAX from "../../main/webapp/AJAX";
 
-// The Console class in NodeJS does not have a console.debug(...) method
-console.debug = function () {
-};
+TestUtils.defineConsole();
 
 describe("AJAX", () => {
 
@@ -15,7 +13,7 @@ describe("AJAX", () => {
     describe("#get()", () => {
 
         it("returns a plain text as a string", (done) => {
-            mockGET("/endpoint", 200, "Plain Text");
+            TestUtils.mockGET("/endpoint", 200, "Plain Text");
 
             ajax.get("/endpoint")
                 .then((result) => {
@@ -31,7 +29,7 @@ describe("AJAX", () => {
         });
 
         it("returns JSON as an object", (done) => {
-            mockGET("/endpoint", 200, "{\"foo\":\"bar\"}");
+            TestUtils.mockGET("/endpoint", 200, "{\"foo\":\"bar\"}");
 
             ajax.get("/endpoint")
                 .then((result) => {
@@ -47,7 +45,7 @@ describe("AJAX", () => {
         });
 
         it("returns an error when the server fails", (done) => {
-            mockGET("/endpoint", 500, "Boom");
+            TestUtils.mockGET("/endpoint", 500, "Boom");
 
             ajax.get("/endpoint")
                 .then((result) => {
@@ -63,7 +61,7 @@ describe("AJAX", () => {
         });
 
         it("returns an error when the server returns bad JSON", (done) => {
-            mockGET("/endpoint", 200, "{xxx}");
+            TestUtils.mockGET("/endpoint", 200, "{xxx}");
 
             ajax.get("/endpoint")
                 .then((result) => {
@@ -82,7 +80,7 @@ describe("AJAX", () => {
     describe("#post()", () => {
 
         it("serializes data to JSON", (done) => {
-            mockPOST("/endpoint", "{\"foo\":\"bar\"}", 200, "");
+            TestUtils.mockPOST("/endpoint", "{\"foo\":\"bar\"}", 200, "");
 
             ajax.post("/endpoint", {foo: "bar"})
                 .then(() => {
@@ -94,7 +92,7 @@ describe("AJAX", () => {
         });
 
         it("returns a plain text as a string", (done) => {
-            mockPOST("/endpoint", "{}", 200, "Plain Text");
+            TestUtils.mockPOST("/endpoint", "{}", 200, "Plain Text");
 
             ajax.post("/endpoint", {})
                 .then((result) => {
@@ -110,7 +108,7 @@ describe("AJAX", () => {
         });
 
         it("returns JSON as an object", (done) => {
-            mockPOST("/endpoint", "{}", 200, "{\"foo\":\"bar\"}");
+            TestUtils.mockPOST("/endpoint", "{}", 200, "{\"foo\":\"bar\"}");
 
             ajax.post("/endpoint", {})
                 .then((result) => {
@@ -126,7 +124,7 @@ describe("AJAX", () => {
         });
 
         it("returns an error when the server fails (custom code)", (done) => {
-            mockPOST("/endpoint", "{}", 403, "Unauthorized");
+            TestUtils.mockPOST("/endpoint", "{}", 403, "Unauthorized");
 
             ajax.post("/endpoint", {})
                 .then((result) => {
@@ -142,7 +140,7 @@ describe("AJAX", () => {
         });
 
         it("returns an error when the server returns bad JSON", (done) => {
-            mockPOST("/endpoint", "{}", 200, "{xxx}");
+            TestUtils.mockPOST("/endpoint", "{}", 200, "{xxx}");
 
             ajax.post("/endpoint", {})
                 .then((result) => {
@@ -161,7 +159,7 @@ describe("AJAX", () => {
     describe("#_delete()", () => {
 
         it("works", (done) => {
-            mockRequest("DELETE", "/endpoint", "{\"foo\":\"bar\"}", 200, "");
+            TestUtils.mockRequest("DELETE", "/endpoint", "{\"foo\":\"bar\"}", 200, "");
 
             ajax._delete("/endpoint", {foo: "bar"})
                 .then(() => {
@@ -173,10 +171,10 @@ describe("AJAX", () => {
         });
 
         it("fails (e.g. if it can't connect to the server)", (done) => {
-            mockRequest("DELETE", "/endpoint", "{\"foo\":\"bar\"}", 0, "");
+            TestUtils.mockRequest("DELETE", "/endpoint", "{\"foo\":\"bar\"}", 0, "");
 
             ajax._delete("/endpoint", {foo: "bar"})
-                .then(() => {
+                .then((result) => {
                     done(new Error("Unexpected result: " + result));
                 })
                 .catch((e) => {
@@ -193,33 +191,3 @@ describe("AJAX", () => {
         global.XMLHttpRequest = undefined;
     });
 });
-
-function mockGET(expectedUrl, responseStatus, responseContent) {
-    mockRequest("GET", expectedUrl, undefined, responseStatus, responseContent);
-}
-
-function mockPOST(expectedUrl, expectedData, responseStatus, responseContent) {
-    mockRequest("POST", expectedUrl, expectedData, responseStatus, responseContent);
-}
-
-function mockRequest(expectedMethod, expectedUrl, expectedData, responseStatus, responseContent) {
-    global.XMLHttpRequest = class {
-
-        open(method, url) {
-            this.hasCalledOpen = true;
-            expect(method).to.equal(expectedMethod);
-            expect(url).to.equal(expectedUrl);
-        }
-
-        send(data) {
-            expect(data).to.equal(expectedData);
-            expect(this.hasCalledOpen).to.equal(true);
-            this.status = responseStatus;
-            this.response = responseContent;
-            this.readyState = 2;
-            this.onreadystatechange();
-            this.readyState = 4;
-            this.onreadystatechange();
-        }
-    };
-}

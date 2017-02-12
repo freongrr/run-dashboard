@@ -1,4 +1,5 @@
-/* eslint-env mocha */
+// @flow
+import {describe, it} from "mocha";
 import React from "react";
 import {shallow} from "enzyme";
 import {expect} from "chai";
@@ -25,30 +26,20 @@ describe("ErrorDialog", () => {
         expect(listWrapper.text()).to.include("Distance: 10.5 km");
     });
 
-    it("invokes the callback when clicking the Close button", () => {
-        let dismissed = false;
-        let confirmed = false;
+    it("invokes the callback when clicking the Close button", (done) => {
         const wrapper = shallow(<DeleteDialog activity={activity}
-                                              onDismiss={() => {dismissed = true;}}
-                                              onConfirm={() => {confirmed = true;}}/>);
+                                              onDismiss={() => done()}
+                                              onConfirm={() => done(new Error("This should not be called"))}/>);
 
         findByKey(wrapper, "dismiss").simulate("click");
-
-        expect(dismissed).to.equal(true);
-        expect(confirmed).to.equal(false);
     });
 
-    it("invokes the callback when clicking the Delete button", () => {
-        let dismissed = false;
-        let confirmed = false;
+    it("invokes the callback when clicking the Delete button", (done) => {
         const wrapper = shallow(<DeleteDialog activity={activity}
-                                              onDismiss={() => {dismissed = true;}}
-                                              onConfirm={() => {confirmed = true;}}/>);
+                                              onDismiss={() => done(new Error("This should not be called"))}
+                                              onConfirm={() => done()}/>);
 
         findByKey(wrapper, "delete").simulate("click");
-
-        expect(dismissed).to.equal(false);
-        expect(confirmed).to.equal(true);
     });
 });
 
