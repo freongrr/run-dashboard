@@ -7,7 +7,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.github.freongrr.run.components.ActivityStore;
+import com.github.freongrr.run.components.GraphSource;
+import com.github.freongrr.run.components.JsonSerializer;
 import com.github.freongrr.run.components.Logger;
 
 /**
@@ -17,7 +18,8 @@ import com.github.freongrr.run.components.Logger;
 public class GraphServlet extends BaseJsonServlet {
 
     private Logger logger;
-    private ActivityStore store;
+    private GraphSource source;
+    private JsonSerializer serializer;
 
     @Inject
     public void setLogger(Logger logger) {
@@ -25,8 +27,13 @@ public class GraphServlet extends BaseJsonServlet {
     }
 
     @Inject
-    public void setStore(ActivityStore store) {
-        this.store = store;
+    public void setSource(GraphSource source) {
+        this.source = source;
+    }
+
+    @Inject
+    public void setSerializer(JsonSerializer serializer) {
+        this.serializer = serializer;
     }
 
     // TODO : get all graph types
@@ -40,32 +47,10 @@ public class GraphServlet extends BaseJsonServlet {
         }
 
         String graphTypeId = request.getRequestURI().replaceAll("/graph/", "");
-        // String graphTypeId = request.getParameterNames().nextElement();
 
-        switch (graphTypeId) {
-            case "last12MonthsDuration":
-                break;
-            case "last12MonthsDistance":
-                break;
-            case "last12MonthsSplitTime":
-                break;
-            case "last12MonthsVsPrevious12Months":
-                break;
-            case "last30DaysDuration":
-                break;
-            case "last30DaysDistance":
-                break;
-            case "last30DaysSplitTime":
-                break;
-            case "last30DaysVsPrevious30Days":
-                break;
-            case "last30DaysVsAYearAgo":
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid graph type: " + graphTypeId);
-        }
+        Object[][] rows = source.getRows(graphTypeId);
+        String responseJson = serializer.serializeGraphRows(rows);
 
-        String responseJson = "[[\"2017-02\", 10, 20], [\"2017-01\", 15, 22], [\"2016-12\", 20, 40]]";
         writeJsonResponse(response, responseJson);
     }
 }

@@ -6,7 +6,9 @@ import com.github.freongrr.run.beans.Activity;
 
 public interface JsonSerializer {
 
-    String serialize(List<Activity> activities);
+    String serializeActivities(List<Activity> activities);
 
-    Activity deserialize(String json);
+    Activity deserializeActivity(String json);
+
+    String serializeGraphRows(Object[][] rows);
 }

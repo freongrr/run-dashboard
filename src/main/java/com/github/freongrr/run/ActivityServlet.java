@@ -49,7 +49,7 @@ public final class ActivityServlet extends BaseJsonServlet {
 
         List<Activity> activities = store.getAll();
 
-        String responseJson = serializer.serialize(activities);
+        String responseJson = serializer.serializeActivities(activities);
         writeJsonResponse(response, responseJson);
     }
 
@@ -62,7 +62,7 @@ public final class ActivityServlet extends BaseJsonServlet {
         }
 
         String json = consumeRequestData(request);
-        Activity activity = serializer.deserialize(json);
+        Activity activity = serializer.deserializeActivity(json);
 
         logger.info("Updating activity: %s", activity);
         store.update(activity);
@@ -70,7 +70,7 @@ public final class ActivityServlet extends BaseJsonServlet {
         // TODO : only return the updated activity and the index it was inserted/updated at
         List<Activity> activities = store.getAll();
 
-        String responseJson = serializer.serialize(activities);
+        String responseJson = serializer.serializeActivities(activities);
         writeJsonResponse(response, responseJson);
     }
 
@@ -83,7 +83,7 @@ public final class ActivityServlet extends BaseJsonServlet {
         }
 
         String json = consumeRequestData(request);
-        Activity activity = serializer.deserialize(json);
+        Activity activity = serializer.deserializeActivity(json);
 
         logger.info("Deleting activity: %s", activity);
         store.delete(activity);
@@ -91,7 +91,7 @@ public final class ActivityServlet extends BaseJsonServlet {
         // TODO : only return the index of the deleted activity
         List<Activity> activities = store.getAll();
 
-        String responseJson = serializer.serialize(activities);
+        String responseJson = serializer.serializeActivities(activities);
         writeJsonResponse(response, responseJson);
     }
 }

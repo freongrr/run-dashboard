@@ -81,7 +81,7 @@ final class SQLiteStore implements ActivityStore {
                         "ORDER BY date DESC");
     }
 
-    private static LocalDate toLocalDate(int date) throws SQLException {
+    private static LocalDate toLocalDate(int date) {
         // e.g. "20160811"
         int year = date / 10000;
         int month = date % 10000 / 100;
@@ -124,7 +124,7 @@ final class SQLiteStore implements ActivityStore {
         return statement;
     }
 
-    private static int fromLocalDate(LocalDate date) throws SQLException {
+    private static int fromLocalDate(LocalDate date) {
         // e.g. "20160811"
         return date.getYear() * 10000 + date.getMonthValue() * 100 + date.getDayOfMonth();
     }

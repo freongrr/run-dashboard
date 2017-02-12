@@ -152,6 +152,7 @@ export default class ChartPanel extends React.Component {
 
     componentDidMount() {
         // Subscribe once to activity updates
+        // HACK - I would not need to do that if the server could push updates to the graph
         this.props.route.dataStore.subscribe("activities", (activities, e) => {
             if (!e) {
                 this.refreshData();
@@ -175,9 +176,7 @@ export default class ChartPanel extends React.Component {
                 graphTypes: newTypes,
                 graphType: newGraphType,
                 builder: ChartPanel.createBuilder(newGraphType)
-            });
-
-            this.subscribe();
+            }, () => this.subscribe());
         }
     }
 
@@ -190,14 +189,11 @@ export default class ChartPanel extends React.Component {
             this.setState({
                 graphType: graphType,
                 builder: ChartPanel.createBuilder(graphType)
-            });
-
-            this.subscribe();
+            }, () => this.subscribe());
         }
     }
 
     refreshData() {
-        // TODO : we should not have to do that if the server could push updates
         if (this.subscription) {
             this.subscription.refresh();
         } else {
@@ -206,9 +202,24 @@ export default class ChartPanel extends React.Component {
     }
 
     subscribe() {
+        // TODO : subscribe once refresh using different parameters
+        // e.g.: subscription = store.subscribe("foo", {...});
+        //       subscription.refresh({...});
+        //       subscription.cancel();
+
         if (this.subscription) {
             this.subscription.cancel();
         }
+
+        // TODO : it may work better to pass 2 axises instead of a graph type:
+        // e.g. duration, time, avg. split time, temperature, heart bpm
+        // It would lead to interesting combos:
+        // - avg. split time over distance
+        // - time over temperature
+        //
+        // The problems are:
+        // - we still need to limit the data (e.g. last 12 months / forever) 
+        // - comparison graphs don't work (or would have to be handled differently) 
 
         const graphTypeId = this.state.graphType.id;
         this.subscription = this.props.route.dataStore.subscribe("graph/" + graphTypeId, (rows, e) => {

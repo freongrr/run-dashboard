@@ -31,13 +31,12 @@ export default class C3Graph extends React.Component {
         const builder = this.props.builder;
 
         const axes = {};
+        const names = {};
+        const formatters = {};
         builder.series.forEach((s, i) => {
             axes["series_" + i] = s.secondY ? "y2" : "y";
-        });
-
-        const names = {};
-        builder.series.forEach((s, i) => {
             names["series_" + i] = s.name;
+            formatters["series_" + i] = s.format;
         });
 
         const headers = ["x"].concat(builder.series.map((s, i) => "series_" + i));
@@ -65,19 +64,17 @@ export default class C3Graph extends React.Component {
             tooltip: {
                 format: {
                     value: function (value, ratio, id) {
-                        let formatted = value;
-                        builder.series.forEach(s => {
-                            if (s.id === id) {
-                                formatted = s.format(value);
-                            }
-                        });
-                        return formatted;
+                        if (formatters[id]) {
+                            return formatters[id](value);
+                        } else {
+                            return value;
+                        }
                     }
                 }
             },
-            line: {
-                connectNull: true
-            },
+            // line: {
+            //     connectNull: true
+            // },
             // grid: {
             //     y: {
             //         lines: [
@@ -92,6 +89,8 @@ export default class C3Graph extends React.Component {
 
     buildXAxis() {
         const xAxis = {};
+
+        // TODO : this does not use the name or formatter of this.props.builder.x
 
         if (this.props.builder.time) {
             xAxis.type = "timeseries";

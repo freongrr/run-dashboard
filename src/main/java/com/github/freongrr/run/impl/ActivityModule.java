@@ -7,6 +7,7 @@ import javax.sql.DataSource;
 import org.sqlite.javax.SQLiteConnectionPoolDataSource;
 
 import com.github.freongrr.run.components.ActivityStore;
+import com.github.freongrr.run.components.GraphSource;
 import com.github.freongrr.run.components.JsonSerializer;
 import com.github.freongrr.run.components.Logger;
 import com.google.inject.AbstractModule;
@@ -29,6 +30,7 @@ public final class ActivityModule extends AbstractModule {
         bind(ServletContext.class).toInstance(servletContext);
         // bind(ActivityStore.class).to(DummyStore.class).in(Scopes.SINGLETON);
         bind(ActivityStore.class).to(SQLiteStore.class).in(Scopes.SINGLETON);
+        bind(GraphSource.class).to(SQLGraphSource.class).in(Scopes.SINGLETON);
         bind(JsonSerializer.class).to(GsonSerializer.class).in(Scopes.SINGLETON);
         bind(Logger.class).to(ServletLogger.class).in(Scopes.SINGLETON);
     }

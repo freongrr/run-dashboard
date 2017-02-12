@@ -26,17 +26,22 @@ final class GsonSerializer implements JsonSerializer {
     }
 
     @Override
-    public String serialize(List<Activity> activities) {
+    public String serializeActivities(List<Activity> activities) {
         return gson.toJson(activities);
     }
 
     @Override
-    public Activity deserialize(String json) {
+    public Activity deserializeActivity(String json) {
         Activity activity = gson.fromJson(json, Activity.class);
         if (activity != null && "".equals(activity.getId())) {
             activity.setId(null);
         }
         return activity;
+    }
+
+    @Override
+    public String serializeGraphRows(Object[][] rows) {
+        return gson.toJson(rows);
     }
 
     // Use "YYYY-MM-DD" for LocalDate
