@@ -7,7 +7,7 @@ import React from "react";
 type C3GraphProps = {
     id: string,
     builder: GraphBuilder,
-    rows: number[][]
+    rows: any[][]
 };
 
 export default class C3Graph extends React.Component {
@@ -30,16 +30,21 @@ export default class C3Graph extends React.Component {
     componentDidUpdate() {
         const builder = this.props.builder;
 
-        const axes = {};
-        const names = {};
-        const formatters = {};
+        const series_ids = [];
+        const series_axes = {};
+        const series_names = {};
+        const series_formats = {};
+        const headers = ["x"];
+
         builder.series.forEach((s, i) => {
-            axes["series_" + i] = s.secondY ? "y2" : "y";
-            names["series_" + i] = s.name;
-            formatters["series_" + i] = s.format;
+            const id = "series_" + (i + 1);
+            series_ids.push(id);
+            series_axes[id] = s.secondY ? "y2" : "y";
+            series_names[id] = s.name;
+            series_formats[id] = s.format;
+            headers.push(id);
         });
 
-        const headers = ["x"].concat(builder.series.map((s, i) => "series_" + i));
         const rows = [headers].concat(this.props.rows);
 
         // TODO : only if the data has really changed...
@@ -51,10 +56,10 @@ export default class C3Graph extends React.Component {
                 rows: rows,
                 keys: {
                     x: "x",
-                    value: builder.series.map((s, i) => "series_" + i),
+                    value: series_ids,
                 },
-                axes: axes,
-                names: names
+                axes: series_axes,
+                names: series_names
             },
             axis: {
                 x: this.buildXAxis(),
@@ -64,8 +69,8 @@ export default class C3Graph extends React.Component {
             tooltip: {
                 format: {
                     value: function (value, ratio, id) {
-                        if (formatters[id]) {
-                            return formatters[id](value);
+                        if (series_formats[id]) {
+                            return series_formats[id](value);
                         } else {
                             return value;
                         }
