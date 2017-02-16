@@ -56,7 +56,7 @@ public final class SQLGraphSourceTest {
 
         when(resultSet.next()).thenReturn(true, false);
         when(resultSet.getString(1)).thenReturn("2017-02");
-        when(resultSet.getDouble(2)).thenReturn(50D);
+        when(resultSet.getObject(2)).thenReturn(50D);
 
         Object[][] rows = graphSource.queryOverLast12Months("SUM(A.time)");
         assertThat(rows.length, equalTo(1));
@@ -65,3 +65,4 @@ public final class SQLGraphSourceTest {
         assertThat(rows[0][1], equalTo(50D));
     }
 }
+    

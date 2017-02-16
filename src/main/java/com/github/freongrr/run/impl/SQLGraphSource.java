@@ -71,11 +71,12 @@ final class SQLGraphSource implements GraphSource {
                 Object[] row = new Object[1 + expressions.length];
                 row[0] = resultSet.getString(1);
                 for (int i = 0; i < expressions.length; i++) {
-                    if (resultSet.getObject(2) == null) {
+                    Object object = resultSet.getObject(2);
+                    if (object == null) {
                         // TODO : using a special value may work better here, but 0 does not work well on line charts...
                         row[i + 1] = null;
                     } else {
-                        row[i + 1] = resultSet.getDouble(i + 2);
+                        row[i + 1] = ((Number) object).doubleValue();
                     }
                 }
                 rows.add(row);
