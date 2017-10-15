@@ -1,5 +1,4 @@
 // @flow
-/* eslint no-console: ["off"] */
 "use strict";
 
 import type {ActivityBuilder} from "./Types";
@@ -19,7 +18,7 @@ type ActivityDialogState = {
     builder: ActivityBuilder
 };
 
-export default class ActivityDialog extends React.Component {
+export default class ActivityDialog extends React.Component<ActivityDialogProps, ActivityDialogState> {
     props: ActivityDialogProps;
     state: ActivityDialogState;
     inputs: Map<string, HTMLInputElement>;
@@ -89,7 +88,7 @@ export default class ActivityDialog extends React.Component {
             <FormGroup controlId={id} validationState={validationState}>
                 <ControlLabel>{label}</ControlLabel>
                 <FormControl id={id} type={type} value={value} placeholder={placeholder}
-                             onChange={changeHandle} inputRef={ref => this.inputs.set(property, ref)}/>
+                    onChange={changeHandle} inputRef={ref => this.inputs.set(property, ref)}/>
                 {help && <HelpBlock>{help}</HelpBlock>}
                 <FormControl.Feedback />
             </FormGroup>

@@ -9,7 +9,7 @@ type ErrorDialogProps = {
     onDismiss: () => void
 };
 
-export default class ErrorDialog extends React.Component {
+export default class ErrorDialog extends React.Component<*> {
     props: ErrorDialogProps;
 
     constructor(props: ErrorDialogProps) {

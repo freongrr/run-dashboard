@@ -10,7 +10,7 @@ type C3GraphProps = {
     rows: any[][]
 };
 
-export default class C3Graph extends React.Component {
+export default class C3Graph extends React.Component<*> {
     props: C3GraphProps;
 
     constructor(props: C3GraphProps) {

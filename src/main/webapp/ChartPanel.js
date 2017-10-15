@@ -92,7 +92,7 @@ GRAPH_TYPES[LAST_30_DAYS] = [
 // TODO : other graph types
 // - (pie chart) distance objective (but then, what if it goes above 100%?)
 
-export default class ChartPanel extends React.Component {
+export default class ChartPanel extends React.Component<ChartPanelProps, ChartPanelState> {
     props: ChartPanelProps;
     state: ChartPanelState;
 

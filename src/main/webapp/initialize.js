@@ -15,14 +15,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const dataStore = new DataStore(rpc);
 
     const content = document.getElementById("content");
-    ReactDOM.render((
-        <Router history={hashHistory}>
-            {/* TODO : If the graph component does not change, should I hard code it in Dashboard? */}
-            <Route path="/" component={Dashboard} dataStore={dataStore}>
-                <IndexRoute components={{chart: ChartPanel}} dataStore={dataStore} zoom="last12Months"/>
-                <Route path="/Last12Months" components={{chart: ChartPanel}} dataStore={dataStore} zoom="last12Months"/>
-                <Route path="/Last30Days" components={{chart: ChartPanel}} dataStore={dataStore} zoom="last30Days"/>
-            </Route>
-        </Router>
-    ), content);
+    if (content) {
+        ReactDOM.render((
+            <Router history={hashHistory}>
+                {/* TODO : If the graph component does not change, should I hard code it in Dashboard? */}
+                <Route path="/" component={Dashboard} dataStore={dataStore}>
+                    <IndexRoute components={{chart: ChartPanel}} dataStore={dataStore} zoom="last12Months"/>
+                    <Route path="/Last12Months" components={{chart: ChartPanel}} dataStore={dataStore} zoom="last12Months"/>
+                    <Route path="/Last30Days" components={{chart: ChartPanel}} dataStore={dataStore} zoom="last30Days"/>
+                </Route>
+            </Router>
+        ), content);
+    }
 });

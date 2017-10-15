@@ -4,15 +4,15 @@
 
 import type {Activity, ActivityBuilder} from "./Types";
 import React from "react";
-import {PageHeader, ButtonToolbar, Button, Glyphicon} from "react-bootstrap";
+import {Button, ButtonToolbar, Glyphicon, PageHeader} from "react-bootstrap";
 import type {Subscription} from "./DataStore";
 import DataStore from "./DataStore";
 import ActivityTable from "./ActivityTable";
 import ActivityDialog from "./ActivityDialog";
 import ErrorDialog from "./ErrorDialog";
 import DeleteDialog from "./DeleteDialog";
-import {parseDuration, formatHourMinutes} from "./TimeUtils";
-import {parseDistance, formatKm} from "./DistanceUtils";
+import {formatHourMinutes, parseDuration} from "./TimeUtils";
+import {formatKm, parseDistance} from "./DistanceUtils";
 
 type DashboardProps = {
     chart: any,
@@ -30,7 +30,7 @@ type DashboardState = {
 
 const RESOURCE = "activities";
 
-export default class Dashboard extends React.Component {
+export default class Dashboard extends React.Component<DashboardProps, DashboardState> {
     props: DashboardProps;
     state: DashboardState;
 
@@ -67,8 +67,8 @@ export default class Dashboard extends React.Component {
                 </PageHeader>
 
                 <ActivityTable activities={this.state.activities}
-                               editHandler={(a) => this.promptEdit(a)}
-                               deleteHandler={(a) => this.promptDelete(a)}/>
+                    editHandler={(a) => this.promptEdit(a)}
+                    deleteHandler={(a) => this.promptDelete(a)}/>
 
                 <ButtonToolbar>
                     <Button bsStyle="primary" onClick={() => this.refresh()}>
@@ -79,19 +79,19 @@ export default class Dashboard extends React.Component {
                     </Button>
                 </ButtonToolbar>
 
-                {this.state.editedActivity !== null
-                && <ActivityDialog initialActivity={this.state.editedActivity}
-                                   onDismiss={() => this.setState({editedActivity: null})}
-                                   onSave={(a) => this.saveActivity(a)}/> }
+                {this.state.editedActivity && <ActivityDialog
+                    initialActivity={this.state.editedActivity}
+                    onDismiss={() => this.setState({editedActivity: null})}
+                    onSave={(a) => this.saveActivity(a)}/>}
 
-                {this.state.error
-                && <ErrorDialog error={this.state.error}
-                                onDismiss={() => this.setState({error: null})}/>}
+                {this.state.error && <ErrorDialog
+                    error={this.state.error}
+                    onDismiss={() => this.setState({error: null})}/>}
 
-                {this.state.deletedActivity
-                && <DeleteDialog activity={this.state.deletedActivity}
-                                 onDismiss={() => this.setState({deletedActivity: null})}
-                                 onConfirm={() => this.deleteActivity()}/>}
+                {this.state.deletedActivity && <DeleteDialog
+                    activity={this.state.deletedActivity}
+                    onDismiss={() => this.setState({deletedActivity: null})}
+                    onConfirm={() => this.deleteActivity()}/>}
             </div>
         );
     }

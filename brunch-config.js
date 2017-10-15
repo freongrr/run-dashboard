@@ -33,7 +33,17 @@ module.exports = {
     },
 
     plugins: {
-        babel: {presets: ["es2015", "react"]}
+        babel: {
+            presets: [
+                "latest",
+                "react",
+                "flow"
+            ],
+            plugins: [
+                "transform-class-properties",
+                "transform-flow-strip-types"
+            ]
+        }
     },
 
     modules: {
@@ -49,6 +59,4 @@ module.exports = {
     }
 };
 
-// TODO : eslint
-// TODO : flow with https://www.npmjs.com/package/flow-brunch
-// TODO : integration with travis
+// TODO : integration with jest and travis
