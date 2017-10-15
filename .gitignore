@@ -1,5 +1,6 @@
 /*.iml
 /.idea
+/dist
 /target
 /node_modules
 /npm-debug.log

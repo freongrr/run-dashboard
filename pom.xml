@@ -98,7 +98,7 @@
                         <configuration>
                             <arguments>
                                 <argument>run-script</argument>
-                                <argument>make</argument>
+                                <argument>build</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -114,6 +114,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.4</version>
                 <configuration>
+                    <warSourceDirectory>${basedir}/dist</warSourceDirectory>
                     <webXml>${basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
                     <archive>
                         <manifest>
@@ -121,17 +122,17 @@
                             <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                         </manifest>
                     </archive>
-                    <!-- Attention! we don't want to copy the source JS and CSS files (images and HTML files could
-                         be filtered out too, but they are not modified by the grunt compilation anyway) -->
-                    <warSourceExcludes>**/*.js, **/*.css</warSourceExcludes>
                 </configuration>
             </plugin>
 
-            <!--Test the packaged application with "jetty:run-war"-->
+            <!--Test the packaged application with "jetty:run"-->
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>9.4.0.v20161208</version>
+                <configuration>
+                    <webAppSourceDirectory>${basedir}/dist</webAppSourceDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -11,7 +11,7 @@ Build the WAR file:
 
 Debug using Jetty:
 
-    mvn clean jetty:run-war -DdatabaseUrl=jdbc:sqlite:file:///path/to/run.sqlite3
+    mvn clean jetty:run -DdatabaseUrl=jdbc:sqlite:file:///path/to/run.sqlite3
 
 Watch for changes in the JS code and static resources:
 
