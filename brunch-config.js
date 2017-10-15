@@ -22,14 +22,14 @@ module.exports = {
 
     npm: {
         enabled: true,
+        globals: {
+            d3: "d3",
+            c3: "c3"
+        },
         styles: {
             bootstrap: ["dist/css/bootstrap.css"],
             c3: ["c3.css"]
-        },
-        static: [
-            "d3.js",
-            "c3.js"
-        ]
+        }
     },
 
     plugins: {

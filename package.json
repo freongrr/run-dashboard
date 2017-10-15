@@ -12,7 +12,7 @@
     "url": "git@github.com:freongrr/run-dashboard.git"
   },
   "scripts": {
-    "start": "brunch watch --server --port 4321",
+    "start": "brunch watch --server",
     "build": "brunch build --production"
   },
   "dependencies": {
