@@ -37,10 +37,12 @@
     "babel-preset-react": "6.24.1",
     "brunch": "2",
     "clean-css-brunch": "2",
+    "copycat-brunch": "1.1.0",
     "eslint": "4.9.0",
     "eslint-plugin-flowtype": "2.39.1",
     "eslint-plugin-react": "7.4.0",
     "flow-brunch": "0.2.4",
-    "sass-brunch": "2.10.4"
+    "sass-brunch": "2.10.4",
+    "uglify-js-brunch": "2.10.0"
   }
 }

@@ -43,6 +43,10 @@ module.exports = {
                 "transform-class-properties",
                 "transform-flow-strip-types"
             ]
+        },
+        copycat: {
+            fonts: ["node_modules/bootstrap/dist/fonts"],
+            onlyChanged: true,
         }
     },
 
@@ -59,4 +63,6 @@ module.exports = {
     }
 };
 
-// TODO : integration with jest and travis
+// TODO : eslint
+// TODO : flow with https://www.npmjs.com/package/flow-brunch
+// TODO : integration with travis
