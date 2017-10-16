@@ -1,7 +1,6 @@
 // @flow
 /* eslint no-undef: ["off"] */
 import TestUtils from "./TestUtils";
-import {describe, it, afterEach} from "mocha";
 import AJAX from "../../main/webapp/AJAX";
 
 TestUtils.defineConsole();
@@ -12,7 +11,7 @@ describe("AJAX", () => {
 
     describe("#get()", () => {
 
-        it("returns a plain text as a string", (done) => {
+        test("returns a plain text as a string", (done) => {
             TestUtils.mockGET("/endpoint", 200, "Plain Text");
 
             ajax.get("/endpoint")
@@ -28,7 +27,7 @@ describe("AJAX", () => {
                 });
         });
 
-        it("returns JSON as an object", (done) => {
+        test("returns JSON as an object", (done) => {
             TestUtils.mockGET("/endpoint", 200, "{\"foo\":\"bar\"}");
 
             ajax.get("/endpoint")
@@ -44,7 +43,7 @@ describe("AJAX", () => {
                 });
         });
 
-        it("returns an error when the server fails", (done) => {
+        test("returns an error when the server fails", (done) => {
             TestUtils.mockGET("/endpoint", 500, "Boom");
 
             ajax.get("/endpoint")
@@ -60,7 +59,7 @@ describe("AJAX", () => {
                 });
         });
 
-        it("returns an error when the server returns bad JSON", (done) => {
+        test("returns an error when the server returns bad JSON", (done) => {
             TestUtils.mockGET("/endpoint", 200, "{xxx}");
 
             ajax.get("/endpoint")
@@ -79,7 +78,7 @@ describe("AJAX", () => {
 
     describe("#post()", () => {
 
-        it("serializes data to JSON", (done) => {
+        test("serializes data to JSON", (done) => {
             TestUtils.mockPOST("/endpoint", "{\"foo\":\"bar\"}", 200, "");
 
             ajax.post("/endpoint", {foo: "bar"})
@@ -91,7 +90,7 @@ describe("AJAX", () => {
                 });
         });
 
-        it("returns a plain text as a string", (done) => {
+        test("returns a plain text as a string", (done) => {
             TestUtils.mockPOST("/endpoint", "{}", 200, "Plain Text");
 
             ajax.post("/endpoint", {})
@@ -107,7 +106,7 @@ describe("AJAX", () => {
                 });
         });
 
-        it("returns JSON as an object", (done) => {
+        test("returns JSON as an object", (done) => {
             TestUtils.mockPOST("/endpoint", "{}", 200, "{\"foo\":\"bar\"}");
 
             ajax.post("/endpoint", {})
@@ -123,7 +122,7 @@ describe("AJAX", () => {
                 });
         });
 
-        it("returns an error when the server fails (custom code)", (done) => {
+        test("returns an error when the server fails (custom code)", (done) => {
             TestUtils.mockPOST("/endpoint", "{}", 403, "Unauthorized");
 
             ajax.post("/endpoint", {})
@@ -139,7 +138,7 @@ describe("AJAX", () => {
                 });
         });
 
-        it("returns an error when the server returns bad JSON", (done) => {
+        test("returns an error when the server returns bad JSON", (done) => {
             TestUtils.mockPOST("/endpoint", "{}", 200, "{xxx}");
 
             ajax.post("/endpoint", {})
@@ -158,7 +157,7 @@ describe("AJAX", () => {
 
     describe("#_delete()", () => {
 
-        it("works", (done) => {
+        test("works", (done) => {
             TestUtils.mockRequest("DELETE", "/endpoint", "{\"foo\":\"bar\"}", 200, "");
 
             ajax._delete("/endpoint", {foo: "bar"})
@@ -170,7 +169,7 @@ describe("AJAX", () => {
                 });
         });
 
-        it("fails (e.g. if it can't connect to the server)", (done) => {
+        test("fails (e.g. if it can't connect to the server)", (done) => {
             TestUtils.mockRequest("DELETE", "/endpoint", "{\"foo\":\"bar\"}", 0, "");
 
             ajax._delete("/endpoint", {foo: "bar"})

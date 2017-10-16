@@ -29,3 +29,11 @@ Links
 * BDD API: http://chaijs.com/api/bdd/
 * Test react components: http://airbnb.io/enzyme/docs/api/shallow.html
 * Code coverage: https://istanbul.js.org/
+
+TODO
+====
+
+* Stop using react-addons-update
+* Upgrade to React 16
+* Upgrade to react-router 4
+* Use babel-preset-env

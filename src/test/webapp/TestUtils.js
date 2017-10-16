@@ -2,7 +2,7 @@
 /* eslint no-console: ["off"] */
 /* eslint no-undef: ["off"] */
 /* eslint no-unused-vars: ["off"] */
-import {expect} from "chai";
+import expect from "expect";
 
 export default {
     defineConsole: function () {
@@ -26,13 +26,13 @@ export default {
 
             open(method, url, async, user, password) {
                 this.hasCalledOpen = true;
-                expect(method).to.equal(expectedMethod);
-                expect(url).to.equal(expectedUrl);
+                expect(method).toEqual(expectedMethod);
+                expect(url).toEqual(expectedUrl);
             }
 
             send(data) {
-                expect(data).to.equal(expectedData);
-                expect(this.hasCalledOpen).to.equal(true);
+                expect(data).toEqual(expectedData);
+                expect(this.hasCalledOpen).toEqual(true);
                 this.status = responseStatus;
                 this.response = responseContent;
                 this.readyState = 2;

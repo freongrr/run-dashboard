@@ -1,15 +1,15 @@
 // @flow
-import {describe, it} from "mocha";
-import {expect} from "chai";
+import React from "react";
+import expect from "expect";
 import DataStore from "../../main/webapp/DataStore";
 import DummyRPC from "../../main/webapp/DummyRPC";
 
 describe("DataStore", () => {
 
-    it("TODO", () => {
+    test("TODO", () => {
         const rpc = new DummyRPC();
 
         const dataStore = new DataStore(rpc);
-        expect(dataStore).not.to.equal(null);
+        expect(dataStore).not.toBeNull();
     });
 });
