@@ -50,33 +50,31 @@ describe("C3Graph", () => {
             ["3", 6, 9]
         ];
 
-        global.window = {
-            c3: {
-                generate: function (g) {
-                    expect(g.bindto).toEqual("#testGraph");
+        global.c3 = {
+            generate: function (g) {
+                expect(g.bindto).toEqual("#testGraph");
 
-                    expect(g.data.type).toEqual("bar");
-                    expect(g.data.x).toEqual("x"); // auto generated
+                expect(g.data.type).toEqual("bar");
+                expect(g.data.x).toEqual("x"); // auto generated
 
-                    expect(g.data.rows).toHaveLength(4);
-                    expect(g.data.rows[0]).to.eql(["x", "series_1", "series_2"]); // auto generated
-                    expect(g.data.rows[1]).to.eql(["1", 2, 3]);
-                    expect(g.data.rows[2]).to.eql(["2", 4, 6]);
-                    expect(g.data.rows[3]).to.eql(["3", 6, 9]);
-                    expect(g.data.keys.x).toEqual("x");
-                    expect(g.data.keys.value).to.eql(["series_1", "series_2"]);
-                    expect(g.data.axes).to.eql({"series_1": "y", "series_2": "y2"});
-                    expect(g.data.names).to.eql({"series_1": "N * 2", "series_2": "N * 3"});
+                expect(g.data.rows).toHaveLength(4);
+                expect(g.data.rows[0]).toEqual(["x", "series_1", "series_2"]); // auto generated
+                expect(g.data.rows[1]).toEqual(["1", 2, 3]);
+                expect(g.data.rows[2]).toEqual(["2", 4, 6]);
+                expect(g.data.rows[3]).toEqual(["3", 6, 9]);
+                expect(g.data.keys.x).toEqual("x");
+                expect(g.data.keys.value).toEqual(["series_1", "series_2"]);
+                expect(g.data.axes).toEqual({"series_1": "y", "series_2": "y2"});
+                expect(g.data.names).toEqual({"series_1": "N * 2", "series_2": "N * 3"});
 
-                    expect(g.axis.x.type).toEqual("category");
-                    expect(g.axis.y.type).not.toBeNull();
-                    expect(g.axis.y2.type).not.toBeNull();
+                expect(g.axis.x.type).toEqual("category");
+                expect(g.axis.y.type).not.toBeNull();
+                expect(g.axis.y2.type).not.toBeNull();
 
-                    expect(g.tooltip.format.value).not.toBeNull();
-                    expect(g.tooltip.format.value(9, null, "series_2").toString()).toEqual("N * 3 = 9");
+                expect(g.tooltip.format.value).not.toBeNull();
+                expect(g.tooltip.format.value(9, null, "series_2").toString()).toEqual("N * 3 = 9");
 
-                    // expect(g.line.connectNull).toEqual(true);
-                }
+                // expect(g.line.connectNull).toEqual(true);
             }
         };
 
@@ -85,6 +83,6 @@ describe("C3Graph", () => {
     });
 
     afterEach(() => {
-        global.window = undefined;
+        delete global.c3;
     });
 });

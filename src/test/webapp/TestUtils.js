@@ -5,6 +5,7 @@
 import expect from "expect";
 
 export default {
+
     defineConsole: function () {
         // The Console class in NodeJS does not have a console.debug(...) method
         console.debug = function (message) {
@@ -20,7 +21,11 @@ export default {
         this.mockRequest("POST", expectedUrl, expectedData, responseStatus, responseContent);
     },
 
+    // TODO : use jsdom instead
     mockRequest: function (expectedMethod, expectedUrl, expectedData, responseStatus, responseContent) {
+        if (!this.backupXMLHttpRequest) {
+            this.backupXMLHttpRequest = global.XMLHttpRequest;
+        }
         global.XMLHttpRequest = class {
             hasCalledOpen: boolean;
 
@@ -41,5 +46,10 @@ export default {
                 this.onreadystatechange({});
             }
         };
+    },
+
+    resetXMLHttpRequest: function () {
+        global.XMLHttpRequest = this.backupXMLHttpRequest;
+        this.backupXMLHttpRequest = undefined;
     }
 };

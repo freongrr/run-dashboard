@@ -187,6 +187,6 @@ describe("AJAX", () => {
     });
 
     afterEach(() => {
-        global.XMLHttpRequest = undefined;
+        TestUtils.resetXMLHttpRequest();
     });
 });
