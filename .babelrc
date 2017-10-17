@@ -1,0 +1,11 @@
+{
+  "presets": [
+    "latest",
+    "react",
+    "flow"
+  ],
+  "plugins": [
+    "transform-class-properties",
+    "transform-flow-strip-types"
+  ]
+}
