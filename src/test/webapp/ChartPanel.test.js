@@ -1,15 +1,17 @@
 // @flow
-import {describe, it} from "mocha";
 import React from "react";
 import {shallow} from "enzyme";
-import {expect} from "chai";
+import expect from "expect";
 import ChartPanel from "../../main/webapp/ChartPanel";
 import DataStore from "../../main/webapp/DataStore";
 import DummyRPC from "../../main/webapp/DummyRPC";
+import TestUtils from "./TestUtils";
+
+TestUtils.defineConsole();
 
 describe("ChartPanel", () => {
 
-    it("TODO", () => {
+    test("TODO", () => {
         // TODO : mock DataStore instead
         const dataStore = new DataStore(new DummyRPC());
 
@@ -19,6 +21,6 @@ describe("ChartPanel", () => {
         };
 
         const wrapper = shallow(<ChartPanel route={route}/>);
-        expect(wrapper).not.to.equal(null);
+        expect(wrapper).not.toBeNull();
     });
 });

@@ -2,9 +2,10 @@
 /* eslint no-console: ["off"] */
 /* eslint no-undef: ["off"] */
 /* eslint no-unused-vars: ["off"] */
-import {expect} from "chai";
+import expect from "expect";
 
 export default {
+
     defineConsole: function () {
         // The Console class in NodeJS does not have a console.debug(...) method
         console.debug = function (message) {
@@ -20,19 +21,23 @@ export default {
         this.mockRequest("POST", expectedUrl, expectedData, responseStatus, responseContent);
     },
 
+    // TODO : use jsdom instead
     mockRequest: function (expectedMethod, expectedUrl, expectedData, responseStatus, responseContent) {
+        if (!this.backupXMLHttpRequest) {
+            this.backupXMLHttpRequest = global.XMLHttpRequest;
+        }
         global.XMLHttpRequest = class {
             hasCalledOpen: boolean;
 
             open(method, url, async, user, password) {
                 this.hasCalledOpen = true;
-                expect(method).to.equal(expectedMethod);
-                expect(url).to.equal(expectedUrl);
+                expect(method).toEqual(expectedMethod);
+                expect(url).toEqual(expectedUrl);
             }
 
             send(data) {
-                expect(data).to.equal(expectedData);
-                expect(this.hasCalledOpen).to.equal(true);
+                expect(data).toEqual(expectedData);
+                expect(this.hasCalledOpen).toEqual(true);
                 this.status = responseStatus;
                 this.response = responseContent;
                 this.readyState = 2;
@@ -41,5 +46,10 @@ export default {
                 this.onreadystatechange({});
             }
         };
+    },
+
+    resetXMLHttpRequest: function () {
+        global.XMLHttpRequest = this.backupXMLHttpRequest;
+        this.backupXMLHttpRequest = undefined;
     }
 };

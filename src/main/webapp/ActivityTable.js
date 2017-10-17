@@ -13,7 +13,7 @@ type ActivityTableProps = {
     deleteHandler: (Activity) => void
 };
 
-export default class ActivityTable extends React.Component {
+export default class ActivityTable extends React.Component<ActivityTableProps> {
     props: ActivityTableProps;
 
     constructor(props: ActivityTableProps) {

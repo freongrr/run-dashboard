@@ -5,9 +5,9 @@
     },
     "extends": [
         "eslint:recommended",
-        "plugin:react/recommended"
+        "plugin:react/recommended",
+        "plugin:flowtype/recommended"
     ],
-    "installedESLint": true,
     "parser": "babel-eslint",
     "parserOptions": {
         "ecmaFeatures": {
@@ -17,24 +17,15 @@
         "sourceType": "module"
     },
     "plugins": [
-        "react"
+        "react",
+        "flowtype"
     ],
     "rules": {
-        "indent": [
-            "error",
-            4
-        ],
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
-        "quotes": [
-            "error",
-            "double"
-        ],
-        "semi": [
-            "error",
-            "always"
-        ]
+        "indent": ["error", 4],
+        "linebreak-style": ["error", "unix"],
+        "quotes": ["error", "double"],
+        "semi": ["error", "always"],
+        "no-console": ["off"],
+        "flowtype/space-before-type-colon": ["off"]
     }
 }

@@ -13,7 +13,7 @@ type DeleteDialogProps = {
     onConfirm: () => void
 };
 
-export default class DeleteDialog extends React.Component {
+export default class DeleteDialog extends React.Component<*> {
     props: DeleteDialogProps;
 
     constructor(props: DeleteDialogProps) {
