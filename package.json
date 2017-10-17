@@ -15,7 +15,7 @@
     "start": "./node_modules/.bin/brunch watch --server",
     "build": "./node_modules/.bin/brunch build --production",
     "test": "./node_modules/.bin/jest",
-    "ci": "./node_modules/.bin/jest | ./node_modules/.bin/coveralls"
+    "ci": "./node_modules/.bin/jest && cat ./tests_coverage/lcov.info | ./node_modules/.bin/coveralls"
   },
   "dependencies": {
     "bootstrap": "3.3.7",
@@ -61,7 +61,7 @@
     "coverageDirectory": "tests_coverage",
     "collectCoverage": true,
     "coverageReporters": [
-      "json",
+      "lcov",
       "html"
     ]
   }
