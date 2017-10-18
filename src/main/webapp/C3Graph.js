@@ -29,6 +29,7 @@ export default class C3Graph extends React.Component<*> {
 
     componentDidUpdate() {
         const builder = this.props.builder;
+        console.log("Regenerating C3 graph: ", builder);
 
         const series_ids = [];
         const series_axes = {};

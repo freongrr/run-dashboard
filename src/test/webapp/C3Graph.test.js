@@ -1,4 +1,5 @@
 // @flow
+/* global describe, test */
 /* eslint no-undef: ["off"] */
 import React from "react";
 import {shallow} from "enzyme";

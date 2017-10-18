@@ -1,4 +1,5 @@
 // @flow
+/* global describe, test */
 import TestUtils from "./TestUtils";
 import React from "react";
 import {shallow} from "enzyme";
@@ -15,11 +16,11 @@ describe("Dashboard", () => {
     const dataStore = new DataStore(new DummyRPC());
 
     test("TODO", () => {
-        const wrapper = shallow(<Dashboard route={{dataStore: dataStore}} chart={ChartTest}/>);
+        const wrapper = shallow(<Dashboard dataStore={dataStore} chart={ChartTest}/>);
         expect(wrapper).not.toBeNull();
     });
 });
 
 function ChartTest() {
-    return <div></div>;
+    return <div>foo</div>;
 }

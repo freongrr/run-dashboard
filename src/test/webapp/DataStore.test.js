@@ -1,4 +1,5 @@
 // @flow
+/* global describe, test */
 import React from "react";
 import expect from "expect";
 import DataStore from "../../main/webapp/DataStore";

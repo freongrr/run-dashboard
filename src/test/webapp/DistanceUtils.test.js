@@ -1,4 +1,5 @@
 // @flow
+/* global describe, test */
 import React from "react";
 import expect from "expect";
 import {formatKm, formatMeters, parseDistance} from "../../main/webapp/DistanceUtils";
