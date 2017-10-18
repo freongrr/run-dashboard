@@ -15,25 +15,17 @@ Debug using Jetty:
 
 Watch for changes in the JS code and static resources:
 
-    npm start
+    npm run start
 
 Links
 =====
 
-* React: https://facebook.github.io/react/
-* React components for bootstrap: http://react-bootstrap.github.io/
-* React Router for routing: https://github.com/ReactTraining/react-router/
-* C3.js for charts: http://c3js.org/
-* ESLint plugin for React: https://github.com/yannickcr/eslint-plugin-react
-* Test runner: https://mochajs.org/
-* BDD API: http://chaijs.com/api/bdd/
-* Test react components: http://airbnb.io/enzyme/docs/api/shallow.html
-* Code coverage: https://istanbul.js.org/
-
-TODO
-====
-
-* Stop using react-addons-update
-* Upgrade to React 16
-* Upgrade to react-router 4
-* Use babel-preset-env
+* Assembled with Brunch: http://brunch.io/
+* Static typing with Flow: https://flow.org/
+* Front-end with React: https://facebook.github.io/react/
+* Bootstrap implementation for React: http://react-bootstrap.github.io/
+* Routing with React Router: https://github.com/ReactTraining/react-router/
+* Charts with C3.js: http://c3js.org/
+* Linting with ESLint for React: https://github.com/yannickcr/eslint-plugin-react
+* Unit test and coverage with Jest: https://facebook.github.io/jest/
+* React tests with Enzyme: http://airbnb.io/enzyme/docs/api/shallow.html
