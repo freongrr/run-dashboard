@@ -1,3 +1,4 @@
+// TODO : can/should I run tests from brunch?
 module.exports = {
 
     paths: {
@@ -35,7 +36,7 @@ module.exports = {
     plugins: {
         babel: {
             presets: [
-                "latest",
+                "env",
                 "react",
                 "flow"
             ],
@@ -62,7 +63,3 @@ module.exports = {
         noPushState: true
     }
 };
-
-// TODO : eslint
-// TODO : flow with https://www.npmjs.com/package/flow-brunch
-// TODO : integration with travis
