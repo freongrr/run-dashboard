@@ -1,4 +1,5 @@
 // @flow
+/* global describe, test */
 import React from "react";
 import {shallow} from "enzyme";
 import expect from "expect";
@@ -15,12 +16,7 @@ describe("ChartPanel", () => {
         // TODO : mock DataStore instead
         const dataStore = new DataStore(new DummyRPC());
 
-        const route = {
-            dataStore: dataStore,
-            zoom: "last12Months"
-        };
-
-        const wrapper = shallow(<ChartPanel route={route}/>);
+        const wrapper = shallow(<ChartPanel dataStore={dataStore} zoom={"last12Months"}/>);
         expect(wrapper).not.toBeNull();
     });
 });

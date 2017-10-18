@@ -3,8 +3,8 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
-import {Router, IndexRoute, Route, hashHistory} from "react-router";
-// import RPCImpl from "./DummyRPC";
+import {HashRouter as Router, Route, Switch} from "react-router-dom";
+// import RPCImpl from "./DummyRPC";s
 import RPCImpl from "./AJAX";
 import DataStore from "./DataStore";
 import ChartPanel from "./ChartPanel";
@@ -17,14 +17,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const content = document.getElementById("content");
     if (content) {
         ReactDOM.render((
-            <Router history={hashHistory}>
-                {/* TODO : If the graph component does not change, should I hard code it in Dashboard? */}
-                <Route path="/" component={Dashboard} dataStore={dataStore}>
-                    <IndexRoute components={{chart: ChartPanel}} dataStore={dataStore} zoom="last12Months"/>
-                    <Route path="/Last12Months" components={{chart: ChartPanel}} dataStore={dataStore} zoom="last12Months"/>
-                    <Route path="/Last30Days" components={{chart: ChartPanel}} dataStore={dataStore} zoom="last30Days"/>
-                </Route>
+            <Router>
+                <Switch>
+                    <Route extact path="/Last12Months" render={() => RoutedDashboard(dataStore, "last12Months")}/>
+                    <Route extact path="/Last30Days" render={() => RoutedDashboard(dataStore, "last30Days")}/>
+                    <Route render={() => RoutedDashboard(dataStore, "last12Months")}/>
+                </Switch>
             </Router>
         ), content);
     }
 });
+
+function RoutedDashboard(dataStore, zoom: string) {
+    // TODO : If the graph component does not change, should I hard code it in Dashboard?
+    const chartPanel = <ChartPanel dataStore={dataStore} zoom={zoom}/>;
+    return <Dashboard dataStore={dataStore} chart={chartPanel}/>;
+}

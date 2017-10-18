@@ -16,9 +16,7 @@ import {formatKm, parseDistance} from "./DistanceUtils";
 
 type DashboardProps = {
     chart: any,
-    route: {
-        dataStore: DataStore
-    }
+    dataStore: DataStore
 };
 
 type DashboardState = {
@@ -34,7 +32,6 @@ export default class Dashboard extends React.Component<DashboardProps, Dashboard
     props: DashboardProps;
     state: DashboardState;
 
-    dataStore: DataStore;
     subscription: Subscription;
 
     constructor(props: DashboardProps) {
@@ -46,8 +43,6 @@ export default class Dashboard extends React.Component<DashboardProps, Dashboard
             deletedActivity: null,
             error: null
         };
-
-        this.dataStore = props.route.dataStore;
     }
 
     render() {
@@ -61,9 +56,8 @@ export default class Dashboard extends React.Component<DashboardProps, Dashboard
                     {this.props.chart}
                 </div>
 
-                <PageHeader>
-                    {/* TODO : the browser complains about having a h3 in a h1... */}
-                    <h3><Glyphicon glyph="list"/> Activities</h3>
+                <PageHeader className="subTitle">
+                    <Glyphicon glyph="list"/> Activities
                 </PageHeader>
 
                 <ActivityTable activities={this.state.activities}
@@ -104,7 +98,7 @@ export default class Dashboard extends React.Component<DashboardProps, Dashboard
         if (this.subscription) {
             this.subscription.cancel();
         }
-        this.subscription = this.dataStore.subscribe(RESOURCE, (activities, e) => {
+        this.subscription = this.props.dataStore.subscribe(RESOURCE, (activities, e) => {
             if (activities) {
                 this.setState({activities: activities, error: null});
             } else if (e) {
@@ -144,7 +138,7 @@ export default class Dashboard extends React.Component<DashboardProps, Dashboard
         };
 
         this.setState({editedActivity: null});
-        this.dataStore.put(RESOURCE, activity);
+        this.props.dataStore.put(RESOURCE, activity);
     }
 
     promptDelete(activity: Activity) {
@@ -156,7 +150,7 @@ export default class Dashboard extends React.Component<DashboardProps, Dashboard
         const activity = this.state.deletedActivity;
         if (activity) {
             this.setState({deletedActivity: null});
-            this.dataStore.remove(RESOURCE, activity);
+            this.props.dataStore.remove(RESOURCE, activity);
         }
     }
 }

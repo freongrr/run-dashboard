@@ -1,4 +1,5 @@
 // @flow
+/* global describe, test */
 import TestUtils from "./TestUtils";
 import React from "react";
 import {shallow} from "enzyme";

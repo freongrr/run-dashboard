@@ -3,7 +3,7 @@
 "use strict";
 import type {GraphBuilder} from "./Types";
 import React from "react";
-import {Nav, NavItem, Form, FormGroup, ControlLabel, FormControl, Alert} from "react-bootstrap";
+import {Alert, ControlLabel, Form, FormControl, FormGroup, Nav, NavItem} from "react-bootstrap";
 import type {Subscription} from "./DataStore";
 import DataStore from "./DataStore";
 import C3Graph from "./C3Graph";
@@ -17,10 +17,8 @@ type GraphType = {
 };
 
 type ChartPanelProps = {
-    route: {
-        dataStore: DataStore,
-        zoom: string
-    }
+    dataStore: DataStore,
+    zoom: string
 };
 
 type ChartPanelState = {
@@ -33,7 +31,7 @@ type ChartPanelState = {
     error: ?Error
 };
 
-// TODO : fetch these fron the server too!
+// TODO : fetch these from the server too!
 
 const LAST_12_MONTHS = "last12Months";
 const LAST_30_DAYS = "last30Days";
@@ -101,7 +99,7 @@ export default class ChartPanel extends React.Component<ChartPanelProps, ChartPa
     constructor(props: ChartPanelProps) {
         super(props);
 
-        const initialZoom = props.route.zoom;
+        const initialZoom = props.zoom;
         const initialTypes = GRAPH_TYPES[initialZoom];
         const initialGraphType = initialTypes[0];
         const initialBuilder = ChartPanel.createBuilder(initialGraphType);
@@ -133,18 +131,19 @@ export default class ChartPanel extends React.Component<ChartPanelProps, ChartPa
                         {/* TODO : use 2 combos to show 2 graph types */}
                         <FormGroup controlId="formControlsSelect">
                             <ControlLabel>Graph type:{" "}</ControlLabel>
-                            <FormControl componentClass="select" placeholder="select"
-                                         value={this.state.graphType.id}
-                                         onChange={(e) => this.changeType(e.target.value)}>
+                            <FormControl
+                                componentClass="select" placeholder="select"
+                                value={this.state.graphType.id}
+                                onChange={(e) => this.changeType(e.target.value)}>
                                 {this.state.graphTypes.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
                             </FormControl>
                         </FormGroup>
                     </Form>
 
-                    { /* TODO : overlay? */
+                    {/* TODO : overlay? */
                         this.state.error
                             ? <Alert bsStyle="danger"><h4>Error</h4>{this.state.error.toString()}</Alert>
-                            : <C3Graph id="chartGoesHere" builder={this.state.builder} rows={this.state.rows}/> }
+                            : <C3Graph id="chartGoesHere" builder={this.state.builder} rows={this.state.rows}/>}
                 </div>
             </div>
         );
@@ -153,7 +152,7 @@ export default class ChartPanel extends React.Component<ChartPanelProps, ChartPa
     componentDidMount() {
         // Subscribe once to activity updates
         // HACK - I would not need to do that if the server could push updates to the graph
-        this.props.route.dataStore.subscribe("activities", (activities, e) => {
+        this.props.dataStore.subscribe("activities", (activities, e) => {
             if (!e) {
                 this.refreshData();
             }
@@ -161,8 +160,8 @@ export default class ChartPanel extends React.Component<ChartPanelProps, ChartPa
     }
 
     componentWillReceiveProps(nextProps: ChartPanelProps) {
-        const newZoom = nextProps.route.zoom;
-        if (newZoom !== this.props.route.zoom) {
+        const newZoom = nextProps.zoom;
+        if (newZoom !== this.props.zoom) {
             const newTypes: GraphType[] = GRAPH_TYPES[newZoom];
 
             let newGraphType = newTypes.find(t => t.category === this.state.graphType.category);
@@ -222,7 +221,7 @@ export default class ChartPanel extends React.Component<ChartPanelProps, ChartPa
         // - comparison graphs don't work (or would have to be handled differently) 
 
         const graphTypeId = this.state.graphType.id;
-        this.subscription = this.props.route.dataStore.subscribe("graph/" + graphTypeId, (rows, e) => {
+        this.subscription = this.props.dataStore.subscribe("graph/" + graphTypeId, (rows, e) => {
             if (rows) {
                 this.setState({
                     rows: rows,

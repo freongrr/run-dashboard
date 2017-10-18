@@ -3,7 +3,7 @@
 
 import type {ActivityBuilder} from "./Types";
 import React from "react";
-import update from "react-addons-update";
+import update from "immutability-helper";
 import {Button, FormGroup, ControlLabel, FormControl, HelpBlock, Modal} from "react-bootstrap";
 import {parseDuration} from "./TimeUtils";
 import {parseDistance} from "./DistanceUtils";

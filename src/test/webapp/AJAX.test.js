@@ -1,4 +1,5 @@
 // @flow
+/* global describe, test */
 /* eslint no-undef: ["off"] */
 import TestUtils from "./TestUtils";
 import AJAX from "../../main/webapp/AJAX";
