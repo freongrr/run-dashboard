@@ -3,7 +3,7 @@
 
 import type {Activity} from "./Types";
 import React from "react";
-import {Table, DropdownButton, MenuItem, Glyphicon} from "react-bootstrap";
+import {DropdownButton, Glyphicon, MenuItem, Table} from "react-bootstrap";
 import {formatHourMinutes, formatMinuteSeconds} from "./TimeUtils";
 import {formatKm} from "./DistanceUtils";
 
@@ -26,18 +26,18 @@ export default class ActivityTable extends React.Component<ActivityTableProps> {
         return (
             <Table hover>
                 <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Duration</th>
-                    <th>Distance</th>
-                    <th>Split time (1 km)</th>
-                    <th>Actions</th>
-                </tr>
+                    <tr>
+                        <th>Date</th>
+                        <th>Duration</th>
+                        <th>Distance</th>
+                        <th>Split time (1 km)</th>
+                        <th>Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {this.props.activities.length == 0
-                    ? ActivityTable.makeEmptyRow()
-                    : this.props.activities.map(a => this.makeRow(a))}
+                    {this.props.activities.length == 0
+                        ? ActivityTable.makeEmptyRow()
+                        : this.props.activities.map(a => this.makeRow(a))}
                 </tbody>
             </Table>
         );
