@@ -1,17 +1,9 @@
 // Can't use flow here because I override real types...
-/* eslint no-console: ["off"] */
-/* eslint no-undef: ["off"] */
+/* global global */
 /* eslint no-unused-vars: ["off"] */
 import expect from "expect";
 
 export default {
-
-    defineConsole: function () {
-        // The Console class in NodeJS does not have a console.debug(...) method
-        console.debug = function (message) {
-            // no-op
-        };
-    },
 
     mockGET: function (expectedUrl, responseStatus, responseContent) {
         this.mockRequest("GET", expectedUrl, undefined, responseStatus, responseContent);

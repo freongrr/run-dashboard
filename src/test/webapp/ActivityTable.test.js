@@ -1,13 +1,16 @@
 // @flow
-/* global describe, test */
+
 import React from "react";
 import {shallow} from "enzyme";
-import expect from "expect";
 import ActivityTable from "../../main/webapp/ActivityTable";
 
 describe("ActivityTable", () => {
 
     const noop = () => {
+    };
+
+    const throwingCallback = () => {
+        throw new Error();
     };
 
     const activities = [
@@ -50,13 +53,13 @@ describe("ActivityTable", () => {
     });
 
     test("invokes the edit callback", (done) => {
-        const wrapper = shallow(<ActivityTable 
+        const wrapper = shallow(<ActivityTable
             activities={activities}
             editHandler={(a) => {
                 expect(a).toEqual(activities[0]);
                 done();
             }}
-            deleteHandler={() => done(new Error())}/>);
+            deleteHandler={throwingCallback}/>);
 
         getMenuItem(wrapper, 0, "edit").simulate("select");
     });
@@ -64,7 +67,7 @@ describe("ActivityTable", () => {
     test("invokes the delete callback", (done) => {
         const wrapper = shallow(<ActivityTable
             activities={activities}
-            editHandler={() => done(new Error())}
+            editHandler={throwingCallback}
             deleteHandler={(a) => {
                 expect(a).toEqual(activities[0]);
                 done();

@@ -65,7 +65,7 @@
   },
   "jest": {
     "setupFiles": [
-      "./src/test/webapp/setup-enzyme.js"
+      "./src/test/webapp/setup-tests.js"
     ],
     "coverageDirectory": "tests_coverage",
     "collectCoverage": true,

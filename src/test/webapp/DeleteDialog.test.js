@@ -1,9 +1,12 @@
 // @flow
-/* global describe, test */
+
 import React from "react";
 import {shallow} from "enzyme";
-import expect from "expect";
 import DeleteDialog from "../../main/webapp/DeleteDialog";
+
+const throwingCallback = () => {
+    throw new Error("This should not be called");
+};
 
 describe("ErrorDialog", () => {
 
@@ -16,8 +19,8 @@ describe("ErrorDialog", () => {
 
     test("shows the activity that is about to be deleted", () => {
         const wrapper = shallow(<DeleteDialog activity={activity}
-            onDismiss={() => {}}
-            onConfirm={() => {}}/>);
+            onDismiss={jest.fn()}
+            onConfirm={jest.fn()}/>);
 
         expect(wrapper.find("ModalTitle").childAt(0).text()).toEqual("Delete");
         expect(wrapper.find("ModalBody").childAt(0).text()).toEqual("You are about to delete this activity:");
@@ -31,14 +34,14 @@ describe("ErrorDialog", () => {
     test("invokes the callback when clicking the Close button", (done) => {
         const wrapper = shallow(<DeleteDialog activity={activity}
             onDismiss={() => done()}
-            onConfirm={() => done(new Error("This should not be called"))}/>);
+            onConfirm={throwingCallback}/>);
 
         findByKey(wrapper, "dismiss").simulate("click");
     });
 
     test("invokes the callback when clicking the Delete button", (done) => {
         const wrapper = shallow(<DeleteDialog activity={activity}
-            onDismiss={() => done(new Error("This should not be called"))}
+            onDismiss={throwingCallback}
             onConfirm={() => done()}/>);
 
         findByKey(wrapper, "delete").simulate("click");

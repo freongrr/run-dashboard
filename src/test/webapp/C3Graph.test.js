@@ -1,9 +1,8 @@
 // @flow
-/* global describe, test */
-/* eslint no-undef: ["off"] */
+/* global global */
+
 import React from "react";
 import {shallow} from "enzyme";
-import expect from "expect";
 import type {GraphBuilder} from "../../main/webapp/Types";
 import C3Graph from "../../main/webapp/C3Graph";
 

@@ -1,16 +1,16 @@
 // @flow
-/* global describe, test */
-import TestUtils from "./TestUtils";
+
 import React from "react";
 import {shallow} from "enzyme";
-import expect from "expect";
 import ActivityDialog from "../../main/webapp/ActivityDialog";
-
-TestUtils.defineConsole();
 
 describe("ActivityDialog", () => {
 
     const noop = () => {
+    };
+
+    const throwingCallback = () => {
+        throw new Error();
     };
 
     const newBuilder = {
@@ -67,7 +67,7 @@ describe("ActivityDialog", () => {
     test("invokes the callback when clicking the Cancel button", (done) => {
         const wrapper = shallow(<ActivityDialog initialActivity={editBuilder}
             onDismiss={() => done()}
-            onSave={() => done(new Error())}/>);
+            onSave={throwingCallback}/>);
 
         wrapper.findWhere((w) => w.key() === "dismiss").simulate("click");
     });
@@ -91,7 +91,7 @@ describe("ActivityDialog", () => {
 
     test("invokes the callback when clicking the Save button", (done) => {
         const wrapper = shallow(<ActivityDialog initialActivity={editBuilder}
-            onDismiss={() => done(new Error())}
+            onDismiss={throwingCallback}
             onSave={(b) => {
                 expect(b).toEqual(editBuilder);
                 done();

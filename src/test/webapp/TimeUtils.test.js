@@ -1,7 +1,5 @@
 // @flow
-/* global describe, test */
-import React from "react";
-import expect from "expect";
+
 import {formatHourMinutes, formatMinuteSeconds, parseDuration} from "../../main/webapp/TimeUtils";
 
 describe("TimeUtils", () => {

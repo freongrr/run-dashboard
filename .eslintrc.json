@@ -27,5 +27,12 @@
         "semi": ["error", "always"],
         "no-console": ["off"],
         "flowtype/space-before-type-colon": ["off"]
+    },
+    "globals": {
+        "jest": false,
+        "describe": false,
+        "test": false,
+        "afterEach": false,
+        "expect": false
     }
 }
