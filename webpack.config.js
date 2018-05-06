@@ -15,7 +15,7 @@ const BUILD_DIR = module.exports.BUILD_DIR = path.resolve(__dirname, "dist");
 const copyAssets = [
     {from: "node_modules/bootstrap/dist/css", to: "css"},
     {from: "node_modules/bootstrap/dist/fonts", to: "fonts"},
-    {from: "node_modules/d3/d3.min.js", to: "js"},
+    {from: "node_modules/d3/dist/d3.min.js", to: "js"},
     {from: "node_modules/c3/c3.min.js", to: "js"},
     {from: "node_modules/c3/c3.min.css", to: "css"}
 ];
