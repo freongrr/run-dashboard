@@ -14,9 +14,12 @@ import type {Dispatch} from "../redux/actions";
 import * as actions from "../redux/actions";
 import * as redux from "react-redux";
 
-// TODO : the props don't have to match exactly
-type DashboardProps = AppState & {
-    dispatch: Dispatch
+type DashboardProps = {
+    isFetching: boolean,
+    activities: Activity[],
+    fetchActivities: () => void,
+    saveActivity: (Activity) => void,
+    deleteActivity: (Activity) => void
 };
 
 // TODO : remove
@@ -89,7 +92,7 @@ export class Dashboard extends React.Component<DashboardProps, DashboardState> {
     }
 
     refresh() {
-        this.props.dispatch(actions.fetchActivitiesIfNeeded());
+        this.props.fetchActivities();
     }
 
     promptAdd() {
@@ -124,7 +127,7 @@ export class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
         // TODO : handle inside redux
         this.setState({editedActivity: null});
-        this.props.dispatch(actions.saveActivity(activity));
+        this.props.saveActivity(activity);
     }
 
     promptDelete(activity: Activity) {
@@ -138,7 +141,7 @@ export class Dashboard extends React.Component<DashboardProps, DashboardState> {
         if (activity) {
             // TODO : handle inside redux
             this.setState({deletedActivity: null});
-            this.props.dispatch(actions.deleteActivity(activity));
+            this.props.deleteActivity(activity);
         }
     }
 }
@@ -147,4 +150,12 @@ function mapStateToProps(state: AppState) {
     return state;
 }
 
-export default redux.connect(mapStateToProps)(Dashboard);
+function mapDispatchToProps(dispatch: Dispatch) {
+    return {
+        fetchActivities: () => dispatch(actions.fetchActivitiesIfNeeded()),
+        saveActivity: (activity) => dispatch(actions.saveActivity(activity)),
+        deleteActivity: (activity) => dispatch(actions.deleteActivity(activity))
+    };
+}
+
+export default redux.connect(mapStateToProps, mapDispatchToProps)(Dashboard);
