@@ -1,10 +1,7 @@
 // @flow
-/* global describe, test */
-/* eslint no-undef: ["off"] */
+
 import TestUtils from "./TestUtils";
 import AJAX from "../../main/webapp/AJAX";
-
-TestUtils.defineConsole();
 
 describe("AJAX", () => {
 
@@ -17,14 +14,8 @@ describe("AJAX", () => {
 
             ajax.get("/endpoint")
                 .then((result) => {
-                    if (result === "Plain Text") {
-                        done();
-                    } else {
-                        done(new Error("Unexpected result: " + result));
-                    }
-                })
-                .catch((e) => {
-                    done(e);
+                    expect(result).toEqual("Plain Text");
+                    done();
                 });
         });
 
@@ -35,12 +26,7 @@ describe("AJAX", () => {
                 .then((result) => {
                     if (typeof result === "object" && result["foo"] === "bar") {
                         done();
-                    } else {
-                        done(new Error("Unexpected result: " + result));
                     }
-                })
-                .catch((e) => {
-                    done(e);
                 });
         });
 
@@ -49,13 +35,13 @@ describe("AJAX", () => {
 
             ajax.get("/endpoint")
                 .then((result) => {
-                    done(new Error("Unexpected result: " + result));
+                    throw new Error("Unexpected result: " + result);
                 })
                 .catch((e) => {
                     if (e.message.indexOf("Internal Server Error") >= 0) {
                         done();
                     } else {
-                        done(new Error("Unexpected error: " + e));
+                        throw new Error("Unexpected error: " + e);
                     }
                 });
         });
@@ -65,14 +51,11 @@ describe("AJAX", () => {
 
             ajax.get("/endpoint")
                 .then((result) => {
-                    done(new Error("Unexpected result: " + result));
+                    throw new Error("Unexpected result: " + result);
                 })
                 .catch((e) => {
-                    if (e.message.indexOf("Unexpected token x in JSON at position 1") >= 0) {
-                        done();
-                    } else {
-                        done(new Error("Unexpected error: " + e));
-                    }
+                    expect(e.message).toContain("Unexpected token x in JSON at position 1");
+                    done();
                 });
         });
     });
@@ -85,9 +68,6 @@ describe("AJAX", () => {
             ajax.post("/endpoint", {foo: "bar"})
                 .then(() => {
                     done();
-                })
-                .catch((e) => {
-                    done(e);
                 });
         });
 
@@ -96,14 +76,8 @@ describe("AJAX", () => {
 
             ajax.post("/endpoint", {})
                 .then((result) => {
-                    if (result === "Plain Text") {
-                        done();
-                    } else {
-                        done(new Error("Unexpected result: " + result));
-                    }
-                })
-                .catch((e) => {
-                    done(e);
+                    expect(result).toEqual("Plain Text");
+                    done();
                 });
         });
 
@@ -115,11 +89,8 @@ describe("AJAX", () => {
                     if (typeof result === "object" && result["foo"] === "bar") {
                         done();
                     } else {
-                        done(new Error("Unexpected result: " + result));
+                        throw new Error("Unexpected result: " + result);
                     }
-                })
-                .catch((e) => {
-                    done(e);
                 });
         });
 
@@ -128,14 +99,11 @@ describe("AJAX", () => {
 
             ajax.post("/endpoint", {})
                 .then((result) => {
-                    done(new Error("Unexpected result: " + result));
+                    throw new Error("Unexpected result: " + result);
                 })
                 .catch((e) => {
-                    if (e.message.indexOf("Unauthorized") >= 0) {
-                        done();
-                    } else {
-                        done(new Error("Unexpected error: " + e));
-                    }
+                    expect(e.message).toContain("Unauthorized");
+                    done();
                 });
         });
 
@@ -144,14 +112,11 @@ describe("AJAX", () => {
 
             ajax.post("/endpoint", {})
                 .then((result) => {
-                    done(new Error("Unexpected result: " + result));
+                    throw new Error("Unexpected result: " + result);
                 })
                 .catch((e) => {
-                    if (e.message.indexOf("Unexpected token x in JSON at position 1") >= 0) {
-                        done();
-                    } else {
-                        done(new Error("Unexpected error: " + e));
-                    }
+                    expect(e.message).toContain("Unexpected token x in JSON at position 1");
+                    done();
                 });
         });
     });
@@ -164,9 +129,6 @@ describe("AJAX", () => {
             ajax._delete("/endpoint", {foo: "bar"})
                 .then(() => {
                     done();
-                })
-                .catch((e) => {
-                    done(e);
                 });
         });
 
@@ -175,14 +137,11 @@ describe("AJAX", () => {
 
             ajax._delete("/endpoint", {foo: "bar"})
                 .then((result) => {
-                    done(new Error("Unexpected result: " + result));
+                    throw new Error("Unexpected result: " + result);
                 })
                 .catch((e) => {
-                    if (e.message.indexOf("Could not connect to the server") >= 0) {
-                        done();
-                    } else {
-                        done(new Error("Unexpected error: " + e));
-                    }
+                    expect(e.message).toContain("Could not connect to the server");
+                    done();
                 });
         });
     });

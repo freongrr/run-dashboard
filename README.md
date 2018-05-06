@@ -11,7 +11,7 @@ Build the WAR file:
 
 Debug using Jetty:
 
-    mvn clean jetty:run -DdatabaseUrl=jdbc:sqlite:file:///path/to/run.sqlite3
+    mvn clean jetty:run-war -DdatabaseUrl=jdbc:sqlite:file:///path/to/run.sqlite3
 
 Watch for changes in the JS code and static resources:
 
@@ -20,7 +20,9 @@ Watch for changes in the JS code and static resources:
 Links
 =====
 
-* Assembled with Brunch: http://brunch.io/
+(TODO : update)
+
+* Assembled with Webpack: https://webpack.js.org/
 * Static typing with Flow: https://flow.org/
 * Front-end with React: https://facebook.github.io/react/
 * Bootstrap implementation for React: http://react-bootstrap.github.io/

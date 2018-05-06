@@ -1,10 +1,12 @@
 // @flow
 "use strict";
 
+import "./stylesheets/main.scss";
+
 import React from "react";
 import ReactDOM from "react-dom";
 import {HashRouter as Router, Route, Switch} from "react-router-dom";
-// import RPCImpl from "./DummyRPC";s
+// import RPCImpl from "./DummyRPC";
 import RPCImpl from "./AJAX";
 import DataStore from "./DataStore";
 import ChartPanel from "./ChartPanel";

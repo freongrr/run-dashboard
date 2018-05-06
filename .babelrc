@@ -1,11 +1,18 @@
 {
   "presets": [
-    "env",
+    ["env", { "modules": false }],
     "react",
     "flow"
   ],
   "plugins": [
     "transform-class-properties",
     "transform-flow-strip-types"
-  ]
+  ],
+  "env": {
+    "test": {
+      "plugins": [
+        "transform-es2015-modules-commonjs"
+      ]
+    }
+  }
 }
