@@ -1,11 +1,11 @@
 // @flow
 "use strict";
 
-import type {Activity} from "./Types";
+import type {Activity} from "../types/Types";
 import React from "react";
 import {DropdownButton, Glyphicon, MenuItem, Table} from "react-bootstrap";
-import {formatHourMinutes, formatMinuteSeconds} from "./TimeUtils";
-import {formatKm} from "./DistanceUtils";
+import {formatHourMinutes, formatMinuteSeconds} from "../utils/TimeUtils";
+import {formatKm} from "../utils/DistanceUtils";
 
 type ActivityTableProps = {
     activities: Array<Activity>,
@@ -35,7 +35,7 @@ export default class ActivityTable extends React.Component<ActivityTableProps> {
                     </tr>
                 </thead>
                 <tbody>
-                    {this.props.activities.length == 0
+                    {this.props.activities.length === 0
                         ? ActivityTable.makeEmptyRow()
                         : this.props.activities.map(a => this.makeRow(a))}
                 </tbody>

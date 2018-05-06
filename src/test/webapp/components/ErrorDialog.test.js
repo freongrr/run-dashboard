@@ -2,7 +2,7 @@
 
 import React from "react";
 import {shallow} from "enzyme";
-import ErrorDialog from "../../main/webapp/ErrorDialog";
+import ErrorDialog from "../../../main/webapp/components/ErrorDialog";
 
 describe("ErrorDialog", () => {
 

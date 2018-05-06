@@ -1,11 +1,11 @@
 // @flow
 
 import TestUtils from "./TestUtils";
-import AJAX from "../../main/webapp/AJAX";
+import RPC from "../../../main/webapp/utils/RPC";
 
-describe("AJAX", () => {
+describe("RPC", () => {
 
-    const ajax = new AJAX();
+    const ajax = new RPC();
 
     describe("#get()", () => {
 

@@ -2,7 +2,7 @@
 
 import React from "react";
 import {shallow} from "enzyme";
-import DeleteDialog from "../../main/webapp/DeleteDialog";
+import DeleteDialog from "../../../main/webapp/components/DeleteDialog";
 
 const throwingCallback = () => {
     throw new Error("This should not be called");

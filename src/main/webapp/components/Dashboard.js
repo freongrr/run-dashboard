@@ -1,38 +1,32 @@
 // @flow
-/* eslint no-console: ["off"] */
 "use strict";
 
-import type {Activity, ActivityBuilder} from "./Types";
+import type {Activity, ActivityBuilder, AppState} from "../types/Types";
 import React from "react";
 import {Button, ButtonToolbar, Glyphicon, PageHeader} from "react-bootstrap";
-import type {Subscription} from "./DataStore";
-import DataStore from "./DataStore";
 import ActivityTable from "./ActivityTable";
 import ActivityDialog from "./ActivityDialog";
 import ErrorDialog from "./ErrorDialog";
 import DeleteDialog from "./DeleteDialog";
-import {formatHourMinutes, parseDuration} from "./TimeUtils";
-import {formatKm, parseDistance} from "./DistanceUtils";
+import {formatHourMinutes, parseDuration} from "../utils/TimeUtils";
+import {formatKm, parseDistance} from "../utils/DistanceUtils";
+import type {Dispatch} from "../redux/actions";
+import * as actions from "../redux/actions";
+import * as redux from "react-redux";
 
-type DashboardProps = {
-    chart: any,
-    dataStore: DataStore
+// TODO : the props don't have to match exactly
+type DashboardProps = AppState & {
+    dispatch: Dispatch
 };
 
+// TODO : remove
 type DashboardState = {
-    activities: Array<Activity>,
     editedActivity: ?ActivityBuilder,
     deletedActivity: ?Activity,
     error: ?Error
 };
 
-const RESOURCE = "activities";
-
-export default class Dashboard extends React.Component<DashboardProps, DashboardState> {
-    props: DashboardProps;
-    state: DashboardState;
-
-    subscription: Subscription;
+export class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
     constructor(props: DashboardProps) {
         super(props);
@@ -53,14 +47,14 @@ export default class Dashboard extends React.Component<DashboardProps, Dashboard
                 </PageHeader>
 
                 <div className="dashboard-graph">
-                    {this.props.chart}
+                    {/* TODO */}
                 </div>
 
                 <PageHeader className="subTitle">
                     <Glyphicon glyph="list"/> Activities
                 </PageHeader>
 
-                <ActivityTable activities={this.state.activities}
+                <ActivityTable activities={this.props.activities}
                     editHandler={(a) => this.promptEdit(a)}
                     deleteHandler={(a) => this.promptDelete(a)}/>
 
@@ -95,16 +89,7 @@ export default class Dashboard extends React.Component<DashboardProps, Dashboard
     }
 
     refresh() {
-        if (this.subscription) {
-            this.subscription.cancel();
-        }
-        this.subscription = this.props.dataStore.subscribe(RESOURCE, (activities, e) => {
-            if (activities) {
-                this.setState({activities: activities, error: null});
-            } else if (e) {
-                this.setState({error: e});
-            }
-        });
+        this.props.dispatch(actions.fetchActivitiesIfNeeded());
     }
 
     promptAdd() {
@@ -137,20 +122,29 @@ export default class Dashboard extends React.Component<DashboardProps, Dashboard
             distance: parseDistance(builder.distance)
         };
 
+        // TODO : handle inside redux
         this.setState({editedActivity: null});
-        this.props.dataStore.put(RESOURCE, activity);
+        this.props.dispatch(actions.saveActivity(activity));
     }
 
     promptDelete(activity: Activity) {
         // TODO : it would be better to do it anyway and let the user undo it
+        // TODO : handle inside redux
         this.setState({deletedActivity: activity});
     }
 
     deleteActivity() {
         const activity = this.state.deletedActivity;
         if (activity) {
+            // TODO : handle inside redux
             this.setState({deletedActivity: null});
-            this.props.dataStore.remove(RESOURCE, activity);
+            this.props.dispatch(actions.deleteActivity(activity));
         }
     }
 }
+
+function mapStateToProps(state: AppState) {
+    return state;
+}
+
+export default redux.connect(mapStateToProps)(Dashboard);

@@ -2,7 +2,7 @@
 
 import React from "react";
 import {shallow} from "enzyme";
-import ActivityDialog from "../../main/webapp/ActivityDialog";
+import ActivityDialog from "../../../main/webapp/components/ActivityDialog";
 
 describe("ActivityDialog", () => {
 

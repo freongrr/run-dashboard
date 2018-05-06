@@ -3,8 +3,8 @@
 
 import React from "react";
 import {shallow} from "enzyme";
-import type {GraphBuilder} from "../../main/webapp/Types";
-import C3Graph from "../../main/webapp/C3Graph";
+import type {GraphBuilder} from "../../../main/webapp/types/Types";
+import C3Graph from "../../../main/webapp/components/C3Graph";
 
 describe("C3Graph", () => {
 

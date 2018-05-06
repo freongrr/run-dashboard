@@ -1,11 +1,11 @@
 // @flow
 "use strict";
 
-import type {Activity} from "./Types";
+import type {Activity} from "../types/Types";
 import React from "react";
 import {Modal, Button} from "react-bootstrap";
-import {formatHourMinutes} from "./TimeUtils";
-import {formatKm} from "./DistanceUtils";
+import {formatHourMinutes} from "../utils/TimeUtils";
+import {formatKm} from "../utils/DistanceUtils";
 
 type DeleteDialogProps = {
     activity: Activity,

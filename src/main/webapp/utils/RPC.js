@@ -3,9 +3,11 @@
 /* eslint no-unused-vars: ["off"] */
 "use strict";
 
+// TODO : replace with standard Promise
 import when from "when";
 
-export default class AJAX {
+// TODO : also, replace with standard framework (fetch?)
+export default class RPC {
 
     get(path: string): Promise<string> {
         const deferred = when.defer();
@@ -60,7 +62,7 @@ export default class AJAX {
 
 function getXMLHttpRequest(): XMLHttpRequest {
     try {
-        if (typeof XMLHttpRequest != "undefined") {
+        if (typeof XMLHttpRequest !== "undefined") {
             return new XMLHttpRequest();
         } else {
             return window.createRequest();
@@ -75,9 +77,9 @@ function isJSON(string) {
 }
 
 function extractErrorMessage(statusCode: number, responseContent: string): string {
-    if (statusCode == 0) {
+    if (statusCode === 0) {
         return "Could not connect to the server!";
-    } else if (statusCode == 500) {
+    } else if (statusCode === 500) {
         return "Internal Server Error";
     } else {
         return statusCode + ": " + responseContent;
