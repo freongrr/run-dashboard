@@ -6,7 +6,7 @@ import {HashRouter, Route, Switch} from "react-router-dom";
 
 import configureStore from "../redux/Store";
 import {Provider} from "react-redux";
-import Dashboard from "../components/Dashboard";
+import Dashboard from "./Dashboard";
 
 const store = configureStore();
 

@@ -36,5 +36,8 @@ export type GraphBuilder = {
 
 export type AppState = {
     isFetching: boolean,
-    activities: Activity[]
+    activities: Activity[],
+    editedActivity: ?ActivityBuilder,
+    deletedActivity: ?Activity,
+    error: ?Error
 };

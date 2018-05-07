@@ -1,89 +1,110 @@
 // @flow
+/* global process */
 
+import type {Activity, ActivityBuilder, AppState} from "../types/Types";
+import type {Action} from "./actionBuilders";
+import * as actionBuilders from "./actionBuilders";
+import * as DistanceUtils from "../utils/DistanceUtils";
+import * as TimeUtils from "../utils/TimeUtils";
+import RPC from "../utils/RPC";
 import DummyRPC from "../utils/DummyRPC";
-import type {Activity, AppState} from "../types/Types";
-
-export class RequestActivitiesAction {
-}
-
-export class ReceivedActivitiesAction {
-    activities: Activity[];
-
-    constructor(activities: Activity[]) {
-        this.activities = activities;
-    }
-}
-
-type Action = {
-    type: string,
-    payload: RequestActivitiesAction | ReceivedActivitiesAction
-};
 
 export type Dispatch = (action: Action | ThunkAction) => void;
 type GetState = () => AppState;
 type ThunkAction = (dispatch: Dispatch, getState: GetState) => void;
 
 // TODO : inject service interface in store state?
-const rpc = new DummyRPC();
+let rpc;
+if (process.env.NODE_ENV === "production") {
+    rpc = new RPC();
+} else {
+    rpc = new DummyRPC();
+}
 
 export function fetchActivitiesIfNeeded(): ThunkAction {
     return (dispatch: Dispatch, getState: GetState) => {
-        if (shouldFetchActivities(getState())) {
-            dispatch(fetchActivities());
+        if (!getState().isFetching) {
+            dispatch(actionBuilders.requestActivities());
+            rpc.get("/activities")
+                .then((json) => {
+                    const activities = (json: any);
+                    dispatch(actionBuilders.receivedActivities(activities));
+                })
+                .catch((error) => {
+                    dispatch(actionBuilders.setError(error));
+                });
         }
     };
 }
 
-function shouldFetchActivities(state: AppState): boolean {
-    return !state.isFetching;
-}
-
-
-function fetchActivities(): ThunkAction {
-    return (dispatch) => {
-        dispatch(createRequestActivitiesAction());
-
-        rpc.get("/activities")
-            .then(json => dispatch(createReceivedActivitiesAction(json)));
+export function startAddActivity(): Action {
+    const editedActivity = {
+        id: null,
+        date: "",
+        duration: "",
+        distance: ""
     };
+    return actionBuilders.setEditedActivity(editedActivity);
 }
 
-export function saveActivity(activity: Activity): ThunkAction {
-    return (/* dispatch */) => {
+export function startEditActivity(activity: Activity): Action {
+    const editedActivity = {
+        id: activity.id,
+        date: activity.date,
+        duration: TimeUtils.formatHourMinutes(activity.duration),
+        distance: DistanceUtils.formatKm(activity.distance)
+    };
+    return actionBuilders.setEditedActivity(editedActivity);
+}
+
+export function dismissEditActivity(): Action {
+    // HACK - a specialized action would br cleaner...
+    return actionBuilders.setEditedActivity(null);
+}
+
+export function saveActivity(builder: ActivityBuilder): ThunkAction {
+    const activity: Activity = {
+        id: builder.id ? builder.id : "" /* HACK */,
+        date: builder.date,
+        duration: TimeUtils.parseDuration(builder.duration),
+        distance: DistanceUtils.parseDistance(builder.distance)
+    };
+
+    return (dispatch) => {
         rpc.post("/activities", activity)
             .then(() => {
-                /* TODO */
+                dispatch(actionBuilders.activitySaved(activity));
             })
             .catch((error) => {
-                /* TODO */
-                console.error("TODO : handle error", error);
+                dispatch(actionBuilders.setError(error));
             });
     };
 }
 
-export function deleteActivity(activity: Activity): ThunkAction {
-    return (/* dispatch */) => {
-        rpc._delete("/activities", activity)
-            .then(() => {
-                /* TODO */
-            })
-            .catch((error) => {
-                /* TODO */
-                console.error("TODO : handle error", error);
-            });
+export function startDeleteActivity(activity: Activity): Action {
+    return actionBuilders.setDeletedActivity(activity);
+}
+
+export function dismissDeleteActivity(): Action {
+    // HACK - a specialized action would br cleaner...
+    return actionBuilders.setDeletedActivity(null);
+}
+
+export function deleteActivity(): ThunkAction {
+    return (dispatch: Dispatch, getState: GetState) => {
+        const activity = getState().deletedActivity;
+        if (activity) {
+            rpc._delete("/activities", activity)
+                .then(() => {
+                    dispatch(actionBuilders.activityDeleted(activity));
+                })
+                .catch((error) => {
+                    dispatch(actionBuilders.setError(error));
+                });
+        }
     };
 }
 
-function createRequestActivitiesAction() {
-    return {
-        type: "REQUEST_ACTIVITIES",
-        payload: new RequestActivitiesAction()
-    };
-}
-
-function createReceivedActivitiesAction(activities) {
-    return {
-        type: "REQUEST_ACTIVITIES",
-        payload: new ReceivedActivitiesAction(activities)
-    };
+export function dismissError(): Action {
+    return actionBuilders.setError(null);
 }

@@ -7,8 +7,11 @@ import type {AppState} from "../types/Types";
 import rootReducer from "./reducers";
 
 const INITIAL_STATE: AppState = {
+    isFetching: false,
     activities: [],
-    isFetching: false
+    editedActivity: null,
+    deletedActivity: null,
+    error: null
 };
 
 export default function (preLoadedState: ?AppState = INITIAL_STATE) {
