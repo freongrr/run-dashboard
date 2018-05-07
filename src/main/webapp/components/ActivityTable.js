@@ -1,16 +1,16 @@
 // @flow
 "use strict";
 
-import type {Activity} from "./Types";
+import type {Activity} from "../types/Types";
 import React from "react";
 import {DropdownButton, Glyphicon, MenuItem, Table} from "react-bootstrap";
-import {formatHourMinutes, formatMinuteSeconds} from "./TimeUtils";
-import {formatKm} from "./DistanceUtils";
+import {formatHourMinutes, formatMinuteSeconds} from "../utils/TimeUtils";
+import {formatKm} from "../utils/DistanceUtils";
 
 type ActivityTableProps = {
     activities: Array<Activity>,
-    editHandler: (Activity) => void,
-    deleteHandler: (Activity) => void
+    editHandler?: (Activity) => void,
+    deleteHandler?: (Activity) => void
 };
 
 export default class ActivityTable extends React.Component<ActivityTableProps> {
@@ -31,11 +31,11 @@ export default class ActivityTable extends React.Component<ActivityTableProps> {
                         <th>Duration</th>
                         <th>Distance</th>
                         <th>Split time (1 km)</th>
-                        <th>Actions</th>
+                        {this.props.editHandler && this.props.deleteHandler && <th>Actions</th>}
                     </tr>
                 </thead>
                 <tbody>
-                    {this.props.activities.length == 0
+                    {this.props.activities.length === 0
                         ? ActivityTable.makeEmptyRow()
                         : this.props.activities.map(a => this.makeRow(a))}
                 </tbody>
@@ -55,20 +55,26 @@ export default class ActivityTable extends React.Component<ActivityTableProps> {
             <td>{formatHourMinutes(a.duration)}</td>
             <td>{formatKm(a.distance)}</td>
             <td>{formatMinuteSeconds(1000 * a.duration / a.distance)}</td>
-            <td>
-                <DropdownButton bsSize="xsmall" title={<Glyphicon glyph="cog"/>} id="foo">
-                    <MenuItem eventKey="edit" onSelect={() => this.onEdit(a)}>Edit</MenuItem>
-                    <MenuItem eventKey="delete" onSelect={() => this.onDelete(a)}>Delete</MenuItem>
-                </DropdownButton>
-            </td>
+            {this.props.editHandler && this.props.deleteHandler && this.renderActions(a)}
         </tr>;
     }
 
+    renderActions(activity: Activity) {
+        return (
+            <td>
+                <DropdownButton bsSize="xsmall" title={<Glyphicon glyph="cog"/>} id="foo">
+                    <MenuItem eventKey="edit" onSelect={() => this.onEdit(activity)}>Edit</MenuItem>
+                    <MenuItem eventKey="delete" onSelect={() => this.onDelete(activity)}>Delete</MenuItem>
+                </DropdownButton>
+            </td>
+        );
+    }
+
     onEdit(a: Activity) {
-        this.props.editHandler(a);
+        this.props.editHandler && this.props.editHandler(a);
     }
 
     onDelete(a: Activity) {
-        this.props.deleteHandler(a);
+        this.props.deleteHandler && this.props.deleteHandler(a);
     }
 }

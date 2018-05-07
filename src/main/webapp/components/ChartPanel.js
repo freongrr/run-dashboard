@@ -1,14 +1,12 @@
 // @flow
 /* eslint no-console: ["off"] */
 "use strict";
-import type {GraphBuilder} from "./Types";
+import type {GraphBuilder} from "../types/Types";
 import React from "react";
 import {Alert, ControlLabel, Form, FormControl, FormGroup, Nav, NavItem} from "react-bootstrap";
-import type {Subscription} from "./DataStore";
-import DataStore from "./DataStore";
 import C3Graph from "./C3Graph";
-import {formatHourMinutes, formatMinuteSeconds} from "./TimeUtils";
-import {formatKm} from "./DistanceUtils";
+import {formatHourMinutes, formatMinuteSeconds} from "../utils/TimeUtils";
+import {formatKm} from "../utils/DistanceUtils";
 
 type GraphType = {
     id: string,
@@ -17,7 +15,6 @@ type GraphType = {
 };
 
 type ChartPanelProps = {
-    dataStore: DataStore,
     zoom: string
 };
 
@@ -94,8 +91,6 @@ export default class ChartPanel extends React.Component<ChartPanelProps, ChartPa
     props: ChartPanelProps;
     state: ChartPanelState;
 
-    subscription: Subscription;
-
     constructor(props: ChartPanelProps) {
         super(props);
 
@@ -152,11 +147,12 @@ export default class ChartPanel extends React.Component<ChartPanelProps, ChartPa
     componentDidMount() {
         // Subscribe once to activity updates
         // HACK - I would not need to do that if the server could push updates to the graph
-        this.props.dataStore.subscribe("activities", (activities, e) => {
-            if (!e) {
-                this.refreshData();
-            }
-        });
+        // TODO : replace with redux data
+        // this.props.dataStore.subscribe("activities", (activities, e) => {
+        //     if (!e) {
+        //         this.refreshData();
+        //     }
+        // });
     }
 
     componentWillReceiveProps(nextProps: ChartPanelProps) {
@@ -192,13 +188,13 @@ export default class ChartPanel extends React.Component<ChartPanelProps, ChartPa
         }
     }
 
-    refreshData() {
-        if (this.subscription) {
-            this.subscription.refresh();
-        } else {
-            this.subscribe();
-        }
-    }
+    // refreshData() {
+    //     if (this.subscription) {
+    //         this.subscription.refresh();
+    //     } else {
+    //         this.subscribe();
+    //     }
+    // }
 
     subscribe() {
         // TODO : subscribe once refresh using different parameters
@@ -206,9 +202,10 @@ export default class ChartPanel extends React.Component<ChartPanelProps, ChartPa
         //       subscription.refresh({...});
         //       subscription.cancel();
 
-        if (this.subscription) {
-            this.subscription.cancel();
-        }
+        // TODO : replace with redux data
+        // if (this.subscription) {
+        //     this.subscription.cancel();
+        // }
 
         // TODO : it may work better to pass 2 axises instead of a graph type:
         // e.g. duration, time, avg. split time, temperature, heart bpm
@@ -220,19 +217,20 @@ export default class ChartPanel extends React.Component<ChartPanelProps, ChartPa
         // - we still need to limit the data (e.g. last 12 months / forever) 
         // - comparison graphs don't work (or would have to be handled differently) 
 
-        const graphTypeId = this.state.graphType.id;
-        this.subscription = this.props.dataStore.subscribe("graph/" + graphTypeId, (rows, e) => {
-            if (rows) {
-                this.setState({
-                    rows: rows,
-                    error: null
-                });
-            } else if (e) {
-                this.setState({
-                    error: e
-                });
-            }
-        });
+        // TODO : replace with redux data
+        // const graphTypeId = this.state.graphType.id;
+        // this.subscription = this.props.dataStore.subscribe("graph/" + graphTypeId, (rows, e) => {
+        //     if (rows) {
+        //         this.setState({
+        //             rows: rows,
+        //             error: null
+        //         });
+        //     } else if (e) {
+        //         this.setState({
+        //             error: e
+        //         });
+        //     }
+        // });
     }
 
     static createBuilder(graphType: GraphType): GraphBuilder {

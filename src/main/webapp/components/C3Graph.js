@@ -1,7 +1,8 @@
 // @flow
 "use strict";
-// TODO : import c3 here?
-import type {GraphBuilder} from "./Types";
+
+// TODO : import c3 here to have webpack bundle it for us?
+import type {GraphBuilder} from "../types/Types";
 import React from "react";
 
 type C3GraphProps = {

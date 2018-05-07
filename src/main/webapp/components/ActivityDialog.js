@@ -1,12 +1,12 @@
 // @flow
 "use strict";
 
-import type {ActivityBuilder} from "./Types";
+import type {ActivityBuilder} from "../types/Types";
 import React from "react";
 import update from "immutability-helper";
 import {Button, FormGroup, ControlLabel, FormControl, HelpBlock, Modal} from "react-bootstrap";
-import {parseDuration} from "./TimeUtils";
-import {parseDistance} from "./DistanceUtils";
+import {parseDuration} from "../utils/TimeUtils";
+import {parseDistance} from "../utils/DistanceUtils";
 
 type ActivityDialogProps = {
     initialActivity: ActivityBuilder,

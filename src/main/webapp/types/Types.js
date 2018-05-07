@@ -1,21 +1,6 @@
 // @flow
 "use strict";
 
-// I could not find a way to export a flowtype interface...
-export type RPC = {
-    get(path: string): Promise<any>;
-    post(path: string, data: {[key: string]: any}): Promise<any>;
-    _delete(path: string, data: {[key: string]: any}): Promise<any>;
-};
-
-// export type RouteLocation = {
-//     pathname: string,
-//     search: string,
-//     state: any,
-//     action: string,
-//     key: string
-// };
-
 export type Activity = {
     id: string,
     date: string,
@@ -47,4 +32,12 @@ export type GraphBuilder = {
     time: boolean,
     x: GraphAxisBuilder,
     series: Array<GraphSeriesBuilder>
+};
+
+export type AppState = {
+    isFetching: boolean,
+    activities: Activity[],
+    editedActivity: ?ActivityBuilder,
+    deletedActivity: ?Activity,
+    error: ?Error
 };
