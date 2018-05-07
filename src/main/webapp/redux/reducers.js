@@ -15,7 +15,7 @@ import {
     SetErrorPayload
 } from "./actionBuilders";
 
-function isFetching(state = false, action: Action): boolean {
+export function isFetching(state: boolean = false, action: Action): boolean {
     const payload = action && action.payload;
     if (payload instanceof RequestActivitiesPayload) {
         return true;
@@ -26,7 +26,7 @@ function isFetching(state = false, action: Action): boolean {
     }
 }
 
-function activities(state: Activity[] = [], action: Action): Activity[] {
+export function activities(state: Activity[] = [], action: Action): Activity[] {
     const payload = action && action.payload;
     if (payload instanceof ReceivedActivitiesPayload) {
         return (payload: ReceivedActivitiesPayload).activities;
@@ -53,7 +53,7 @@ function activities(state: Activity[] = [], action: Action): Activity[] {
     }
 }
 
-function editedActivity(state: ?ActivityBuilder = null, action: Action): ?ActivityBuilder {
+export function editedActivity(state: ?ActivityBuilder = null, action: Action): ?ActivityBuilder {
     const payload = action && action.payload;
     if (payload instanceof SetEditedActivityPayload) {
         return (payload: SetEditedActivityPayload).builder;
@@ -64,7 +64,7 @@ function editedActivity(state: ?ActivityBuilder = null, action: Action): ?Activi
     }
 }
 
-function deletedActivity(state: ?Activity = null, action: Action): ?Activity {
+export function deletedActivity(state: ?Activity = null, action: Action): ?Activity {
     const payload = action && action.payload;
     if (payload instanceof SetDeletedActivityPayload) {
         return (payload: SetDeletedActivityPayload).activity;
@@ -75,7 +75,7 @@ function deletedActivity(state: ?Activity = null, action: Action): ?Activity {
     }
 }
 
-function error(state: ?Error = null, action: Action): ?Error {
+export function error(state: ?Error = null, action: Action): ?Error {
     const payload = action && action.payload;
     if (payload instanceof SetErrorPayload) {
         return (payload: SetErrorPayload).error;
