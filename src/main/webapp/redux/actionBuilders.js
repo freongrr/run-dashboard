@@ -74,7 +74,7 @@ export function requestActivities() {
 
 export function receivedActivities(activities: Activity[]) {
     return {
-        type: "REQUEST_ACTIVITIES",
+        type: "RECEIVED_ACTIVITIES",
         payload: new ReceivedActivitiesPayload(activities)
     };
 }

@@ -3,7 +3,7 @@
 
 import type {Activity, ActivityBuilder, AppState} from "../types/Types";
 import React from "react";
-import {Button, ButtonToolbar, Glyphicon} from "react-bootstrap";
+import {Button, ButtonToolbar, Glyphicon, PageHeader} from "react-bootstrap";
 import ActivityTable from "../components/ActivityTable";
 import ActivityDialog from "../components/ActivityDialog";
 import ErrorDialog from "../components/ErrorDialog";
@@ -12,7 +12,7 @@ import type {Dispatch} from "../redux/actions";
 import * as actions from "../redux/actions";
 import * as redux from "react-redux";
 
-type EditableActivityTableProps = {
+type ActivityPageProps = {
     isFetching: boolean,
     activities: Activity[],
     editedActivity: ?ActivityBuilder,
@@ -29,16 +29,23 @@ type EditableActivityTableProps = {
     dismissError: () => void
 };
 
-export class EditableActivityTable extends React.Component<EditableActivityTableProps> {
+export class ActivityPage extends React.Component<ActivityPageProps> {
 
     render() {
         return (
             <div>
+                <PageHeader>
+                    <Glyphicon glyph="list"/> Activities
+                </PageHeader>
+
                 <ActivityTable activities={this.props.activities}
                     editHandler={this.props.startEditActivity}
                     deleteHandler={this.props.startDeleteActivity}/>
 
                 <ButtonToolbar>
+                    <Button bsStyle="primary" href="/#/">
+                        <Glyphicon glyph="chevron-left"/> Back
+                    </Button>
                     <Button bsStyle="primary" onClick={this.props.fetchActivities}>
                         <Glyphicon glyph="refresh"/> Refresh
                     </Button>
@@ -69,11 +76,11 @@ export class EditableActivityTable extends React.Component<EditableActivityTable
     }
 }
 
-function mapStateToProps(state: AppState): $Shape<EditableActivityTableProps> {
+function mapStateToProps(state: AppState): $Shape<ActivityPageProps> {
     return state;
 }
 
-function mapDispatchToProps(dispatch: Dispatch): $Shape<EditableActivityTableProps> {
+function mapDispatchToProps(dispatch: Dispatch): $Shape<ActivityPageProps> {
     return {
         fetchActivities: () => dispatch(actions.fetchActivitiesIfNeeded()),
         startAddActivity: () => dispatch(actions.startAddActivity()),
@@ -87,4 +94,4 @@ function mapDispatchToProps(dispatch: Dispatch): $Shape<EditableActivityTablePro
     };
 }
 
-export default redux.connect(mapStateToProps, mapDispatchToProps)(EditableActivityTable);
+export default redux.connect(mapStateToProps, mapDispatchToProps)(ActivityPage);

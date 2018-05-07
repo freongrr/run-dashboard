@@ -33,10 +33,11 @@ function activities(state: Activity[] = [], action: Action): Activity[] {
     } else if (payload instanceof ActivitySavedPayload) {
         const updatedActivity = (payload: ActivitySavedPayload).activity;
         const index = state.findIndex(a => a.id === updatedActivity.id);
+        // TODO : sort? or refresh?
         if (index >= 0) {
             return update(state, {[index]: {$set: updatedActivity}});
         } else {
-            return update(state, {$push: [updatedActivity]});
+            return update(state, {$unshift: [updatedActivity]});
         }
     } else if (payload instanceof ActivityDeletedPayload) {
         const updatedActivity = (payload: ActivityDeletedPayload).activity;
