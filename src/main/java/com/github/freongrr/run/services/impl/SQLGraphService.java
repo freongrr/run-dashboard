@@ -1,4 +1,4 @@
-package com.github.freongrr.run.impl;
+package com.github.freongrr.run.services.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -7,22 +7,22 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
-import javax.inject.Inject;
 import javax.sql.DataSource;
 
-import com.github.freongrr.run.components.GraphSource;
-import com.github.freongrr.run.components.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-/**
- * TODO : documentation
- */
-final class SQLGraphSource implements GraphSource {
+import com.github.freongrr.run.services.GraphService;
+import com.github.freongrr.run.services.Logger;
+
+@Service
+final class SQLGraphService implements GraphService {
 
     private final Logger logger;
     private final DataSource dataSource;
 
-    @Inject
-    SQLGraphSource(Logger logger, DataSource dataSource) {
+    @Autowired
+    SQLGraphService(Logger logger, DataSource dataSource) {
         this.logger = logger;
         this.dataSource = dataSource;
     }

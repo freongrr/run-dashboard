@@ -1,9 +1,9 @@
-package com.github.freongrr.run.components;
+package com.github.freongrr.run.services;
 
 /**
  * TODO : documentation
  */
-public interface GraphSource {
+public interface GraphService {
 
     Object[][] getRows(String graphType);
 }

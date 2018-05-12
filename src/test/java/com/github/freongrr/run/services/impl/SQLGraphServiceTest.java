@@ -1,4 +1,4 @@
-package com.github.freongrr.run.impl;
+package com.github.freongrr.run.services.impl;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -15,9 +15,9 @@ import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.github.freongrr.run.components.Logger;
+import com.github.freongrr.run.services.Logger;
 
-public final class SQLGraphSourceTest {
+public final class SQLGraphServiceTest {
 
     private DataSource dataSource;
     private Connection connection;
@@ -40,7 +40,7 @@ public final class SQLGraphSourceTest {
 
     @Test
     public void test_month_query() throws Exception {
-        String sql = SQLGraphSource.monthQuery(LocalDate.of(2017, 2, 15), 6);
+        String sql = SQLGraphService.monthQuery(LocalDate.of(2017, 2, 15), 6);
         assertThat(sql, equalTo("" +
                 "SELECT \"2017-02\" AS month, 20170201 AS start, 20170228 AS end\n" +
                 "UNION SELECT \"2017-01\" AS month, 20170101 AS start, 20170131 AS end\n" +
@@ -52,7 +52,7 @@ public final class SQLGraphSourceTest {
 
     @Test
     public void test_query_over_12_months() throws Exception {
-        SQLGraphSource graphSource = new SQLGraphSource(mock(Logger.class), dataSource);
+        SQLGraphService graphSource = new SQLGraphService(mock(Logger.class), dataSource);
 
         when(resultSet.next()).thenReturn(true, false);
         when(resultSet.getString(1)).thenReturn("2017-02");

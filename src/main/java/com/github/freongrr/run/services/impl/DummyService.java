@@ -1,4 +1,4 @@
-package com.github.freongrr.run.impl;
+package com.github.freongrr.run.services.impl;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -6,20 +6,25 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.inject.Inject;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
 
 import com.github.freongrr.run.beans.Activity;
-import com.github.freongrr.run.components.ActivityStore;
+import com.github.freongrr.run.services.ActivityService;
 
-final class DummyStore implements ActivityStore {
+@Service
+@Profile("dummy")
+final class DummyService implements ActivityService {
 
     private static final Comparator<Activity> RECENT_FIRST_COMPARATOR = Comparator
             .comparing(Activity::getDate).reversed();
 
     private final Map<String, Activity> activities;
 
-    @Inject
-    DummyStore() {
+    @Autowired
+    DummyService() {
         this.activities = new ConcurrentHashMap<>();
 
         addActivity(LocalDate.of(2017, 2, 5), 2897, 10000);

@@ -1,4 +1,4 @@
-package com.github.freongrr.run.impl;
+package com.github.freongrr.run.services.impl;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -14,11 +14,11 @@ import org.junit.Test;
 import org.sqlite.SQLiteDataSource;
 
 import com.github.freongrr.run.beans.Activity;
-import com.github.freongrr.run.components.Logger;
+import com.github.freongrr.run.services.Logger;
 
 public class SQLiteStoreTest {
 
-    private SQLiteStore store;
+    private SQLiteService store;
 
     @Before
     public void setUp() throws Exception {
@@ -28,7 +28,7 @@ public class SQLiteStoreTest {
         SQLiteDataSource dataSource = new SQLiteDataSource();
         dataSource.setUrl("jdbc:sqlite:file://" + tempFile.getAbsolutePath());
 
-        store = new SQLiteStore(dataSource, mock(Logger.class));
+        store = new SQLiteService(dataSource, mock(Logger.class));
         store.createSchema();
     }
 

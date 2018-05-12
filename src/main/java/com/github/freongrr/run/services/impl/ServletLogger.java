@@ -1,16 +1,19 @@
-package com.github.freongrr.run.impl;
+package com.github.freongrr.run.services.impl;
 
 import java.util.Arrays;
-import javax.inject.Inject;
 import javax.servlet.ServletContext;
 
-import com.github.freongrr.run.components.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import com.github.freongrr.run.services.Logger;
+
+@Service
 final class ServletLogger implements Logger {
 
     private final ServletContext servletContext;
 
-    @Inject
+    @Autowired
     ServletLogger(ServletContext servletContext) {
         this.servletContext = servletContext;
     }

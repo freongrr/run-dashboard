@@ -1,10 +1,10 @@
-package com.github.freongrr.run.components;
+package com.github.freongrr.run.services;
 
 import java.util.List;
 
 import com.github.freongrr.run.beans.Activity;
 
-public interface ActivityStore {
+public interface ActivityService {
 
     List<Activity> getAll();
 

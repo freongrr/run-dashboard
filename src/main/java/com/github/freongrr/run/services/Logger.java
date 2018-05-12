@@ -1,5 +1,6 @@
-package com.github.freongrr.run.components;
+package com.github.freongrr.run.services;
 
+// TODO : why did I write my own logger?
 public interface Logger {
 
     void info(String message, Object... parameters);

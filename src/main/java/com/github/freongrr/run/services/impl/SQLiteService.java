@@ -1,4 +1,4 @@
-package com.github.freongrr.run.impl;
+package com.github.freongrr.run.services.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,14 +8,17 @@ import java.sql.Types;
 import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
-import javax.inject.Inject;
 import javax.sql.DataSource;
 
-import com.github.freongrr.run.beans.Activity;
-import com.github.freongrr.run.components.ActivityStore;
-import com.github.freongrr.run.components.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-final class SQLiteStore implements ActivityStore {
+import com.github.freongrr.run.beans.Activity;
+import com.github.freongrr.run.services.ActivityService;
+import com.github.freongrr.run.services.Logger;
+
+@Service
+final class SQLiteService implements ActivityService {
 
     private static final String SCHEMA_SQL = "" +
             "CREATE TABLE activity (" +
@@ -29,8 +32,8 @@ final class SQLiteStore implements ActivityStore {
     private final DataSource dataSource;
     private final Logger logger;
 
-    @Inject
-    public SQLiteStore(DataSource dataSource, Logger logger) {
+    @Autowired
+    SQLiteService(DataSource dataSource, Logger logger) {
         this.dataSource = dataSource;
         this.logger = logger;
     }
