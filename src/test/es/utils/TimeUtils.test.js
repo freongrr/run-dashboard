@@ -1,6 +1,6 @@
 // @flow
 
-import {formatHourMinutes, formatMinuteSeconds, parseDuration} from "../../../main/webapp/utils/TimeUtils";
+import {formatHourMinutes, formatMinuteSeconds, parseDuration} from "../../../main/es/utils/TimeUtils";
 
 describe("TimeUtils", () => {
 

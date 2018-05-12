@@ -2,7 +2,7 @@
 
 import React from "react";
 import {shallow} from "enzyme";
-import ChartPanel from "../../../main/webapp/components/ChartPanel";
+import ChartPanel from "../../../main/es/components/ChartPanel";
 
 describe("ChartPanel", () => {
 

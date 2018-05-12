@@ -2,7 +2,7 @@
 
 import React from "react";
 import {shallow} from "enzyme";
-import {Dashboard} from "../../../main/webapp/containers/Dashboard";
+import {Dashboard} from "../../../main/es/containers/Dashboard";
 
 describe("Dashboard", () => {
 

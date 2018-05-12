@@ -103,7 +103,7 @@
                 <version>2.4</version>
                 <configuration>
                     <warSourceDirectory>${basedir}/dist</warSourceDirectory>
-                    <webXml>${basedir}/src/main/webapp/WEB-INF/web.xml</webXml>
+                    <webXml>src/main/es/WEB-INF/web.xml</webXml>
                     <archive>
                         <manifest>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>

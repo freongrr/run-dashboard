@@ -1,7 +1,7 @@
 // @flow
 
 import TestUtils from "./TestUtils";
-import RPC from "../../../main/webapp/utils/RPC";
+import RPC from "../../../main/es/utils/RPC";
 
 describe("RPC", () => {
 

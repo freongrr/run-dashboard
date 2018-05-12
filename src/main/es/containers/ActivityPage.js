@@ -80,6 +80,7 @@ function mapStateToProps(state: AppState): $Shape<ActivityPageProps> {
     return state;
 }
 
+// TODO : is there a way to test this?
 function mapDispatchToProps(dispatch: Dispatch): $Shape<ActivityPageProps> {
     return {
         fetchActivities: () => dispatch(actions.fetchActivitiesIfNeeded()),

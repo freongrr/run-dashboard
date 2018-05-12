@@ -1,7 +1,7 @@
 // @flow
 
-import {isFetching} from "../../../main/webapp/redux/reducers";
-import * as actionBuilders from "../../../main/webapp/redux/actionBuilders";
+import {isFetching} from "../../../main/es/redux/reducers";
+import * as actionBuilders from "../../../main/es/redux/actionBuilders";
 
 describe("isFetching", () => {
 

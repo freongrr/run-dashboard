@@ -1,6 +1,6 @@
 // @flow
 
-import {formatKm, formatMeters, parseDistance} from "../../../main/webapp/utils/DistanceUtils";
+import {formatKm, formatMeters, parseDistance} from "../../../main/es/utils/DistanceUtils";
 
 describe("DistanceUtils", () => {
 

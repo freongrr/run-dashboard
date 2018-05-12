@@ -2,7 +2,7 @@
 
 import React from "react";
 import {shallow} from "enzyme";
-import ActivityTable from "../../../main/webapp/components/ActivityTable";
+import ActivityTable from "../../../main/es/components/ActivityTable";
 
 describe("ActivityTable", () => {
 

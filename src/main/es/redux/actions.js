@@ -15,7 +15,7 @@ type ThunkAction = (dispatch: Dispatch, getState: GetState) => void;
 
 // TODO : inject service interface in store state?
 let rpc;
-if (process.env.NODE_ENV === "production") {
+if (1 === 1 || process.env.NODE_ENV === "production") {
     rpc = new RPC();
 } else {
     rpc = new DummyRPC();
