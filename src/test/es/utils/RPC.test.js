@@ -1,18 +1,18 @@
 // @flow
 
-import TestUtils from "./TestUtils";
+import * as TestUtils from "./MockXMLHttpRequest";
 import RPC from "../../../main/es/utils/RPC";
 
 describe("RPC", () => {
 
-    const ajax = new RPC();
+    const rpc = new RPC();
 
     describe("#get()", () => {
 
         test("returns a plain text as a string", (done) => {
             TestUtils.mockGET("/endpoint", 200, "Plain Text");
 
-            ajax.get("/endpoint")
+            rpc.get("/endpoint")
                 .then((result) => {
                     expect(result).toEqual("Plain Text");
                     done();
@@ -22,7 +22,7 @@ describe("RPC", () => {
         test("returns JSON as an object", (done) => {
             TestUtils.mockGET("/endpoint", 200, "{\"foo\":\"bar\"}");
 
-            ajax.get("/endpoint")
+            rpc.get("/endpoint")
                 .then((result) => {
                     if (typeof result === "object" && result["foo"] === "bar") {
                         done();
@@ -33,7 +33,7 @@ describe("RPC", () => {
         test("returns an error when the server fails", (done) => {
             TestUtils.mockGET("/endpoint", 500, "Boom");
 
-            ajax.get("/endpoint")
+            rpc.get("/endpoint")
                 .then((result) => {
                     throw new Error("Unexpected result: " + result);
                 })
@@ -49,7 +49,7 @@ describe("RPC", () => {
         test("returns an error when the server returns bad JSON", (done) => {
             TestUtils.mockGET("/endpoint", 200, "{xxx}");
 
-            ajax.get("/endpoint")
+            rpc.get("/endpoint")
                 .then((result) => {
                     throw new Error("Unexpected result: " + result);
                 })
@@ -65,7 +65,7 @@ describe("RPC", () => {
         test("serializes data to JSON", (done) => {
             TestUtils.mockPOST("/endpoint", "{\"foo\":\"bar\"}", 200, "");
 
-            ajax.post("/endpoint", {foo: "bar"})
+            rpc.post("/endpoint", {foo: "bar"})
                 .then(() => {
                     done();
                 });
@@ -74,7 +74,7 @@ describe("RPC", () => {
         test("returns a plain text as a string", (done) => {
             TestUtils.mockPOST("/endpoint", "{}", 200, "Plain Text");
 
-            ajax.post("/endpoint", {})
+            rpc.post("/endpoint", {})
                 .then((result) => {
                     expect(result).toEqual("Plain Text");
                     done();
@@ -84,7 +84,7 @@ describe("RPC", () => {
         test("returns JSON as an object", (done) => {
             TestUtils.mockPOST("/endpoint", "{}", 200, "{\"foo\":\"bar\"}");
 
-            ajax.post("/endpoint", {})
+            rpc.post("/endpoint", {})
                 .then((result) => {
                     if (typeof result === "object" && result["foo"] === "bar") {
                         done();
@@ -97,7 +97,7 @@ describe("RPC", () => {
         test("returns an error when the server fails (custom code)", (done) => {
             TestUtils.mockPOST("/endpoint", "{}", 403, "Unauthorized");
 
-            ajax.post("/endpoint", {})
+            rpc.post("/endpoint", {})
                 .then((result) => {
                     throw new Error("Unexpected result: " + result);
                 })
@@ -110,7 +110,7 @@ describe("RPC", () => {
         test("returns an error when the server returns bad JSON", (done) => {
             TestUtils.mockPOST("/endpoint", "{}", 200, "{xxx}");
 
-            ajax.post("/endpoint", {})
+            rpc.post("/endpoint", {})
                 .then((result) => {
                     throw new Error("Unexpected result: " + result);
                 })
@@ -124,18 +124,18 @@ describe("RPC", () => {
     describe("#_delete()", () => {
 
         test("works", (done) => {
-            TestUtils.mockRequest("DELETE", "/endpoint", "{\"foo\":\"bar\"}", 200, "");
+            TestUtils.mockDELETE("/endpoint", "{\"foo\":\"bar\"}", 200, "");
 
-            ajax._delete("/endpoint", {foo: "bar"})
+            rpc._delete("/endpoint", {foo: "bar"})
                 .then(() => {
                     done();
                 });
         });
 
         test("fails (e.g. if it can't connect to the server)", (done) => {
-            TestUtils.mockRequest("DELETE", "/endpoint", "{\"foo\":\"bar\"}", 0, "");
+            TestUtils.mockDELETE("/endpoint", "{\"foo\":\"bar\"}", 0, "");
 
-            ajax._delete("/endpoint", {foo: "bar"})
+            rpc._delete("/endpoint", {foo: "bar"})
                 .then((result) => {
                     throw new Error("Unexpected result: " + result);
                 })
