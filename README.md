@@ -9,9 +9,9 @@ Build the WAR file:
 
     mvn clean deploy
 
-Debug using Jetty:
+Debug using Spring Boot in your IDE, or with Maven:
 
-    mvn clean jetty:run-war -DdatabaseUrl=jdbc:sqlite:file:///path/to/run.sqlite3
+    mvn clean spring-boot:run -DdatabaseUrl=jdbc:sqlite:file:///path/to/run.sqlite3
 
 Watch for changes in the JS code and static resources:
 
