@@ -7,8 +7,8 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const HtmlWebpackIncludeAssetsPlugin = require("html-webpack-include-assets-plugin");
 
-const APP_DIR = path.resolve(__dirname, "src/main/webapp");
-const BUILD_DIR = module.exports.BUILD_DIR = path.resolve(__dirname, "dist");
+const APP_DIR = path.resolve(__dirname, "src/main/es");
+const BUILD_DIR = module.exports.BUILD_DIR = path.resolve(__dirname, "src/main/webapp");
 
 // TODO : clean-webpack-plugin uses deprecated APIs. Replace or remove?
 
@@ -62,7 +62,7 @@ module.exports = {
         ]
     },
     plugins: [
-        new CleanWebpackPlugin([BUILD_DIR]),
+        new CleanWebpackPlugin([BUILD_DIR + "/*.*"]),
         new FlowtypePlugin(),
         new CopyWebpackPlugin(copyAssets, {ignore: [".DS_Store"]}),
         new HtmlWebpackPlugin({template: APP_DIR + "/index.html"}),
@@ -70,5 +70,14 @@ module.exports = {
             assets: includeAssets,
             append: false
         })
-    ]
+    ],
+    devServer: {
+        host: "0.0.0.0",
+        port: 8282,
+        disableHostCheck: true,
+        proxy: [{
+            context: ["/api"],
+            target: "http://localhost:8080"
+        }]
+    }
 };

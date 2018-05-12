@@ -70,7 +70,7 @@
   },
   "jest": {
     "setupFiles": [
-      "./src/test/webapp/setup-tests.js"
+      "./src/test/es/setup-tests.js"
     ],
     "coverageDirectory": "tests_coverage",
     "collectCoverage": true,
