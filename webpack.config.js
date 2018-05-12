@@ -70,5 +70,14 @@ module.exports = {
             assets: includeAssets,
             append: false
         })
-    ]
+    ],
+    devServer: {
+        host: "0.0.0.0",
+        port: 8282,
+        disableHostCheck: true,
+        proxy: [{
+            context: ["/api"],
+            target: "http://localhost:8080"
+        }]
+    }
 };

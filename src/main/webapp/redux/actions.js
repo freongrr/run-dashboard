@@ -21,11 +21,13 @@ if (process.env.NODE_ENV === "production") {
     rpc = new DummyRPC();
 }
 
+const ACTIVITY_API = "/api/activities";
+
 export function fetchActivitiesIfNeeded(): ThunkAction {
     return (dispatch: Dispatch, getState: GetState) => {
         if (!getState().isFetching) {
             dispatch(actionBuilders.requestActivities());
-            rpc.get("/activities")
+            rpc.get(ACTIVITY_API)
                 .then((json) => {
                     const activities = (json: any);
                     dispatch(actionBuilders.receivedActivities(activities));
@@ -71,9 +73,9 @@ export function saveActivity(builder: ActivityBuilder): ThunkAction {
     };
 
     return (dispatch) => {
-        rpc.post("/activities", activity)
-            .then(() => {
-                dispatch(actionBuilders.activitySaved(activity));
+        rpc.post(ACTIVITY_API, activity)
+            .then((updatedActivity) => {
+                dispatch(actionBuilders.activitySaved(updatedActivity));
             })
             .catch((error) => {
                 dispatch(actionBuilders.setError(error));
@@ -94,7 +96,7 @@ export function deleteActivity(): ThunkAction {
     return (dispatch: Dispatch, getState: GetState) => {
         const activity = getState().deletedActivity;
         if (activity) {
-            rpc._delete("/activities", activity)
+            rpc._delete(ACTIVITY_API, activity)
                 .then(() => {
                     dispatch(actionBuilders.activityDeleted(activity));
                 })
