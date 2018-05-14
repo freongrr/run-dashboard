@@ -3,6 +3,7 @@
 import React from "react";
 import {shallow} from "enzyme";
 import ActivityTable from "../../../main/es/components/ActivityTable";
+import type {Activity} from "../../../main/es/types/Types";
 
 describe("ActivityTable", () => {
 
@@ -13,17 +14,19 @@ describe("ActivityTable", () => {
         throw new Error();
     };
 
-    const activities = [
+    const activities: Activity[] = [
         {
             id: "1",
             date: "2016-12-17",
             duration: 2544,
-            distance: 8500
+            distance: 8500,
+            metadata: {}
         }, {
             id: "2",
             date: "2016-12-11",
             duration: 2145,
-            distance: 7000
+            distance: 7000,
+            metadata: {}
         }
     ];
 

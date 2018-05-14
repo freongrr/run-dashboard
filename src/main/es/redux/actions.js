@@ -65,11 +65,13 @@ export function dismissEditActivity(): Action {
 }
 
 export function saveActivity(builder: ActivityBuilder): ThunkAction {
+    // TODO : can I remove that hack?
     const activity: Activity = {
         id: builder.id ? builder.id : "" /* HACK */,
         date: builder.date,
         duration: TimeUtils.parseDuration(builder.duration),
-        distance: DistanceUtils.parseDistance(builder.distance)
+        distance: DistanceUtils.parseDistance(builder.distance),
+        metadata: {}
     };
 
     return (dispatch) => {

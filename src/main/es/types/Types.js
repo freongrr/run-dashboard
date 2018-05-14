@@ -1,12 +1,23 @@
 // @flow
 "use strict";
 
-export type Activity = {
+// TODO : redo activity with generic data
+
+export type Activity = {|
     id: string,
     date: string,
     duration: number,
-    distance: number
-};
+    distance: number,
+    metadata: { [string]: string | number | boolean }
+|};
+
+// Metadata, used for grouping activities on a graphs (it would be pointless to graph it):
+export type Property = {|
+    id: string,
+    label: string,
+    type: "string" | "number" | "boolean",
+    hint?: string
+|};
 
 /** This is used in the edit dialog */
 export type ActivityBuilder = {
