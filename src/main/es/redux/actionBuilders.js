@@ -71,6 +71,7 @@ export function loadChartDataFailure(error: Error): Action {
     return {type: "LOAD_CHART_DATA_FAILURE", error};
 }
 
+// TODO : this is too generic...
 export function setError(error: ?Error): Action {
     return {type: "SET_ERROR", error};
 }

@@ -10,8 +10,8 @@ import DummyRPC from "../utils/DummyRPC";
 import * as CopyTools from "../data/CopyTools";
 
 export type Dispatch = (action: Action | ThunkAction) => void;
-type GetState = () => AppState;
-type ThunkAction = (dispatch: Dispatch, getState: GetState) => void;
+export type GetState = () => AppState;
+export type ThunkAction = (dispatch: Dispatch, getState: GetState) => void;
 
 // TODO : inject service interface in store state?
 let rpc;
@@ -19,6 +19,10 @@ if (process.env.NODE_ENV === "production") {
     rpc = new RPC();
 } else {
     rpc = new DummyRPC();
+}
+
+export function overrideRPC(rpc2: RPC) {
+    rpc = rpc2;
 }
 
 const ACTIVITY_API = "/api/activities";
@@ -29,8 +33,7 @@ export function fetchActivities(): ThunkAction {
         if (!getState().isFetching) {
             dispatch(actionBuilders.loadActivitiesStart());
             rpc.get(ACTIVITY_API)
-                .then((json) => {
-                    const activities = (json: any);
+                .then((activities) => {
                     dispatch(actionBuilders.loadActivitiesSuccess(activities));
                 })
                 .catch((error) => {
@@ -103,40 +106,42 @@ export function deleteActivity(): ThunkAction {
 export function updateChartInterval(interval: string): ThunkAction {
     return (dispatch: Dispatch) => {
         dispatch(actionBuilders.setChartInterval(interval));
-        dispatch(fetchChartData());
+        dispatch(doFetchChartData);
     };
 }
 
 export function updateChartMeasure(measure: string): ThunkAction {
     return (dispatch: Dispatch) => {
         dispatch(actionBuilders.setChartMeasure(measure));
-        dispatch(fetchChartData());
+        dispatch(doFetchChartData);
     };
 }
 
 export function updateChartGrouping(grouping: string): ThunkAction {
     return (dispatch: Dispatch) => {
         dispatch(actionBuilders.setChartGrouping(grouping));
-        dispatch(fetchChartData());
+        dispatch(doFetchChartData);
     };
 }
 
-export function fetchChartData(): ThunkAction {
-    return (dispatch: Dispatch, getState: GetState) => {
-        // TODO : this should check a different flag
-        const state = getState();
-        if (!state.isFetching) {
-            dispatch(actionBuilders.loadChartDataStart());
-            rpc.get(`${CHART_API}?interval=${state.chartInterval}&measure=${state.chartMeasure}&grouping=` + state.chartGrouping)
-                .then((json) => {
-                    const data = (json: any);
-                    dispatch(actionBuilders.loadActivitiesSuccess(data));
-                })
-                .catch((error) => {
-                    dispatch(actionBuilders.loadChartDataFailure(error));
-                });
-        }
-    };
+export function fetchChartData() {
+    return doFetchChartData;
+}
+
+export function doFetchChartData(dispatch: Dispatch, getState: GetState) {
+    // TODO : this should check a different flag
+    const state = getState();
+    if (!state.isFetching) {
+        dispatch(actionBuilders.loadChartDataStart());
+        rpc.get(`${CHART_API}?interval=${state.chartInterval}&measure=${state.chartMeasure}&grouping=` + state.chartGrouping)
+            .then((data) => {
+                dispatch(actionBuilders.loadChartDataSuccess(data));
+            })
+            .catch((error) => {
+                console.error("Failed to load chart data", error);
+                dispatch(actionBuilders.loadChartDataFailure(error));
+            });
+    }
 }
 
 export function dismissError(): Action {

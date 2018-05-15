@@ -16,6 +16,7 @@ import ActivityDialog from "./ActivityDialog";
 import ErrorDialog from "../components/ErrorDialog";
 import DeleteDialog from "../components/DeleteDialog";
 
+// TODO : split into multiple connected components (e.g. edit dialog, list, etc)
 type ActivityPageProps = {
     attributeTypes: AttributeType[],
     isFetching: boolean,
