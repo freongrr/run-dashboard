@@ -22,18 +22,20 @@ if (process.env.NODE_ENV === "production") {
 }
 
 const ACTIVITY_API = "/api/activities";
+const CHART_API = "/api/chart";
 
-export function fetchActivitiesIfNeeded(): ThunkAction {
+export function fetchActivities(): ThunkAction {
     return (dispatch: Dispatch, getState: GetState) => {
         if (!getState().isFetching) {
-            dispatch(actionBuilders.requestActivities());
+            dispatch(actionBuilders.loadActivitiesStart());
             rpc.get(ACTIVITY_API)
                 .then((json) => {
                     const activities = (json: any);
-                    dispatch(actionBuilders.receivedActivities(activities));
+                    dispatch(actionBuilders.loadActivitiesSuccess(activities));
                 })
                 .catch((error) => {
-                    dispatch(actionBuilders.setError(error));
+                    console.error("Failed to load activities", error);
+                    dispatch(actionBuilders.loadActivitiesFailure(error));
                 });
         }
     };
@@ -68,6 +70,7 @@ export function saveActivity(builder: ActivityBuilder): ThunkAction {
                 dispatch(actionBuilders.activitySaved(updatedActivity));
             })
             .catch((error) => {
+                console.error("Failed to load activities", error);
                 dispatch(actionBuilders.setError(error));
             });
     };
@@ -92,6 +95,45 @@ export function deleteActivity(): ThunkAction {
                 })
                 .catch((error) => {
                     dispatch(actionBuilders.setError(error));
+                });
+        }
+    };
+}
+
+export function updateChartInterval(interval: string): ThunkAction {
+    return (dispatch: Dispatch) => {
+        dispatch(actionBuilders.setChartInterval(interval));
+        dispatch(fetchChartData());
+    };
+}
+
+export function updateChartMeasure(measure: string): ThunkAction {
+    return (dispatch: Dispatch) => {
+        dispatch(actionBuilders.setChartMeasure(measure));
+        dispatch(fetchChartData());
+    };
+}
+
+export function updateChartGrouping(grouping: string): ThunkAction {
+    return (dispatch: Dispatch) => {
+        dispatch(actionBuilders.setChartGrouping(grouping));
+        dispatch(fetchChartData());
+    };
+}
+
+export function fetchChartData(): ThunkAction {
+    return (dispatch: Dispatch, getState: GetState) => {
+        // TODO : this should check a different flag
+        const state = getState();
+        if (!state.isFetching) {
+            dispatch(actionBuilders.loadChartDataStart());
+            rpc.get(`${CHART_API}?interval=${state.chartInterval}&measure=${state.chartMeasure}&grouping=` + state.chartGrouping)
+                .then((json) => {
+                    const data = (json: any);
+                    dispatch(actionBuilders.loadActivitiesSuccess(data));
+                })
+                .catch((error) => {
+                    dispatch(actionBuilders.loadChartDataFailure(error));
                 });
         }
     };

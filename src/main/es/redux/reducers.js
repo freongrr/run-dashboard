@@ -16,9 +16,9 @@ export function attributeTypes(state: AttributeType[]): AttributeType[] {
 }
 
 export function isFetching(state: boolean = false, action: Action): boolean {
-    if (action.type === "REQUEST_ACTIVITIES") {
+    if (action.type === "LOAD_ACTIVITIES_START") {
         return true;
-    } else if (action.type === "RECEIVED_ACTIVITIES") {
+    } else if (action.type === "LOAD_ACTIVITIES_SUCCESS" || action.type === "LOAD_ACTIVITIES_FAILURE") {
         return false;
     } else {
         return state;
@@ -26,7 +26,7 @@ export function isFetching(state: boolean = false, action: Action): boolean {
 }
 
 export function activities(state: Activity[] = [], action: Action): Activity[] {
-    if (action.type === "RECEIVED_ACTIVITIES") {
+    if (action.type === "LOAD_ACTIVITIES_SUCCESS") {
         return action.activities;
     } else if (action.type === "ACTIVITY_SAVED") {
         const updatedActivity = action.activity;
@@ -71,15 +71,47 @@ export function deletedActivity(state: ?Activity = null, action: Action): ?Activ
     }
 }
 
-export function error(state: ?Error = null, action: Action): ?Error {
-    if (action.type === "SET_ERROR") {
-        return action.error;
+export function chartInterval(state: string = "last12Months", action: Action): string {
+    if (action.type === "SET_CHART_INTERVAL") {
+        return action.interval;
     } else {
         return state;
     }
 }
 
-// TODO : add a bunch of stuff
+export function chartMeasure(state: string = "distance", action: Action): string {
+    if (action.type === "SET_CHART_MEASURE") {
+        return action.measure;
+    } else {
+        return state;
+    }
+}
+
+export function chartGrouping(state: string = "", action: Action): string {
+    if (action.type === "SET_CHART_GROUPING") {
+        return action.grouping;
+    } else {
+        return state;
+    }
+}
+
+export function chartData(state: number[][] = [], action: Action): number[][] {
+    if (action.type === "LOAD_CHART_DATA_SUCCESS") {
+        return action.data;
+    } else {
+        return state;
+    }
+}
+
+export function error(state: ?Error = null, action: Action): ?Error {
+    if (action.type === "LOAD_ACTIVITIES_FAILURE" ||
+        action.type === "LOAD_CHART_DATA_FAILURE" ||
+        action.type === "SET_ERROR") {
+        return action.error;
+    } else {
+        return state;
+    }
+}
 
 export default combineReducers({
     attributeTypes,
@@ -87,5 +119,9 @@ export default combineReducers({
     activities,
     editedActivity,
     deletedActivity,
+    chartInterval,
+    chartMeasure,
+    chartGrouping,
+    chartData,
     error
 });

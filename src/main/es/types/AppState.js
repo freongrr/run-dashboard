@@ -8,5 +8,9 @@ export type AppState = {
     activities: Activity[],
     editedActivity: ?ActivityBuilder,
     deletedActivity: ?Activity,
+    chartInterval: string,
+    chartMeasure: string,
+    chartGrouping: string,
+    chartData: mixed[][],
     error: ?Error
 };

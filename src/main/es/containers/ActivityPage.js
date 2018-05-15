@@ -76,13 +76,19 @@ export class ActivityPage extends React.Component<ActivityPageProps> {
 }
 
 function mapStateToProps(state: AppState): $Shape<ActivityPageProps> {
-    return state;
+    return {
+        isFetching: state.isFetching,
+        activities: state.activities,
+        editedActivity: state.editedActivity,
+        deletedActivity: state.deletedActivity,
+        error: state.error
+    };
 }
 
 // TODO : is there a way to test this?
 function mapDispatchToProps(dispatch: Dispatch): $Shape<ActivityPageProps> {
     return {
-        fetchActivities: () => dispatch(actions.fetchActivitiesIfNeeded()),
+        fetchActivities: () => dispatch(actions.fetchActivities()),
         startAddActivity: () => dispatch(actions.startAddActivity()),
         startEditActivity: (a) => dispatch(actions.startEditActivity(a)),
         startDeleteActivity: (a) => dispatch(actions.startDeleteActivity(a)),

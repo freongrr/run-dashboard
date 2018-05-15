@@ -1,8 +1,9 @@
 // @flow
 "use strict";
 
-import when from "when";
 import type {Activity} from "../types/Types";
+
+const ACTIVITY_API = "/api/activities";
 
 export default class DummyRPC {
 
@@ -49,30 +50,30 @@ export default class DummyRPC {
     };
 
     get(path: string): Promise<any> {
-        if (path === "/api/activities") {
+        if (path === ACTIVITY_API) {
             const activities: Activity[] = (Object.values(this.activitiesById): any);
             activities.sort((a, b) => b.date.localeCompare(a.date));
-            return when.resolve(activities);
+            return Promise.resolve(activities);
         } else {
-            return when.reject(new Error("404"));
+            return Promise.reject(new Error("404"));
         }
     }
 
     post(path: string, data: { [key: string]: any }): Promise<any> {
-        if (path === "/api/activities" && data !== null && data !== undefined) {
+        if (path === ACTIVITY_API && data !== null && data !== undefined) {
             this.activitiesById[data.id] = (data: any);
-            return when.resolve(data);
+            return Promise.resolve(data);
         } else {
-            return when.reject(new Error("404"));
+            return Promise.reject(new Error("404"));
         }
     }
 
     _delete(path: string, data: { [key: string]: any }): Promise<any> {
-        if (path === "/api/activities" && data !== null && data !== undefined) {
+        if (path === ACTIVITY_API && data !== null && data !== undefined) {
             delete this.activitiesById[data.id];
-            return when.resolve(data);
+            return Promise.resolve(data);
         } else {
-            return when.reject(new Error("404"));
+            return Promise.reject(new Error("404"));
         }
     }
 }

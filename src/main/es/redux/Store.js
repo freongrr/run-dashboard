@@ -12,6 +12,10 @@ const INITIAL_STATE: AppState = {
     activities: [],
     editedActivity: null,
     deletedActivity: null,
+    chartInterval: "last12Months",
+    chartMeasure: "distance",
+    chartGrouping: "",
+    chartData: [],
     error: null
 };
 

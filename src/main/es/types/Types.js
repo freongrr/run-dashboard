@@ -44,6 +44,5 @@ export type GraphBuilder = {
     type: "line" | "bar",
     time: boolean,
     x: GraphAxisBuilder,
-    series: Array<GraphSeriesBuilder>
+    series: GraphSeriesBuilder[]
 };
-
