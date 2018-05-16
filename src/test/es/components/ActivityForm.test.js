@@ -28,11 +28,13 @@ const editBuilder: ActivityBuilder = {
 const attributeTypes: AttributeType[] = [{
     id: "city",
     label: "City",
-    type: "string"
+    type: "string",
+    output: false
 }, {
     id: "temperature",
     label: "Temperature",
-    type: "number"
+    type: "number",
+    output: false
 }];
 
 
@@ -138,7 +140,7 @@ test("fires an update when the distance field changes", () => {
     expect(onMainFieldChange).toHaveBeenCalledWith("distance", "20 km");
 });
 
-test("fires an update when one of the extra property field changes", () => {
+test("fires an update when one of the extra attribute field changes", () => {
     const onAttributeFieldChange = jest.fn();
     const wrapper = shallow(<ActivityForm attributeTypes={attributeTypes} activityBuilder={newBuilder}
         onMainFieldChange={jest.fn()} onAttributeFieldChange={onAttributeFieldChange}/>);

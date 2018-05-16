@@ -5,5 +5,5 @@ package com.github.freongrr.run.services;
  */
 public interface GraphService {
 
-    Object[][] getRows(String graphType);
+    Object[][] getRows(GraphDataRequest request);
 }

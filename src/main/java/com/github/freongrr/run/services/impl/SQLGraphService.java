@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.github.freongrr.run.services.GraphDataRequest;
 import com.github.freongrr.run.services.GraphService;
 import com.github.freongrr.run.services.Logger;
 
@@ -28,22 +29,17 @@ final class SQLGraphService implements GraphService {
     }
 
     @Override
-    public Object[][] getRows(String graphType) {
-        switch (graphType) {
-            case "last12MonthsDuration":
+    public Object[][] getRows(GraphDataRequest request) {
+        // TODO : handle time interval
+        switch (request.getMeasure()) {
+            case GraphDataRequest.MEASURE_DURATION:
                 return queryOverLast12Months("SUM(A.time)");
-            case "last12MonthsDistance":
+            case GraphDataRequest.MEASURE_DISTANCE:
                 return queryOverLast12Months("SUM(A.distance)");
-            case "last12MonthsSplitTime":
+            case GraphDataRequest.MEASURE_TIME_1KM:
                 return queryOverLast12Months("AVG(1000 * A.time / A.distance)");
-            case "last12MonthsVsPrevious12Months":
-            case "last30DaysDuration":
-            case "last30DaysDistance":
-            case "last30DaysSplitTime":
-            case "last30DaysVsPrevious30Days":
-            case "last30DaysVsAYearAgo":
             default:
-                throw new IllegalArgumentException("Invalid graph type: " + graphType);
+                throw new IllegalArgumentException("Invalid graph request: " + request);
         }
     }
 

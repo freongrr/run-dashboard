@@ -15,22 +15,23 @@ export type ThunkAction = (dispatch: Dispatch, getState: GetState) => void;
 
 // TODO : inject service interface in store state?
 let rpc;
-if (process.env.NODE_ENV === "production") {
+if (1 === 1 || process.env.NODE_ENV === "production") {
     rpc = new RPC();
 } else {
     rpc = new DummyRPC();
 }
 
-export function overrideRPC(rpc2: RPC) {
-    rpc = rpc2;
+export function overrideRPC(providedRPC: RPC) {
+    rpc = providedRPC;
 }
 
 const ACTIVITY_API = "/api/activities";
-const CHART_API = "/api/chart";
+const CHART_API = "/api/graph"; // TODO : use CHART or GRAPH everywhere
 
 export function fetchActivities(): ThunkAction {
     return (dispatch: Dispatch, getState: GetState) => {
         if (!getState().isFetching) {
+            dispatch(dismissError());
             dispatch(actionBuilders.loadActivitiesStart());
             rpc.get(ACTIVITY_API)
                 .then((activities) => {
@@ -132,6 +133,7 @@ export function doFetchChartData(dispatch: Dispatch, getState: GetState) {
     // TODO : this should check a different flag
     const state = getState();
     if (!state.isFetching) {
+        dispatch(dismissError());
         dispatch(actionBuilders.loadChartDataStart());
         rpc.get(`${CHART_API}?interval=${state.chartInterval}&measure=${state.chartMeasure}&grouping=` + state.chartGrouping)
             .then((data) => {

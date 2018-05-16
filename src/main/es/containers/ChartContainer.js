@@ -4,17 +4,18 @@
 import React from "react";
 import {Alert, ControlLabel, Form, FormControl, FormGroup} from "react-bootstrap";
 import * as redux from "react-redux";
-import type {AppState, GraphBuilder} from "../types/Types";
+import type {GraphBuilder} from "../types/Types";
+import type {AppState} from "../types/AppState";
 import type {Dispatch} from "../redux/actions";
 import * as actions from "../redux/actions";
 import C3Graph from "../components/C3Graph";
+import * as graphBuilderHelper from "../data/graphBuilderHelper";
 
 type ChartContainerProps = {
     selectedInterval: string,
     selectedMeasure: string,
     selectedGrouping: string,
-    chartBuilder: ?GraphBuilder,
-    chartData: number[][],
+    chartData: mixed[][],
     error: ?Error,
     fetchChartData: () => void,
     updateChartInterval: (interval: string) => void,
@@ -63,6 +64,13 @@ export class ChartContainer extends React.Component<ChartContainerProps> {
             {id: "city", label: "City"}
         ];
 
+        // TODO : this forces the C3 graph to be generated, which is inefficient
+        // but I can't easily use a reducer because it depends on multiple parts of the state.
+        // We should optimize either this component or C3Graph to handle that case 
+        const graphBuilder: GraphBuilder = graphBuilderHelper.createBuilder(
+            this.props.selectedInterval, this.props.selectedMeasure, this.props.selectedGrouping
+        );
+
         return (
             <div className="ChartContainer">
                 <Form inline>
@@ -91,7 +99,7 @@ export class ChartContainer extends React.Component<ChartContainerProps> {
 
                 {this.props.error
                     ? <Alert bsStyle="danger"><h4>Error</h4>{this.props.error.toString()}</Alert>
-                    : <C3Graph id="chartGoesHere" builder={this.props.chartBuilder} rows={this.props.chartData}/>}
+                    : <C3Graph id="chartGoesHere" builder={graphBuilder} rows={this.props.chartData}/>}
 
             </div>
         );

@@ -11,11 +11,17 @@ export type Activity = {|
     attributes: { [string]: AttributeValue }
 |};
 
-// Metadata, used for grouping activities on a graphs (it would be pointless to graph it):
+export type AggregateOperation = "min" | "max" | "avg" | "count";
+
+// Extra attributes associated with an activity.
+// The output parameter controls whether the attribute can be used to group data (e.g. "City")
+// on a graph, or if it is the data itself ("Total distance per month", "Average distance per month", etc)
 export type AttributeType = {|
     id: string,
     label: string,
-    type: "string" | "number" | "date"
+    type: "string" | "number" | "date",
+    output: boolean,
+    aggregates?: AggregateOperation[]
 |};
 
 export type AttributeValue = string;
