@@ -1,31 +1,33 @@
 // @flow
 "use strict";
 
-// TODO : redo activity with generic data
+// TODO : store duration and distance as attributes too?
 
 export type Activity = {|
     id: string,
     date: string,
     duration: number,
     distance: number,
-    metadata: { [string]: string | number | boolean }
+    attributes: { [string]: AttributeValue }
 |};
 
 // Metadata, used for grouping activities on a graphs (it would be pointless to graph it):
-export type Property = {|
+export type AttributeType = {|
     id: string,
-    label: string,
-    type: "string" | "number" | "boolean",
-    hint?: string
+    label: string
 |};
 
+// TODO : support different types of attributes (e.g. temperatures)
+export type AttributeValue = string;
+
 /** This is used in the edit dialog */
-export type ActivityBuilder = {
+export type ActivityBuilder = {|
     id: ?string,
     date: string,
     duration: string,
-    distance: string
-};
+    distance: string,
+    attributes: { [string]: AttributeValue }
+|};
 
 export type GraphSeriesBuilder = {
     name: string,

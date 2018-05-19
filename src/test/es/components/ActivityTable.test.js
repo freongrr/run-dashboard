@@ -20,13 +20,13 @@ describe("ActivityTable", () => {
             date: "2016-12-17",
             duration: 2544,
             distance: 8500,
-            metadata: {}
+            attributes: {}
         }, {
             id: "2",
             date: "2016-12-11",
             duration: 2145,
             distance: 7000,
-            metadata: {}
+            attributes: {}
         }
     ];
 
