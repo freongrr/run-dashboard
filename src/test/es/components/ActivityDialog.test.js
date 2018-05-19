@@ -3,6 +3,7 @@
 import React from "react";
 import {shallow} from "enzyme";
 import ActivityDialog from "../../../main/es/components/ActivityDialog";
+import type {ActivityBuilder, AttributeType} from "../../../main/es/types/Types";
 
 describe("ActivityDialog", () => {
 
@@ -13,30 +14,47 @@ describe("ActivityDialog", () => {
         throw new Error();
     };
 
-    const newBuilder = {
+    const newBuilder: ActivityBuilder = {
         id: null,
         date: "",
         duration: "",
-        distance: ""
+        distance: "",
+        attributes: {}
     };
 
-    const editBuilder = {
+    const editBuilder: ActivityBuilder = {
         id: "1234",
         date: "2016-12-31",
         duration: "1 hour",
-        distance: "12 km"
+        distance: "12 km",
+        attributes: {
+            city: "Tokyo",
+            whether: "Sunny"
+        }
     };
 
+    const properties: AttributeType[] = [{
+        id: "city",
+        label: "City"
+    }, {
+        id: "whether",
+        label: "Whether"
+    }];
+
+
     test("has a different title for a new activity or an existing one", () => {
-        const wrapper1 = shallow(<ActivityDialog initialActivity={newBuilder} onDismiss={noop} onSave={noop}/>);
+        const wrapper1 = shallow(<ActivityDialog attributeTypes={[]} activityBuilder={newBuilder}
+            onDismiss={noop} onSave={noop}/>);
         expect(wrapper1.find("ModalTitle").childAt(0).text()).toEqual("Add a new activity");
 
-        const wrapper2 = shallow(<ActivityDialog initialActivity={editBuilder} onDismiss={noop} onSave={noop}/>);
+        const wrapper2 = shallow(<ActivityDialog attributeTypes={[]} activityBuilder={editBuilder}
+            onDismiss={noop} onSave={noop}/>);
         expect(wrapper2.find("ModalTitle").childAt(0).text()).toEqual("Edit an activity");
     });
 
     test("has empty fields for a new activity", () => {
-        const wrapper = shallow(<ActivityDialog initialActivity={newBuilder} onDismiss={noop} onSave={noop}/>);
+        const wrapper = shallow(<ActivityDialog attributeTypes={[]} activityBuilder={newBuilder}
+            onDismiss={noop} onSave={noop}/>);
 
         expect(wrapper.find("FormGroup")).toHaveLength(3);
 
@@ -46,7 +64,8 @@ describe("ActivityDialog", () => {
     });
 
     test("has populated fields for an existing activity", () => {
-        const wrapper = shallow(<ActivityDialog initialActivity={editBuilder} onDismiss={noop} onSave={noop}/>);
+        const wrapper = shallow(<ActivityDialog attributeTypes={[]} activityBuilder={editBuilder}
+            onDismiss={noop} onSave={noop}/>);
 
         expect(wrapper.find("FormGroup")).toHaveLength(3);
 
@@ -55,8 +74,17 @@ describe("ActivityDialog", () => {
         expectField(wrapper, 2, "text", "12 km", "success");
     });
 
+    test("has fields for extra properties", () => {
+        const wrapper = shallow(<ActivityDialog attributeTypes={properties} activityBuilder={editBuilder}
+            onDismiss={noop} onSave={noop}/>);
+
+        expectField(wrapper, 3, "text", "Tokyo", "success");
+        expectField(wrapper, 4, "text", "Sunny", "success");
+    });
+
     test("updates the state when editing a field", () => {
-        const wrapper = shallow(<ActivityDialog initialActivity={newBuilder} onDismiss={noop} onSave={noop}/>);
+        const wrapper = shallow(<ActivityDialog attributeTypes={[]} activityBuilder={newBuilder}
+            onDismiss={noop} onSave={noop}/>);
 
         const fieldWrapper = wrapper.find("FormGroup").at(2).find("FormControl");
         fieldWrapper.simulate("change", {target: {value: "5"}});
@@ -65,7 +93,7 @@ describe("ActivityDialog", () => {
     });
 
     test("invokes the callback when clicking the Cancel button", (done) => {
-        const wrapper = shallow(<ActivityDialog initialActivity={editBuilder}
+        const wrapper = shallow(<ActivityDialog attributeTypes={[]} activityBuilder={editBuilder}
             onDismiss={() => done()}
             onSave={throwingCallback}/>);
 
@@ -75,7 +103,7 @@ describe("ActivityDialog", () => {
     test("does not invoke the callback when clicking the Save button with invalid values", () => {
         let dismissed = false;
         let saved = null;
-        const wrapper = shallow(<ActivityDialog initialActivity={newBuilder}
+        const wrapper = shallow(<ActivityDialog attributeTypes={[]} activityBuilder={newBuilder}
             onDismiss={() => {
                 dismissed = true;
             }}
@@ -90,7 +118,7 @@ describe("ActivityDialog", () => {
     });
 
     test("invokes the callback when clicking the Save button", (done) => {
-        const wrapper = shallow(<ActivityDialog initialActivity={editBuilder}
+        const wrapper = shallow(<ActivityDialog attributeTypes={[]} activityBuilder={editBuilder}
             onDismiss={throwingCallback}
             onSave={(b) => {
                 expect(b).toEqual(editBuilder);

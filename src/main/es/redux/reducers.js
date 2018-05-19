@@ -3,8 +3,17 @@
 import {combineReducers} from "redux";
 import update from "immutability-helper";
 
-import type {Activity, ActivityBuilder} from "../types/Types";
+import type {Activity, ActivityBuilder, AttributeType} from "../types/Types";
 import type {Action} from "./actionBuilders";
+import * as AttributeTypes from "../data/AttributeTypes";
+
+export function attributeTypes(state: AttributeType[]): AttributeType[] {
+    if (state === undefined || state.length === 0) {
+        return AttributeTypes.ACTIVITY_ATTRIBUTES;
+    } else {
+        return state;
+    }
+}
 
 export function isFetching(state: boolean = false, action: Action): boolean {
     if (action.type === "REQUEST_ACTIVITIES") {
@@ -73,6 +82,7 @@ export function error(state: ?Error = null, action: Action): ?Error {
 // TODO : add a bunch of stuff
 
 export default combineReducers({
+    attributeTypes,
     isFetching,
     activities,
     editedActivity,

@@ -1,18 +1,20 @@
 // @flow
 "use strict";
 
-import type {Activity, ActivityBuilder, AppState} from "../types/Types";
+import type {Activity, ActivityBuilder, AttributeType} from "../types/Types";
+import type {AppState} from "../types/AppState";
+import type {Dispatch} from "../redux/actions";
+import * as actions from "../redux/actions";
+import * as redux from "react-redux";
 import React from "react";
 import {Button, ButtonToolbar, Glyphicon, PageHeader} from "react-bootstrap";
 import ActivityTable from "../components/ActivityTable";
 import ActivityDialog from "../components/ActivityDialog";
 import ErrorDialog from "../components/ErrorDialog";
 import DeleteDialog from "../components/DeleteDialog";
-import type {Dispatch} from "../redux/actions";
-import * as actions from "../redux/actions";
-import * as redux from "react-redux";
 
 type ActivityPageProps = {
+    attributeTypes: AttributeType[],
     isFetching: boolean,
     activities: Activity[],
     editedActivity: ?ActivityBuilder,
@@ -55,7 +57,8 @@ export class ActivityPage extends React.Component<ActivityPageProps> {
                 </ButtonToolbar>
 
                 {this.props.editedActivity && <ActivityDialog
-                    initialActivity={this.props.editedActivity}
+                    attributeTypes={this.props.attributeTypes}
+                    activityBuilder={this.props.editedActivity}
                     onDismiss={this.props.dismissEditActivity}
                     onSave={this.props.saveActivity}/>}
 

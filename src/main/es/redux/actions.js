@@ -1,7 +1,8 @@
 // @flow
 /* global process */
 
-import type {Activity, ActivityBuilder, AppState} from "../types/Types";
+import type {Activity, ActivityBuilder} from "../types/Types";
+import type {AppState} from "../types/AppState";
 import type {Action} from "./actionBuilders";
 import * as actionBuilders from "./actionBuilders";
 import RPC from "../utils/RPC";
@@ -14,7 +15,7 @@ type ThunkAction = (dispatch: Dispatch, getState: GetState) => void;
 
 // TODO : inject service interface in store state?
 let rpc;
-if (1 === 1 || process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "production") {
     rpc = new RPC();
 } else {
     rpc = new DummyRPC();

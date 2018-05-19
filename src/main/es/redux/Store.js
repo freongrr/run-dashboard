@@ -3,10 +3,11 @@
 import * as redux from "redux";
 import reduxThunk from "redux-thunk";
 import * as reduxLogger from "redux-logger";
-import type {AppState} from "../types/Types";
+import type {AppState} from "../types/AppState";
 import rootReducer from "./reducers";
 
 const INITIAL_STATE: AppState = {
+    attributeTypes: [],
     isFetching: false,
     activities: [],
     editedActivity: null,

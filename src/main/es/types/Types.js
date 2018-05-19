@@ -47,10 +47,3 @@ export type GraphBuilder = {
     series: Array<GraphSeriesBuilder>
 };
 
-export type AppState = {
-    isFetching: boolean,
-    activities: Activity[],
-    editedActivity: ?ActivityBuilder,
-    deletedActivity: ?Activity,
-    error: ?Error
-};

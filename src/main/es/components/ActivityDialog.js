@@ -1,15 +1,16 @@
 // @flow
 "use strict";
 
-import type {ActivityBuilder} from "../types/Types";
+import type {ActivityBuilder, AttributeType} from "../types/Types";
 import React from "react";
-import update from "immutability-helper";
-import {Button, FormGroup, ControlLabel, FormControl, HelpBlock, Modal} from "react-bootstrap";
+import {Button, ControlLabel, FormControl, FormGroup, HelpBlock, Modal} from "react-bootstrap";
 import {parseDuration} from "../utils/TimeUtils";
 import {parseDistance} from "../utils/DistanceUtils";
+import * as CopyTools from "../data/CopyTools";
 
 type ActivityDialogProps = {
-    initialActivity: ActivityBuilder,
+    activityBuilder: ActivityBuilder,
+    attributeTypes: AttributeType[],
     onDismiss: () => void,
     onSave: (ActivityBuilder) => void
 };
@@ -18,6 +19,7 @@ type ActivityDialogState = {
     builder: ActivityBuilder
 };
 
+// TODO : make this a "connected" component, or wrap it in a ActivityDialogContainer 
 export default class ActivityDialog extends React.Component<ActivityDialogProps, ActivityDialogState> {
     props: ActivityDialogProps;
     state: ActivityDialogState;
@@ -27,7 +29,7 @@ export default class ActivityDialog extends React.Component<ActivityDialogProps,
         super(props);
 
         this.state = {
-            builder: Object.assign({}, props.initialActivity)
+            builder: CopyTools.cloneActivityBuilder(props.activityBuilder)
         };
 
         // Is there a better way to focus the first input field?
@@ -35,7 +37,7 @@ export default class ActivityDialog extends React.Component<ActivityDialogProps,
     }
 
     componentDidMount() {
-        const dateInput = this.inputs.get("date");
+        const dateInput = this.inputs.get("activityDate");
         if (dateInput !== undefined) {
             dateInput.focus();
         }
@@ -46,7 +48,7 @@ export default class ActivityDialog extends React.Component<ActivityDialogProps,
             <Modal show={true} onHide={() => this.props.onDismiss()}>
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        {this.props.initialActivity.id ? "Edit an activity" : "Add a new activity"}
+                        {this.props.activityBuilder.id ? "Edit an activity" : "Add a new activity"}
                     </Modal.Title>
                 </Modal.Header>
 
@@ -55,6 +57,7 @@ export default class ActivityDialog extends React.Component<ActivityDialogProps,
                     {this.createField("activityDate", "date", "date", "Date", this.hasValidDate())}
                     {this.createField("activityDuration", "text", "duration", "Duration", this.hasValidDuration(), "e.g. \"1 hour\" or \"45 min\"")}
                     {this.createField("activityDistance", "text", "distance", "Distance", this.hasValidDistance(), "e.g. \"10.5 km\"")}
+                    {this.props.attributeTypes.map(a => this.createAttributeField(a))}
                 </Modal.Body>
 
                 <Modal.Footer>
@@ -70,27 +73,37 @@ export default class ActivityDialog extends React.Component<ActivityDialogProps,
     }
 
     createField(id: string, type: string, property: string, label: string, valid: boolean, placeholder: ?string, help: ?string) {
-        const value = this.state.builder[property];
+        const value = (this.state.builder[property]: string);
+        const updateHandler = (builder: ActivityBuilder, v: string) => {
+            builder[property] = v;
+            return builder;
+        };
+        return this.doCreateField(id, type, value, updateHandler, label, valid, placeholder, help);
+    }
+
+    createAttributeField(attributeType: AttributeType) {
+        let value = this.state.builder.attributes[attributeType.id] || "";
+        const updateHandler = (builder: ActivityBuilder, value: string) => {
+            builder.attributes[attributeType.id] = value;
+            return builder;
+        };
+        return this.doCreateField(attributeType.id, "text", value, updateHandler, attributeType.label, true, "", "");
+    }
+
+    doCreateField(id: string, type: string, value: string, updateHandler: (ActivityBuilder, string) => ActivityBuilder, label: string, valid: boolean, placeholder: ?string, help: ?string) {
         const validationState = valid ? "success" : "error";
-        console.debug(`Value of ${property}: ${value} (validationState: ${validationState})`);
-        const changeHandle = (e: any) => {
-            console.debug(`Updating property ${property} to: ${e.target.value}`);
-            this.setState(update(this.state, {
-                builder: {
-                    $apply: (b: ActivityBuilder) => {
-                        b[property] = e.target.value;
-                        return b;
-                    }
-                }
-            }));
+        const onChangeHandle = (e: any) => {
+            const updatedBuilder = CopyTools.cloneActivityBuilder(this.state.builder);
+            updateHandler(updatedBuilder, e.target.value);
+            this.setState({builder: updatedBuilder});
         };
         return (
-            <FormGroup controlId={id} validationState={validationState}>
+            <FormGroup key={id} controlId={id} validationState={validationState}>
                 <ControlLabel>{label}</ControlLabel>
                 <FormControl id={id} type={type} value={value} placeholder={placeholder}
-                    onChange={changeHandle} inputRef={ref => this.inputs.set(property, ref)}/>
+                    onChange={onChangeHandle} inputRef={ref => this.inputs.set(id, ref)}/>
                 {help && <HelpBlock>{help}</HelpBlock>}
-                <FormControl.Feedback />
+                <FormControl.Feedback/>
             </FormGroup>
         );
     }
