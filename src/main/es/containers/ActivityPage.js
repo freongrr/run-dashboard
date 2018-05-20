@@ -9,7 +9,7 @@ import * as redux from "react-redux";
 import React from "react";
 import {Button, ButtonToolbar, Glyphicon, PageHeader} from "react-bootstrap";
 import ActivityTable from "../components/ActivityTable";
-import ActivityDialog from "../components/ActivityDialog";
+import ActivityDialog from "./ActivityDialog";
 import ErrorDialog from "../components/ErrorDialog";
 import DeleteDialog from "../components/DeleteDialog";
 
@@ -23,8 +23,6 @@ type ActivityPageProps = {
     fetchActivities: () => void,
     startAddActivity: () => void,
     startEditActivity: (Activity) => void,
-    dismissEditActivity: () => void,
-    saveActivity: (ActivityBuilder) => void,
     startDeleteActivity: (Activity) => void,
     dismissDeleteActivity: () => void,
     deleteActivity: () => void,
@@ -56,11 +54,7 @@ export class ActivityPage extends React.Component<ActivityPageProps> {
                     </Button>
                 </ButtonToolbar>
 
-                {this.props.editedActivity && <ActivityDialog
-                    attributeTypes={this.props.attributeTypes}
-                    activityBuilder={this.props.editedActivity}
-                    onDismiss={this.props.dismissEditActivity}
-                    onSave={this.props.saveActivity}/>}
+                {this.props.editedActivity && <ActivityDialog activityBuilder={this.props.editedActivity}/>}
 
                 {this.props.error && <ErrorDialog
                     error={this.props.error}
@@ -89,8 +83,6 @@ function mapDispatchToProps(dispatch: Dispatch): $Shape<ActivityPageProps> {
         fetchActivities: () => dispatch(actions.fetchActivitiesIfNeeded()),
         startAddActivity: () => dispatch(actions.startAddActivity()),
         startEditActivity: (a) => dispatch(actions.startEditActivity(a)),
-        dismissEditActivity: () => dispatch(actions.dismissEditActivity()),
-        saveActivity: (a) => dispatch(actions.saveActivity(a)),
         startDeleteActivity: (a) => dispatch(actions.startDeleteActivity(a)),
         dismissDeleteActivity: () => dispatch(actions.dismissDeleteActivity()),
         deleteActivity: () => dispatch(actions.deleteActivity()),
