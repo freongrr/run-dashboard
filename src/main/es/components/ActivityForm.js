@@ -13,9 +13,13 @@ type ActivityFormProps = {
     onAttributeFieldChange: (attributeType: AttributeType, newValue: string) => void
 };
 
+type RefFunction = (any) => void;
+
 export default class ActivityForm extends React.Component<ActivityFormProps> {
 
     dateFieldRef = React.createRef();
+
+    setDateFieldRef = (ref: any) => this.dateFieldRef.current = ref;
 
     componentDidMount() {
         if (this.dateFieldRef.current) {
@@ -30,7 +34,7 @@ export default class ActivityForm extends React.Component<ActivityFormProps> {
         return (
             <div>
                 {/* TODO : this is the wrong format (i.e. DD/MM/YYYY) */}
-                {this.createField("activity_date", "date", "date", "Date", hasValidDate, undefined, undefined, this.dateFieldRef)}
+                {this.createField("activity_date", "date", "date", "Date", hasValidDate, undefined, undefined, this.setDateFieldRef)}
                 {this.createField("activity_duration", "text", "duration", "Duration", hasValidDuration, "e.g. \"1 hour\" or \"45 min\"")}
                 {this.createField("activity_distance", "text", "distance", "Distance", hasValidDistance, "e.g. \"10.5 km\"")}
                 {this.props.attributeTypes.map(a => this.createAttributeField(a))}
@@ -54,14 +58,14 @@ export default class ActivityForm extends React.Component<ActivityFormProps> {
         return this.doCreateField("activity_" + attributeType.id, "text", value, updateHandler, attributeType.label, true, "", "");
     }
 
-    doCreateField(id: string, type: string, value: string, updateHandler: (string) => void, label: string, valid: boolean, placeholder: ?string, help: ?string, ref: any) {
+    doCreateField(id: string, type: string, value: string, updateHandler: (string) => void, label: string, valid: boolean, placeholder: ?string, help: ?string, refFunction: ?RefFunction) {
         const validationState = valid ? "success" : "error";
         const onChangeHandle = (e: any) => updateHandler(e.target.value);
         return (
             <FormGroup key={id} controlId={id} validationState={validationState}>
                 <ControlLabel>{label}</ControlLabel>
                 <FormControl id={id} type={type} value={value} placeholder={placeholder}
-                    onChange={onChangeHandle} inputRef={ref}/>
+                    onChange={onChangeHandle} inputRef={refFunction}/>
                 {help && <HelpBlock>{help}</HelpBlock>}
                 <FormControl.Feedback/>
             </FormGroup>
