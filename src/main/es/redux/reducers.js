@@ -3,23 +3,22 @@
 import {combineReducers} from "redux";
 import update from "immutability-helper";
 
-import type {Activity, ActivityBuilder} from "../types/Types";
+import type {Activity, ActivityBuilder, AttributeType} from "../types/Types";
 import type {Action} from "./actionBuilders";
-import {
-    ActivityDeletedPayload,
-    ActivitySavedPayload,
-    ReceivedActivitiesPayload,
-    RequestActivitiesPayload,
-    SetDeletedActivityPayload,
-    SetEditedActivityPayload,
-    SetErrorPayload
-} from "./actionBuilders";
+import * as AttributeTypes from "../data/AttributeTypes";
+
+export function attributeTypes(state: AttributeType[]): AttributeType[] {
+    if (state === undefined || state.length === 0) {
+        return AttributeTypes.ACTIVITY_ATTRIBUTES;
+    } else {
+        return state;
+    }
+}
 
 export function isFetching(state: boolean = false, action: Action): boolean {
-    const payload = action && action.payload;
-    if (payload instanceof RequestActivitiesPayload) {
+    if (action.type === "REQUEST_ACTIVITIES") {
         return true;
-    } else if (payload instanceof ReceivedActivitiesPayload) {
+    } else if (action.type === "RECEIVED_ACTIVITIES") {
         return false;
     } else {
         return state;
@@ -27,11 +26,10 @@ export function isFetching(state: boolean = false, action: Action): boolean {
 }
 
 export function activities(state: Activity[] = [], action: Action): Activity[] {
-    const payload = action && action.payload;
-    if (payload instanceof ReceivedActivitiesPayload) {
-        return (payload: ReceivedActivitiesPayload).activities;
-    } else if (payload instanceof ActivitySavedPayload) {
-        const updatedActivity = (payload: ActivitySavedPayload).activity;
+    if (action.type === "RECEIVED_ACTIVITIES") {
+        return action.activities;
+    } else if (action.type === "ACTIVITY_SAVED") {
+        const updatedActivity = action.activity;
         const index = state.findIndex(a => a.id === updatedActivity.id);
         // TODO : sort? or refresh?
         if (index >= 0) {
@@ -39,8 +37,8 @@ export function activities(state: Activity[] = [], action: Action): Activity[] {
         } else {
             return update(state, {$unshift: [updatedActivity]});
         }
-    } else if (payload instanceof ActivityDeletedPayload) {
-        const updatedActivity = (payload: ActivityDeletedPayload).activity;
+    } else if (action.type === "ACTIVITY_DELETED") {
+        const updatedActivity = action.activity;
         const index = state.findIndex(a => a.id === updatedActivity.id);
         if (index >= 0) {
             return update(state, {$splice: [[index, 1]]});
@@ -54,10 +52,9 @@ export function activities(state: Activity[] = [], action: Action): Activity[] {
 }
 
 export function editedActivity(state: ?ActivityBuilder = null, action: Action): ?ActivityBuilder {
-    const payload = action && action.payload;
-    if (payload instanceof SetEditedActivityPayload) {
-        return (payload: SetEditedActivityPayload).builder;
-    } else if (payload instanceof ActivitySavedPayload) {
+    if (action.type === "SET_EDITED_ACTIVITY") {
+        return action.builder;
+    } else if (action.type === "ACTIVITY_SAVED") {
         return null;
     } else {
         return state;
@@ -65,10 +62,9 @@ export function editedActivity(state: ?ActivityBuilder = null, action: Action): 
 }
 
 export function deletedActivity(state: ?Activity = null, action: Action): ?Activity {
-    const payload = action && action.payload;
-    if (payload instanceof SetDeletedActivityPayload) {
-        return (payload: SetDeletedActivityPayload).activity;
-    } else if (payload instanceof ActivityDeletedPayload) {
+    if (action.type === "SET_DELETED_ACTIVITY") {
+        return action.activity;
+    } else if (action.type === "ACTIVITY_DELETED") {
         return null;
     } else {
         return state;
@@ -76,15 +72,17 @@ export function deletedActivity(state: ?Activity = null, action: Action): ?Activ
 }
 
 export function error(state: ?Error = null, action: Action): ?Error {
-    const payload = action && action.payload;
-    if (payload instanceof SetErrorPayload) {
-        return (payload: SetErrorPayload).error;
+    if (action.type === "SET_ERROR") {
+        return action.error;
     } else {
         return state;
     }
 }
 
+// TODO : add a bunch of stuff
+
 export default combineReducers({
+    attributeTypes,
     isFetching,
     activities,
     editedActivity,

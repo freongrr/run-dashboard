@@ -1,13 +1,13 @@
 // @flow
 /* global process */
 
-import type {Activity, ActivityBuilder, AppState} from "../types/Types";
+import type {Activity, ActivityBuilder} from "../types/Types";
+import type {AppState} from "../types/AppState";
 import type {Action} from "./actionBuilders";
 import * as actionBuilders from "./actionBuilders";
-import * as DistanceUtils from "../utils/DistanceUtils";
-import * as TimeUtils from "../utils/TimeUtils";
 import RPC from "../utils/RPC";
 import DummyRPC from "../utils/DummyRPC";
+import * as CopyTools from "../data/CopyTools";
 
 export type Dispatch = (action: Action | ThunkAction) => void;
 type GetState = () => AppState;
@@ -15,7 +15,7 @@ type ThunkAction = (dispatch: Dispatch, getState: GetState) => void;
 
 // TODO : inject service interface in store state?
 let rpc;
-if (1 === 1 || process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "production") {
     rpc = new RPC();
 } else {
     rpc = new DummyRPC();
@@ -40,23 +40,19 @@ export function fetchActivitiesIfNeeded(): ThunkAction {
 }
 
 export function startAddActivity(): Action {
-    const editedActivity = {
+    const builder: ActivityBuilder = {
         id: null,
         date: "",
         duration: "",
-        distance: ""
+        distance: "",
+        attributes: {}
     };
-    return actionBuilders.setEditedActivity(editedActivity);
+    return actionBuilders.setEditedActivity(builder);
 }
 
 export function startEditActivity(activity: Activity): Action {
-    const editedActivity = {
-        id: activity.id,
-        date: activity.date,
-        duration: TimeUtils.formatHourMinutes(activity.duration),
-        distance: DistanceUtils.formatKm(activity.distance)
-    };
-    return actionBuilders.setEditedActivity(editedActivity);
+    const builder = CopyTools.toBuilder(activity);
+    return actionBuilders.setEditedActivity(builder);
 }
 
 export function dismissEditActivity(): Action {
@@ -65,13 +61,7 @@ export function dismissEditActivity(): Action {
 }
 
 export function saveActivity(builder: ActivityBuilder): ThunkAction {
-    const activity: Activity = {
-        id: builder.id ? builder.id : "" /* HACK */,
-        date: builder.date,
-        duration: TimeUtils.parseDuration(builder.duration),
-        distance: DistanceUtils.parseDistance(builder.distance)
-    };
-
+    const activity = CopyTools.fromBuilder(builder);
     return (dispatch) => {
         rpc.post(ACTIVITY_API, activity)
             .then((updatedActivity) => {

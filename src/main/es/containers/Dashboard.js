@@ -5,9 +5,10 @@ import React from "react";
 import {Button, ButtonToolbar, Glyphicon, PageHeader} from "react-bootstrap";
 import * as redux from "react-redux";
 import ActivityTable from "../components/ActivityTable";
-import type {Activity, AppState} from "../types/Types";
+import type {Activity} from "../types/Types";
 import type {Dispatch} from "../redux/actions";
 import * as actions from "../redux/actions";
+import type {AppState} from "../types/AppState";
 
 type DashboardProps = {
     activities: Activity[],

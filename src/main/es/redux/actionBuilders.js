@@ -2,114 +2,39 @@
 
 import type {Activity, ActivityBuilder} from "../types/Types";
 
-export class RequestActivitiesPayload {
+export type Action =
+    { type: "REQUEST_ACTIVITIES" } |
+    { type: "RECEIVED_ACTIVITIES", activities: Activity[] } |
+    { type: "SET_EDITED_ACTIVITY", builder: ?ActivityBuilder } |
+    { type: "ACTIVITY_SAVED", activity: Activity } |
+    { type: "SET_DELETED_ACTIVITY", activity: ?Activity } |
+    { type: "ACTIVITY_DELETED", activity: Activity } |
+    { type: "SET_ERROR", error: ?Error };
 
+export function requestActivities(): Action {
+    return {type: "REQUEST_ACTIVITIES"};
 }
 
-export class ReceivedActivitiesPayload {
-    activities: Activity[];
-
-    constructor(activities: Activity[]) {
-        this.activities = activities;
-    }
+export function receivedActivities(activities: Activity[]): Action {
+    return {type: "RECEIVED_ACTIVITIES", activities};
 }
 
-export class SetEditedActivityPayload {
-    builder: ?ActivityBuilder;
-
-    constructor(builder: ?ActivityBuilder) {
-        this.builder = builder;
-    }
+export function setEditedActivity(builder: ?ActivityBuilder): Action {
+    return {type: "SET_EDITED_ACTIVITY", builder};
 }
 
-export class ActivitySavedPayload {
-    activity: Activity;
-
-    constructor(activity: Activity) {
-        this.activity = activity;
-    }
+export function activitySaved(activity: Activity): Action {
+    return {type: "ACTIVITY_SAVED", activity};
 }
 
-export class SetDeletedActivityPayload {
-    activity: ?Activity;
-
-    constructor(activity: ?Activity) {
-        this.activity = activity;
-    }
+export function setDeletedActivity(activity: ?Activity): Action {
+    return {type: "SET_DELETED_ACTIVITY", activity};
 }
 
-export class ActivityDeletedPayload {
-    activity: Activity;
-
-    constructor(activity: Activity) {
-        this.activity = activity;
-    }
+export function activityDeleted(activity: Activity): Action {
+    return {type: "ACTIVITY_DELETED", activity};
 }
 
-export class SetErrorPayload {
-    error: ?Error;
-
-    constructor(error: ?Error) {
-        this.error = error;
-    }
-}
-
-export type Action = {
-    type: string,
-    payload: RequestActivitiesPayload |
-        ReceivedActivitiesPayload |
-        SetEditedActivityPayload |
-        ActivitySavedPayload |
-        SetDeletedActivityPayload |
-        ActivityDeletedPayload |
-        SetErrorPayload
-};
-
-export function requestActivities() {
-    return {
-        type: "REQUEST_ACTIVITIES",
-        payload: new RequestActivitiesPayload()
-    };
-}
-
-export function receivedActivities(activities: Activity[]) {
-    return {
-        type: "RECEIVED_ACTIVITIES",
-        payload: new ReceivedActivitiesPayload(activities)
-    };
-}
-
-export function setEditedActivity(builder: ?ActivityBuilder) {
-    return {
-        type: "EDIT_ACTIVITY",
-        payload: new SetEditedActivityPayload(builder)
-    };
-}
-
-export function activitySaved(activity: Activity) {
-    return {
-        type: "ACTIVITY_SAVED",
-        payload: new ActivitySavedPayload(activity)
-    };
-}
-
-export function setDeletedActivity(activity: ?Activity) {
-    return {
-        type: "SET_DELETED_ACTIVITY",
-        payload: new SetDeletedActivityPayload(activity)
-    };
-}
-
-export function activityDeleted(activity: Activity) {
-    return {
-        type: "ACTIVITY_DELETED",
-        payload: new ActivityDeletedPayload(activity)
-    };
-}
-
-export function setError(error: ?Error) {
-    return {
-        type: "SET_ERROR",
-        payload: new SetErrorPayload(error)
-    };
+export function setError(error: ?Error): Action {
+    return {type: "SET_ERROR", error};
 }
