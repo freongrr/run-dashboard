@@ -37,6 +37,7 @@ export function TextField(props: FieldProps) {
 }
 
 export function DateField(props: FieldProps) {
+    // TODO : validate date
     const valid = (!props.validator || props.validator(props.value));
     const validationState = valid ? "success" : "error";
     return (
