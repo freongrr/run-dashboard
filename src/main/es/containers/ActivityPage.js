@@ -29,23 +29,18 @@ type ActivityPageProps = {
     dismissError: () => void
 };
 
+// TODO : this should load activities one page at a time
+// (e.g. with a "Load More" button, or with an infinite scroll
 export class ActivityPage extends React.Component<ActivityPageProps> {
 
     render() {
         return (
-            <div>
+            <div className="ActivityPage">
                 <PageHeader>
                     <Glyphicon glyph="list"/> Activities
                 </PageHeader>
 
-                <ActivityTable activities={this.props.activities}
-                    editHandler={this.props.startEditActivity}
-                    deleteHandler={this.props.startDeleteActivity}/>
-
                 <ButtonToolbar>
-                    <Button bsStyle="primary" href="/#/">
-                        <Glyphicon glyph="chevron-left"/> Back
-                    </Button>
                     <Button bsStyle="primary" onClick={this.props.fetchActivities}>
                         <Glyphicon glyph="refresh"/> Refresh
                     </Button>
@@ -53,6 +48,10 @@ export class ActivityPage extends React.Component<ActivityPageProps> {
                         <Glyphicon glyph="plus"/> Add
                     </Button>
                 </ButtonToolbar>
+
+                <ActivityTable activities={this.props.activities}
+                    editHandler={this.props.startEditActivity}
+                    deleteHandler={this.props.startDeleteActivity}/>
 
                 {this.props.editedActivity && <ActivityDialog activityBuilder={this.props.editedActivity}/>}
 
