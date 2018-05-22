@@ -2,16 +2,15 @@
 
 import * as TimeUtils from "../utils/TimeUtils";
 import * as DistanceUtils from "../utils/DistanceUtils";
-import type {ActivityBuilder} from "../types/Types";
 
-export function hasValidDate(builder: ActivityBuilder): boolean {
-    return builder.date !== null && builder.date !== "";
+export function hasValidDate(date: string): boolean {
+    return date !== null && date !== "";
 }
 
-export function hasValidDuration(builder: ActivityBuilder): boolean {
-    if (builder.duration !== "") {
+export function hasValidDuration(duration: string): boolean {
+    if (duration !== "") {
         try {
-            TimeUtils.parseDuration(builder.duration);
+            TimeUtils.parseDuration(duration);
             return true;
         } catch (e) {
             // 
@@ -20,10 +19,10 @@ export function hasValidDuration(builder: ActivityBuilder): boolean {
     return false;
 }
 
-export function hasValidDistance(builder: ActivityBuilder): boolean {
-    if (builder.distance !== "") {
+export function hasValidDistance(distance: string): boolean {
+    if (distance !== "") {
         try {
-            DistanceUtils.parseDistance(builder.distance);
+            DistanceUtils.parseDistance(distance);
             return true;
         } catch (e) {
             // 

@@ -3,8 +3,9 @@
 
 import type {ActivityBuilder, AttributeType} from "../types/Types";
 import React from "react";
-import {ControlLabel, FormControl, FormGroup, HelpBlock} from "react-bootstrap";
 import * as ActivityBuilderValidator from "../data/ActivityBuilderValidator";
+import type {ChangeEvent} from "./Fields";
+import {DateField, NumberField, TextField} from "./Fields";
 
 type ActivityFormProps = {
     activityBuilder: ActivityBuilder,
@@ -13,7 +14,6 @@ type ActivityFormProps = {
     onAttributeFieldChange: (attributeType: AttributeType, newValue: string) => void
 };
 
-type RefFunction = (any) => void;
 
 export default class ActivityForm extends React.Component<ActivityFormProps> {
 
@@ -28,47 +28,42 @@ export default class ActivityForm extends React.Component<ActivityFormProps> {
     }
 
     render() {
-        const hasValidDate = ActivityBuilderValidator.hasValidDate(this.props.activityBuilder);
-        const hasValidDuration = ActivityBuilderValidator.hasValidDuration(this.props.activityBuilder);
-        const hasValidDistance = ActivityBuilderValidator.hasValidDistance(this.props.activityBuilder);
         return (
-            <div>
+            <div className="ActivityForm">
                 {/* TODO : this is the wrong format (i.e. DD/MM/YYYY) */}
-                {this.createField("activity_date", "date", "date", "Date", hasValidDate, undefined, undefined, this.setDateFieldRef)}
-                {this.createField("activity_duration", "text", "duration", "Duration", hasValidDuration, "e.g. \"1 hour\" or \"45 min\"")}
-                {this.createField("activity_distance", "text", "distance", "Distance", hasValidDistance, "e.g. \"10.5 km\"")}
+                <DateField id="activity_date" label="Date" value={this.props.activityBuilder.date}
+                    onChange={this.onDateChange} validator={ActivityBuilderValidator.hasValidDate}
+                    refFunction={this.setDateFieldRef}/>
+                <TextField id="activity_duration" label="Duration" value={this.props.activityBuilder.duration}
+                    onChange={this.onDurationChange} validator={ActivityBuilderValidator.hasValidDuration}
+                    placeholder={"e.g. \"1 hour\" or \"45 min\""}/>
+                <TextField id="activity_distance" label="Distance" value={this.props.activityBuilder.distance}
+                    onChange={this.onDistanceChange}
+                    validator={ActivityBuilderValidator.hasValidDistance} placeholder={"e.g. \"10.5 km\""}/>
                 {this.props.attributeTypes.map(a => this.createAttributeField(a))}
             </div>
         );
     }
 
-    createField(id: string, type: string, property: string, label: string, valid: boolean, placeholder: ?string, help: ?string, ref: any) {
-        const value = (this.props.activityBuilder[property]: string);
-        const updateHandler = (newValue: string) => {
-            this.props.onMainFieldChange(property, newValue);
-        };
-        return this.doCreateField(id, type, value, updateHandler, label, valid, placeholder, help, ref);
-    }
+    onDateChange = (e: ChangeEvent) => this.props.onMainFieldChange("date", e.target.value);
+    onDurationChange = (e: ChangeEvent) => this.props.onMainFieldChange("duration", e.target.value);
+    onDistanceChange = (e: ChangeEvent) => this.props.onMainFieldChange("distance", e.target.value);
 
     createAttributeField(attributeType: AttributeType) {
-        let value = this.props.activityBuilder.attributes[attributeType.id] || "";
-        const updateHandler = (newValue: string) => {
-            this.props.onAttributeFieldChange(attributeType, newValue);
+        const id = "activity_" + attributeType.id;
+        const fieldProps = {
+            key: id,
+            id: id,
+            label: attributeType.label,
+            value: this.props.activityBuilder.attributes[attributeType.id] || "",
+            onChange: (e) => this.props.onAttributeFieldChange(attributeType, e.target.value)
         };
-        return this.doCreateField("activity_" + attributeType.id, "text", value, updateHandler, attributeType.label, true, "", "");
-    }
-
-    doCreateField(id: string, type: string, value: string, updateHandler: (string) => void, label: string, valid: boolean, placeholder: ?string, help: ?string, refFunction: ?RefFunction) {
-        const validationState = valid ? "success" : "error";
-        const onChangeHandle = (e: any) => updateHandler(e.target.value);
-        return (
-            <FormGroup key={id} controlId={id} validationState={validationState}>
-                <ControlLabel>{label}</ControlLabel>
-                <FormControl id={id} type={type} value={value} placeholder={placeholder}
-                    onChange={onChangeHandle} inputRef={refFunction}/>
-                {help && <HelpBlock>{help}</HelpBlock>}
-                <FormControl.Feedback/>
-            </FormGroup>
-        );
+        if (attributeType.type === "number") {
+            return <NumberField {...fieldProps}/>;
+        } else if (attributeType.type === "date") {
+            return <DateField {...fieldProps}/>;
+        } else {
+            return <TextField {...fieldProps}/>;
+        }
     }
 }

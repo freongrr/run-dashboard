@@ -8,10 +8,12 @@ import type {AttributeType} from "../types/Types";
 export const ACTIVITY_ATTRIBUTES: AttributeType[] = [
     {
         id: "city",
-        label: "City"
+        label: "City",
+        type: "string"
     },
     {
         id: "temperature",
-        label: "Temperature (Celsius)"
+        label: "Temperature (Celsius)",
+        type: "number"
     }
 ];

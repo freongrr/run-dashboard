@@ -74,9 +74,9 @@ export class ActivityDialog extends React.Component<ActivityDialogProps, Activit
     };
 
     isValid(): boolean {
-        return ActivityBuilderValidator.hasValidDate(this.state.builder) &&
-            ActivityBuilderValidator.hasValidDuration(this.state.builder) &&
-            ActivityBuilderValidator.hasValidDistance(this.state.builder);
+        return ActivityBuilderValidator.hasValidDate(this.state.builder.date) &&
+            ActivityBuilderValidator.hasValidDuration(this.state.builder.duration) &&
+            ActivityBuilderValidator.hasValidDistance(this.state.builder.distance);
     }
 
     onSave() {

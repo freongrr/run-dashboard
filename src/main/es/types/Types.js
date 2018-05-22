@@ -14,7 +14,8 @@ export type Activity = {|
 // Metadata, used for grouping activities on a graphs (it would be pointless to graph it):
 export type AttributeType = {|
     id: string,
-    label: string
+    label: string,
+    type: "string" | "number" | "date"
 |};
 
 // TODO : support different types of attributes (e.g. temperatures)
