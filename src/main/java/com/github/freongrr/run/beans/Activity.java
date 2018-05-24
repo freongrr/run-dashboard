@@ -1,13 +1,22 @@
 package com.github.freongrr.run.beans;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
-public class Activity {
+public final class Activity {
 
     private String id;
     private LocalDate date;
     private int duration;
     private int distance;
+    private Map<String, String> attributes;
+
+    public Activity() {
+        attributes = new HashMap<>();
+    }
 
     public String getId() {
         return id;
@@ -41,31 +50,40 @@ public class Activity {
         this.distance = distance;
     }
 
+    public Map<String, String> getAttributes() {
+        return Collections.unmodifiableMap(attributes);
+    }
+
+    public void setAttributes(Map<String, String> attributes) {
+        this.attributes = new HashMap<>(attributes);
+    }
+
+    public void setAttribute(String attribute, String value) {
+        this.attributes.put(attribute, value);
+    }
+
+    public void removeAttribute(String attribute) {
+        this.attributes.remove(attribute);
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof Activity))
+        } else if (!(o instanceof Activity)) {
             return false;
-
+        }
         Activity activity = (Activity) o;
-
-        if (duration != activity.duration)
-            return false;
-        if (distance != activity.distance)
-            return false;
-        if (id != null ? !id.equals(activity.id) : activity.id != null)
-            return false;
-        return date != null ? date.equals(activity.date) : activity.date == null;
+        return duration == activity.duration &&
+                distance == activity.distance &&
+                Objects.equals(id, activity.id) &&
+                Objects.equals(date, activity.date) &&
+                Objects.equals(attributes, activity.attributes);
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (date != null ? date.hashCode() : 0);
-        result = 31 * result + duration;
-        result = 31 * result + distance;
-        return result;
+        return Objects.hash(id, date, duration, distance, attributes);
     }
 
     @Override
@@ -75,6 +93,7 @@ public class Activity {
                 ", date=" + date +
                 ", duration=" + duration +
                 ", distance=" + distance +
+                ", attributes=" + attributes +
                 "}";
     }
 }
