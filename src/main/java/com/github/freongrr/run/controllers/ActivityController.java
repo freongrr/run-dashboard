@@ -26,21 +26,11 @@ public final class ActivityController {
 
     @RequestMapping(path = "/api/activities", method = RequestMethod.GET)
     public List<Activity> getActivities() {
-        // Generate a random error to test the error dialog
-        if (Math.random() < 0.1) {
-            throw new IllegalStateException("Boom!");
-        }
-
         return store.getAll();
     }
 
     @RequestMapping(path = "/api/activities", method = RequestMethod.POST)
     public Activity saveActivity(@RequestBody Activity activity) {
-        // Generate a random error to test the error dialog
-        if (Math.random() < 0.1) {
-            throw new IllegalStateException("Boom!");
-        }
-
         // Id is an empty string initially
         if ("".equals(activity.getId())) {
             activity.setId(null);
@@ -52,11 +42,6 @@ public final class ActivityController {
 
     @RequestMapping(path = "/api/activities", method = RequestMethod.DELETE)
     public void deleteActivity(@RequestBody Activity activity) {
-        // Generate a random error to test the error dialog
-        if (Math.random() < 0.1) {
-            throw new IllegalStateException("Boom!");
-        }
-
         logger.info("Deleting activity: %s", activity);
         store.delete(activity);
     }
