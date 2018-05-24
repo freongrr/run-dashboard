@@ -30,10 +30,6 @@ public class GraphController extends HttpServlet {
 
     @RequestMapping(path = "/graph/{graphTypeId}", method = RequestMethod.GET)
     public Object[][] getGraph(@PathVariable String graphTypeId) {
-        if (Math.random() < 0.1) {
-            throw new IllegalStateException("Boom!");
-        }
-
         return source.getRows(graphTypeId);
     }
 }
