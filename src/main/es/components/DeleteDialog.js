@@ -3,7 +3,8 @@
 
 import type {Activity} from "../types/Types";
 import React from "react";
-import {Modal, Button} from "react-bootstrap";
+import Modal from "react-bootstrap/lib/Modal";
+import Button from "react-bootstrap/lib/Button";
 import {formatHourMinutes} from "../utils/TimeUtils";
 import {formatKm} from "../utils/DistanceUtils";
 

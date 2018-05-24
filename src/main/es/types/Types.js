@@ -18,7 +18,6 @@ export type AttributeType = {|
     type: "string" | "number" | "date"
 |};
 
-// TODO : support different types of attributes (e.g. temperatures)
 export type AttributeValue = string;
 
 /** This is used in the edit dialog */

@@ -3,7 +3,10 @@
 
 import type {Activity} from "../types/Types";
 import React from "react";
-import {DropdownButton, Glyphicon, MenuItem, Table} from "react-bootstrap";
+import DropdownButton from "react-bootstrap/lib/DropdownButton";
+import Glyphicon from "react-bootstrap/lib/Glyphicon";
+import MenuItem from "react-bootstrap/lib/MenuItem";
+import Table from "react-bootstrap/lib/Table";
 import {formatHourMinutes, formatMinuteSeconds} from "../utils/TimeUtils";
 import {formatKm} from "../utils/DistanceUtils";
 

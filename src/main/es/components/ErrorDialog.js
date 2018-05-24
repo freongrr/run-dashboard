@@ -2,7 +2,8 @@
 "use strict";
 
 import React from "react";
-import {Modal, Button} from "react-bootstrap";
+import Modal from "react-bootstrap/lib/Modal";
+import Button from "react-bootstrap/lib/Button";
 
 type ErrorDialogProps = {
     error: Error,

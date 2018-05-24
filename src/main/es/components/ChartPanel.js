@@ -3,7 +3,13 @@
 "use strict";
 import type {GraphBuilder} from "../types/Types";
 import React from "react";
-import {Alert, ControlLabel, Form, FormControl, FormGroup, Nav, NavItem} from "react-bootstrap";
+import Alert from "react-bootstrap/lib/Alert";
+import ControlLabel from "react-bootstrap/lib/ControlLabel";
+import Form from "react-bootstrap/lib/Form";
+import FormControl from "react-bootstrap/lib/FormControl";
+import FormGroup from "react-bootstrap/lib/FormGroup";
+import Nav from "react-bootstrap/lib/Nav";
+import NavItem from "react-bootstrap/lib/NavItem";
 import C3Graph from "./C3Graph";
 import {formatHourMinutes, formatMinuteSeconds} from "../utils/TimeUtils";
 import {formatKm} from "../utils/DistanceUtils";

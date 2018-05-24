@@ -2,7 +2,8 @@
 
 import type {ActivityBuilder, AttributeType} from "../types/Types";
 import React from "react";
-import {Button, Modal} from "react-bootstrap";
+import Modal from "react-bootstrap/lib/Modal";
+import Button from "react-bootstrap/lib/Button";
 import type {Dispatch} from "../redux/actions";
 import * as actions from "../redux/actions";
 import * as redux from "react-redux";

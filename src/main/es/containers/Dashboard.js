@@ -2,7 +2,8 @@
 "use strict";
 
 import React from "react";
-import {Button, ButtonToolbar, Glyphicon, PageHeader} from "react-bootstrap";
+import Glyphicon from "react-bootstrap/lib/Glyphicon";
+import PageHeader from "react-bootstrap/lib/PageHeader";
 import * as redux from "react-redux";
 import ActivityTable from "../components/ActivityTable";
 import type {Activity} from "../types/Types";
@@ -33,12 +34,6 @@ export class Dashboard extends React.Component<DashboardProps> {
                 </PageHeader>
 
                 <ActivityTable activities={this.props.activities}/>
-
-                <ButtonToolbar>
-                    <Button bsStyle="primary" href="/#/activities">
-                        <Glyphicon glyph="list"/> View/Add
-                    </Button>
-                </ButtonToolbar>
 
             </div>
         );
