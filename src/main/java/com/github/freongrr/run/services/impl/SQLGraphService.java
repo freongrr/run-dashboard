@@ -10,6 +10,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.github.freongrr.run.services.GraphDataRequest;
@@ -17,6 +18,7 @@ import com.github.freongrr.run.services.GraphService;
 import com.github.freongrr.run.services.Logger;
 
 @Service
+@Profile("default")
 final class SQLGraphService implements GraphService {
 
     private final Logger logger;

@@ -17,7 +17,7 @@ import com.github.freongrr.run.services.ActivityService;
 
 @Service
 @Profile("dummy")
-final class DummyService implements ActivityService {
+final class DummyActivityService implements ActivityService {
 
     private static final Comparator<Activity> RECENT_FIRST_COMPARATOR = Comparator
             .comparing(Activity::getDate).reversed();
@@ -25,12 +25,12 @@ final class DummyService implements ActivityService {
     private final Map<String, Activity> activities;
 
     @Autowired
-    DummyService() {
+    DummyActivityService() {
         this.activities = new ConcurrentHashMap<>();
 
         Random random = new Random();
         LocalDate current = LocalDate.now();
-        for (int i = 0; i < 50 + random.nextInt(50); i++) {
+        for (int i = 0; i < 500; i++) {
             Activity activity = createActivity(random, current);
             this.update(activity);
 

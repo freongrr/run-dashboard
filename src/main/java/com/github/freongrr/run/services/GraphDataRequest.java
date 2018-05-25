@@ -9,6 +9,9 @@ public final class GraphDataRequest {
     public static final String MEASURE_DISTANCE = "distance";
     public static final String MEASURE_TIME_1KM = "time1km";
 
+    public static final String ALL_DATA = "all";
+    public static final String DURATION_LAST_12_MONTHS = "last12Months";
+
     // TODO : use enums?
     private final String interval;
     private final String measure;
