@@ -12,7 +12,7 @@ export default class TopBar extends React.Component<{}> {
 
     render() {
         return (
-            <Navbar inverse staticTop collapseOnSelect>
+            <Navbar inverse fixedTop collapseOnSelect>
                 <Navbar.Header>
                     <Navbar.Brand>
                         <a href="/#/"><Glyphicon glyph="play-circle"/> Runs</a>
