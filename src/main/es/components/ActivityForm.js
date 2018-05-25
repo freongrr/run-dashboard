@@ -40,7 +40,9 @@ export default class ActivityForm extends React.Component<ActivityFormProps> {
                 <TextField id="activity_distance" label="Distance" value={this.props.activityBuilder.distance}
                     onChange={this.onDistanceChange}
                     validator={ActivityBuilderValidator.hasValidDistance} placeholder={"e.g. \"10.5 km\""}/>
-                {this.props.attributeTypes.map(a => this.createAttributeField(a))}
+                {this.props.attributeTypes
+                    .filter(a => !a.output)
+                    .map(a => this.createAttributeField(a))}
             </div>
         );
     }
