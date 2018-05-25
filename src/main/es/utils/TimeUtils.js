@@ -97,8 +97,10 @@ export function formatHourMinutes(durationInSeconds: number): string {
  * @returns {string}
  */
 export function formatMinuteSeconds(durationInSeconds: number): string {
-    const minutes = Math.floor(durationInSeconds / 60);
-    const seconds = Math.round(durationInSeconds % 60);
+    const roundedSeconds = Math.round(durationInSeconds);
+    
+    const minutes = Math.floor(roundedSeconds / 60);
+    const seconds = roundedSeconds % 60;
 
     let interval = "";
 
