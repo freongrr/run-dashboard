@@ -13,9 +13,11 @@ export type Dispatch = (action: Action | ThunkAction) => void;
 export type GetState = () => AppState;
 export type ThunkAction = (dispatch: Dispatch, getState: GetState) => void;
 
+const useRealBackendInDev = true;
+
 // TODO : inject service interface in store state?
 let rpc;
-if (1 === 1 || process.env.NODE_ENV === "production") {
+if (useRealBackendInDev || process.env.NODE_ENV === "production") {
     rpc = new RPC();
 } else {
     rpc = new DummyRPC();
@@ -30,7 +32,7 @@ const CHART_API = "/api/graph"; // TODO : use CHART or GRAPH everywhere
 
 export function fetchActivities(): ThunkAction {
     return (dispatch: Dispatch, getState: GetState) => {
-        if (!getState().isFetching) {
+        if (!getState().loadingActivities) {
             dispatch(dismissError());
             dispatch(actionBuilders.loadActivitiesStart());
             rpc.get(ACTIVITY_API)
@@ -130,12 +132,11 @@ export function fetchChartData() {
 }
 
 export function doFetchChartData(dispatch: Dispatch, getState: GetState) {
-    // TODO : this should check a different flag
-    const state = getState();
-    if (!state.isFetching) {
+    if (!getState().loadingGraph) {
         dispatch(dismissError());
         dispatch(actionBuilders.loadChartDataStart());
-        rpc.get(`${CHART_API}?interval=${state.chartInterval}&measure=${state.chartMeasure}&grouping=` + state.chartGrouping)
+        const {chartInterval, chartMeasure, chartGrouping} = getState();
+        rpc.get(`${CHART_API}?interval=${chartInterval}&measure=${chartMeasure}&grouping=${chartGrouping}`)
             .then((data) => {
                 dispatch(actionBuilders.loadChartDataSuccess(data));
             })

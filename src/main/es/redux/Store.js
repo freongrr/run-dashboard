@@ -8,7 +8,8 @@ import rootReducer from "./reducers";
 
 const INITIAL_STATE: AppState = {
     attributeTypes: [],
-    isFetching: false,
+    loadingActivities: false,
+    loadingGraph: false,
     activities: [],
     editedActivity: null,
     deletedActivity: null,

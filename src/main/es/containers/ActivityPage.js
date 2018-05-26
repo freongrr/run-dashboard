@@ -78,7 +78,7 @@ export class ActivityPage extends React.Component<ActivityPageProps> {
 
 function mapStateToProps(state: AppState): $Shape<ActivityPageProps> {
     return {
-        isFetching: state.isFetching,
+        isFetching: state.loadingActivities,
         activities: state.activities,
         editedActivity: state.editedActivity,
         deletedActivity: state.deletedActivity,

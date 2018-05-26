@@ -4,7 +4,8 @@ import type {Activity, ActivityBuilder, AttributeType} from "./Types";
 
 export type AppState = {
     attributeTypes: AttributeType[],
-    isFetching: boolean,
+    loadingActivities: boolean,
+    loadingGraph: boolean,
     activities: Activity[],
     editedActivity: ?ActivityBuilder,
     deletedActivity: ?Activity,

@@ -15,10 +15,20 @@ export function attributeTypes(state: AttributeType[]): AttributeType[] {
     }
 }
 
-export function isFetching(state: boolean = false, action: Action): boolean {
+export function loadingActivities(state: boolean = false, action: Action): boolean {
     if (action.type === "LOAD_ACTIVITIES_START") {
         return true;
     } else if (action.type === "LOAD_ACTIVITIES_SUCCESS" || action.type === "LOAD_ACTIVITIES_FAILURE") {
+        return false;
+    } else {
+        return state;
+    }
+}
+
+export function loadingGraph(state: boolean = false, action: Action): boolean {
+    if (action.type === "LOAD_CHART_DATA_START") {
+        return true;
+    } else if (action.type === "LOAD_CHART_DATA_SUCCESS" || action.type === "LOAD_CHART_DATA_FAILURE") {
         return false;
     } else {
         return state;
@@ -115,7 +125,8 @@ export function error(state: ?Error = null, action: Action): ?Error {
 
 export default combineReducers({
     attributeTypes,
-    isFetching,
+    loadingActivities,
+    loadingGraph,
     activities,
     editedActivity,
     deletedActivity,
