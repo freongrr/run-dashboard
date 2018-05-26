@@ -26,14 +26,14 @@ import com.github.freongrr.run.services.Logger;
  * It is mainly used for testing, but could also be used in the "production" code if there is very little data.
  */
 @Service
-@Profile("dummy")
-final class DummyGraphService implements GraphService {
+@Profile("default")
+final class SimpleGraphService implements GraphService {
 
     private final Logger logger;
     private final ActivityService activityService;
 
     @Autowired
-    DummyGraphService(Logger logger, ActivityService activityService) {
+    SimpleGraphService(Logger logger, ActivityService activityService) {
         this.logger = logger;
         this.activityService = activityService;
     }
@@ -85,7 +85,13 @@ final class DummyGraphService implements GraphService {
     private Comparator<String> getComparator(String grouping) {
         // TODO : use more metadata
         if ("temperature".equals(grouping)) {
-            return Comparator.comparingInt(Integer::parseInt);
+            return Comparator.comparingInt(s -> {
+                try {
+                    return Integer.parseInt(s);
+                } catch (NumberFormatException e) {
+                    return Integer.MIN_VALUE;
+                }
+            });
         } else {
             return Comparator.naturalOrder();
         }

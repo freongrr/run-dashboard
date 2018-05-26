@@ -18,7 +18,7 @@ import com.github.freongrr.run.services.GraphService;
 import com.github.freongrr.run.services.Logger;
 
 @Service
-@Profile("default")
+@Profile("sql")
 final class SQLGraphService implements GraphService {
 
     private final Logger logger;
