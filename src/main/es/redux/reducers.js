@@ -3,13 +3,13 @@
 import {combineReducers} from "redux";
 import update from "immutability-helper";
 
-import type {Activity, ActivityBuilder, AttributeType} from "../types/Types";
+import type {Activity, ActivityBuilder, Attribute} from "../types/Types";
 import type {Action} from "./actionBuilders";
-import * as AttributeTypes from "../data/AttributeTypes";
+import * as StaticAttributes from "../data/StaticAttributes";
 
-export function attributeTypes(state: AttributeType[]): AttributeType[] {
+export function attributes(state: Attribute[]): Attribute[] {
     if (state === undefined || state.length === 0) {
-        return AttributeTypes.ACTIVITY_ATTRIBUTES;
+        return StaticAttributes.ACTIVITY_ATTRIBUTES;
     } else {
         return state;
     }
@@ -124,7 +124,7 @@ export function error(state: ?Error = null, action: Action): ?Error {
 }
 
 export default combineReducers({
-    attributeTypes,
+    attributes,
     loadingActivities,
     loadingGraph,
     activities,

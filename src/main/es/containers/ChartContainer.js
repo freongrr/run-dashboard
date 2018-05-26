@@ -58,8 +58,9 @@ export class ChartContainer extends React.Component<ChartContainerProps> {
             {id: "speed", label: "Speed (km/h)"}
         ];
 
+        // TODO : this is not grouping, this is what we put on the X axis...
         const GROUPINGS = [
-            {id: "", label: "None"},
+            {id: "", label: "Time"},
             {id: "temperature", label: "Temperature"},
             {id: "city", label: "City"}
         ];

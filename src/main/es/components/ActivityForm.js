@@ -1,7 +1,7 @@
 // @flow
 "use strict";
 
-import type {ActivityBuilder, AttributeType} from "../types/Types";
+import type {ActivityBuilder, Attribute} from "../types/Types";
 import React from "react";
 import * as ActivityBuilderValidator from "../data/ActivityBuilderValidator";
 import type {ChangeEvent} from "./Fields";
@@ -9,11 +9,10 @@ import {DateField, NumberField, TextField} from "./Fields";
 
 type ActivityFormProps = {
     activityBuilder: ActivityBuilder,
-    attributeTypes: AttributeType[],
+    attributes: Attribute[],
     onMainFieldChange: (property: string, newValue: string) => void,
-    onAttributeFieldChange: (attributeType: AttributeType, newValue: string) => void
+    onAttributeFieldChange: (attribute: Attribute, newValue: string) => void
 };
-
 
 export default class ActivityForm extends React.Component<ActivityFormProps> {
 
@@ -40,8 +39,8 @@ export default class ActivityForm extends React.Component<ActivityFormProps> {
                 <TextField id="activity_distance" label="Distance" value={this.props.activityBuilder.distance}
                     onChange={this.onDistanceChange}
                     validator={ActivityBuilderValidator.hasValidDistance} placeholder={"e.g. \"10.5 km\""}/>
-                {this.props.attributeTypes
-                    .filter(a => !a.output)
+                {this.props.attributes
+                    .filter(a => a.type === "extra")
                     .map(a => this.createAttributeField(a))}
             </div>
         );
@@ -51,18 +50,18 @@ export default class ActivityForm extends React.Component<ActivityFormProps> {
     onDurationChange = (e: ChangeEvent) => this.props.onMainFieldChange("duration", e.target.value);
     onDistanceChange = (e: ChangeEvent) => this.props.onMainFieldChange("distance", e.target.value);
 
-    createAttributeField(attributeType: AttributeType) {
-        const id = "activity_" + attributeType.id;
+    createAttributeField(attribute: Attribute) {
+        const id = "activity_" + attribute.id;
         const fieldProps = {
             key: id,
             id: id,
-            label: attributeType.label,
-            value: this.props.activityBuilder.attributes[attributeType.id] || "",
-            onChange: (e) => this.props.onAttributeFieldChange(attributeType, e.target.value)
+            label: attribute.label,
+            value: this.props.activityBuilder.attributes[attribute.id] || "",
+            onChange: (e) => this.props.onAttributeFieldChange(attribute, e.target.value)
         };
-        if (attributeType.type === "number") {
+        if (attribute.dataType === "number") {
             return <NumberField {...fieldProps}/>;
-        } else if (attributeType.type === "date") {
+        } else if (attribute.dataType === "date") {
             return <DateField {...fieldProps}/>;
         } else {
             return <TextField {...fieldProps}/>;

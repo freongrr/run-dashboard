@@ -1,9 +1,9 @@
 // @flow
 
-import type {Activity, ActivityBuilder, AttributeType} from "./Types";
+import type {Activity, ActivityBuilder, Attribute} from "./Types";
 
 export type AppState = {
-    attributeTypes: AttributeType[],
+    attributes: Attribute[],
     loadingActivities: boolean,
     loadingGraph: boolean,
     activities: Activity[],

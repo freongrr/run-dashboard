@@ -1,7 +1,7 @@
 // @flow
 "use strict";
 
-import type {Activity, ActivityBuilder, AttributeType} from "../types/Types";
+import type {Activity, ActivityBuilder} from "../types/Types";
 import type {AppState} from "../types/AppState";
 import type {Dispatch} from "../redux/actions";
 import * as actions from "../redux/actions";
@@ -18,7 +18,6 @@ import DeleteDialog from "../components/DeleteDialog";
 
 // TODO : split into multiple connected components (e.g. edit dialog, list, etc)
 type ActivityPageProps = {
-    attributeTypes: AttributeType[],
     isFetching: boolean,
     activities: Activity[],
     editedActivity: ?ActivityBuilder,

@@ -3,7 +3,7 @@
 import React from "react";
 import {shallow} from "enzyme";
 import ActivityForm from "../../../main/es/components/ActivityForm";
-import type {ActivityBuilder, AttributeType} from "../../../main/es/types/Types";
+import type {ActivityBuilder, Attribute} from "../../../main/es/types/Types";
 import * as ActivityBuilderValidator from "../../../main/es/data/ActivityBuilderValidator";
 
 const newBuilder: ActivityBuilder = {
@@ -25,21 +25,20 @@ const editBuilder: ActivityBuilder = {
     }
 };
 
-const attributeTypes: AttributeType[] = [{
+const attributes: Attribute[] = [{
     id: "city",
     label: "City",
-    type: "string",
-    output: false
+    type: "extra",
+    dataType: "string"
 }, {
     id: "temperature",
     label: "Temperature",
-    type: "number",
-    output: false
+    type: "extra",
+    dataType: "number"
 }];
 
-
 test("has has date field", () => {
-    const wrapper = shallow(<ActivityForm attributeTypes={[]} activityBuilder={newBuilder}
+    const wrapper = shallow(<ActivityForm attributes={[]} activityBuilder={newBuilder}
         onMainFieldChange={jest.fn()} onAttributeFieldChange={jest.fn()}/>);
 
     const dateField = findField(wrapper, "DateField", "activity_date");
@@ -49,7 +48,7 @@ test("has has date field", () => {
 });
 
 test("has a duration field", () => {
-    const wrapper = shallow(<ActivityForm attributeTypes={[]} activityBuilder={newBuilder}
+    const wrapper = shallow(<ActivityForm attributes={[]} activityBuilder={newBuilder}
         onMainFieldChange={jest.fn()} onAttributeFieldChange={jest.fn()}/>);
 
     const durationField = findField(wrapper, "TextField", "activity_duration");
@@ -59,7 +58,7 @@ test("has a duration field", () => {
 });
 
 test("has a distance field", () => {
-    const wrapper = shallow(<ActivityForm attributeTypes={[]} activityBuilder={newBuilder}
+    const wrapper = shallow(<ActivityForm attributes={[]} activityBuilder={newBuilder}
         onMainFieldChange={jest.fn()} onAttributeFieldChange={jest.fn()}/>);
 
     const distanceField = findField(wrapper, "TextField", "activity_distance");
@@ -69,7 +68,7 @@ test("has a distance field", () => {
 });
 
 test("has empty fields for a new activity", () => {
-    const wrapper = shallow(<ActivityForm attributeTypes={[]} activityBuilder={newBuilder}
+    const wrapper = shallow(<ActivityForm attributes={[]} activityBuilder={newBuilder}
         onMainFieldChange={jest.fn()} onAttributeFieldChange={jest.fn()}/>);
 
     const dateField = findField(wrapper, "DateField", "activity_date");
@@ -83,7 +82,7 @@ test("has empty fields for a new activity", () => {
 });
 
 test("has populated fields for an existing activity", () => {
-    const wrapper = shallow(<ActivityForm attributeTypes={[]} activityBuilder={editBuilder}
+    const wrapper = shallow(<ActivityForm attributes={[]} activityBuilder={editBuilder}
         onMainFieldChange={jest.fn()} onAttributeFieldChange={jest.fn()}/>);
 
     const dateField = findField(wrapper, "DateField", "activity_date");
@@ -97,7 +96,7 @@ test("has populated fields for an existing activity", () => {
 });
 
 test("has fields for extra properties", () => {
-    const wrapper = shallow(<ActivityForm attributeTypes={attributeTypes} activityBuilder={editBuilder}
+    const wrapper = shallow(<ActivityForm attributes={attributes} activityBuilder={editBuilder}
         onMainFieldChange={jest.fn()} onAttributeFieldChange={jest.fn()}/>);
 
     const cityField = findField(wrapper, "TextField", "activity_city");
@@ -109,7 +108,7 @@ test("has fields for extra properties", () => {
 
 test("fires an update when the date field changes", () => {
     const onMainFieldChange = jest.fn();
-    const wrapper = shallow(<ActivityForm attributeTypes={[]} activityBuilder={newBuilder}
+    const wrapper = shallow(<ActivityForm attributes={[]} activityBuilder={newBuilder}
         onMainFieldChange={onMainFieldChange} onAttributeFieldChange={jest.fn()}/>);
 
     const dateField = findField(wrapper, "DateField", "activity_date");
@@ -120,7 +119,7 @@ test("fires an update when the date field changes", () => {
 
 test("fires an update when the duration field changes", () => {
     const onMainFieldChange = jest.fn();
-    const wrapper = shallow(<ActivityForm attributeTypes={[]} activityBuilder={newBuilder}
+    const wrapper = shallow(<ActivityForm attributes={[]} activityBuilder={newBuilder}
         onMainFieldChange={onMainFieldChange} onAttributeFieldChange={jest.fn()}/>);
 
     const durationField = findField(wrapper, "TextField", "activity_duration");
@@ -131,7 +130,7 @@ test("fires an update when the duration field changes", () => {
 
 test("fires an update when the distance field changes", () => {
     const onMainFieldChange = jest.fn();
-    const wrapper = shallow(<ActivityForm attributeTypes={[]} activityBuilder={newBuilder}
+    const wrapper = shallow(<ActivityForm attributes={[]} activityBuilder={newBuilder}
         onMainFieldChange={onMainFieldChange} onAttributeFieldChange={jest.fn()}/>);
 
     const distanceField = findField(wrapper, "TextField", "activity_distance");
@@ -142,13 +141,13 @@ test("fires an update when the distance field changes", () => {
 
 test("fires an update when one of the extra attribute field changes", () => {
     const onAttributeFieldChange = jest.fn();
-    const wrapper = shallow(<ActivityForm attributeTypes={attributeTypes} activityBuilder={newBuilder}
+    const wrapper = shallow(<ActivityForm attributes={attributes} activityBuilder={newBuilder}
         onMainFieldChange={jest.fn()} onAttributeFieldChange={onAttributeFieldChange}/>);
 
     const cityField = findField(wrapper, "TextField", "activity_city");
     cityField.simulate("change", {target: {value: "London"}});
 
-    expect(onAttributeFieldChange).toHaveBeenCalledWith(attributeTypes[0], "London");
+    expect(onAttributeFieldChange).toHaveBeenCalledWith(attributes[0], "London");
 });
 
 function findField(wrapper, component: string, id: string) {

@@ -7,7 +7,7 @@ import type {AppState} from "../types/AppState";
 import rootReducer from "./reducers";
 
 const INITIAL_STATE: AppState = {
-    attributeTypes: [],
+    attributes: [],
     loadingActivities: false,
     loadingGraph: false,
     activities: [],

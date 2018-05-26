@@ -1,9 +1,9 @@
 // @flow
 
-import type {AttributeType, GraphAxisBuilder, GraphBuilder, GraphSeriesBuilder} from "../types/Types";
+import type {Attribute, GraphAxisBuilder, GraphBuilder, GraphSeriesBuilder} from "../types/Types";
 import * as DistanceUtils from "../utils/DistanceUtils";
 import * as TimeUtils from "../utils/TimeUtils";
-import {ACTIVITY_ATTRIBUTES} from "./AttributeTypes";
+import {ACTIVITY_ATTRIBUTES} from "./StaticAttributes";
 
 const DEFAULT_BUILDER: GraphBuilder = {
     type: "bar",
@@ -22,7 +22,7 @@ export function createBuilder(interval: string, measure: string, grouping: ?stri
         const groupingAttribute = grouping ? ACTIVITY_ATTRIBUTES.find(p => p.id === grouping) : null;
         if (!measureAttribute) {
             console.warn("Can't create graph without measure");
-        } else if (!measureAttribute.output) {
+        } else if (measureAttribute === "extra") {
             console.warn("Can't create graph for " + measureAttribute.id);
         } else {
             graphBuilder = doCreateBuilder(interval, measureAttribute, groupingAttribute);
@@ -33,7 +33,7 @@ export function createBuilder(interval: string, measure: string, grouping: ?stri
     return graphBuilder;
 }
 
-function doCreateBuilder(interval: string, measureAttribute: AttributeType, groupingAttribute: ?AttributeType): GraphBuilder {
+function doCreateBuilder(interval: string, measureAttribute: Attribute, groupingAttribute: ?Attribute): GraphBuilder {
     console.log(`Create graph builder for interval=${interval}, measure=${measureAttribute.id}, grouping=${groupingAttribute ? groupingAttribute.id : ""}`);
 
     const axis = createHorizontalAxis(interval);
@@ -70,33 +70,37 @@ function createHorizontalAxis(interval: string): GraphAxisBuilder {
     }
 }
 
-function createSeries(attributeType: AttributeType): GraphSeriesBuilder {
-    // TODO : aggregates!
-
-    const attributeId = attributeType.id;
+// TODO : generate the labels from metadata
+function createSeries(attribute: Attribute): GraphSeriesBuilder {
+    const attributeId = attribute.id;
     switch (attributeId) {
     case "distance":
         return {
-            name: attributeType.label,
+            name: attribute.label,
             format: (value: number) => DistanceUtils.formatKm(value),
             secondY: false
         };
     case "duration":
         return {
-            name: attributeType.label,
+            name: attribute.label,
             format: (value: number) => TimeUtils.formatHourMinutes(value),
             secondY: false
         };
     case "time1km":
         return {
-            name: attributeType.label,
+            name: attribute.label,
             format: (value: number) => TimeUtils.formatMinuteSeconds(value),
             secondY: false
         };
-    case "runs":
+    // TODO
     case "speed":
+        return {
+            name: attribute.label,
+            format: (value: number) => "" + value,
+            secondY: false
+        };
     default:
-        throw new Error("Unexpected attribute: " + attributeType.id);
+        throw new Error("Unexpected attribute: " + attribute.id);
     }
 }
 

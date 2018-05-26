@@ -29,17 +29,17 @@ const editBuilder: ActivityBuilder = {
 };
 
 test("has a different title for a new activity or an existing one", () => {
-    const wrapper1 = shallow(<ActivityDialog attributeTypes={[]} activityBuilder={newBuilder}
+    const wrapper1 = shallow(<ActivityDialog attributes={[]} activityBuilder={newBuilder}
         onDismiss={jest.fn()} onSave={jest.fn()}/>);
     expect(wrapper1.find("ModalTitle").childAt(0).text()).toEqual("Add a new activity");
 
-    const wrapper2 = shallow(<ActivityDialog attributeTypes={[]} activityBuilder={editBuilder}
+    const wrapper2 = shallow(<ActivityDialog attributes={[]} activityBuilder={editBuilder}
         onDismiss={jest.fn()} onSave={jest.fn()}/>);
     expect(wrapper2.find("ModalTitle").childAt(0).text()).toEqual("Edit an activity");
 });
 
 test("updates the state when the value of a field changes", () => {
-    const wrapper = shallow(<ActivityDialog attributeTypes={[]} activityBuilder={newBuilder}
+    const wrapper = shallow(<ActivityDialog attributes={[]} activityBuilder={newBuilder}
         onDismiss={jest.fn()} onSave={jest.fn()}/>);
 
     const fieldChangeHandler = wrapper.find("ActivityForm").prop("onMainFieldChange");
@@ -51,12 +51,12 @@ test("updates the state when the value of a field changes", () => {
 });
 
 test("updates the state when the value of an extra attribute field changes", () => {
-    const wrapper = shallow(<ActivityDialog attributeTypes={[]} activityBuilder={newBuilder}
+    const wrapper = shallow(<ActivityDialog attributes={[]} activityBuilder={newBuilder}
         onDismiss={jest.fn()} onSave={jest.fn()}/>);
 
     const fieldChangeHandler = wrapper.find("ActivityForm").prop("onAttributeFieldChange");
-    const attributeType = {id: "city", label: "City"};
-    fieldChangeHandler(attributeType, "Tokyo");
+    const attribute = {id: "city", label: "City"};
+    fieldChangeHandler(attribute, "Tokyo");
 
     wrapper.update();
     const builder: ActivityBuilder = wrapper.state("builder");
@@ -64,7 +64,7 @@ test("updates the state when the value of an extra attribute field changes", () 
 });
 
 test("invokes the callback when clicking the Cancel button", (done) => {
-    const wrapper = shallow(<ActivityDialog attributeTypes={[]} activityBuilder={editBuilder}
+    const wrapper = shallow(<ActivityDialog attributes={[]} activityBuilder={editBuilder}
         onDismiss={() => done()}
         onSave={throwingCallback}/>);
 
@@ -74,7 +74,7 @@ test("invokes the callback when clicking the Cancel button", (done) => {
 test("does not invoke the callback when clicking the Save button with invalid values", () => {
     let dismissed = false;
     let saved = null;
-    const wrapper = shallow(<ActivityDialog attributeTypes={[]} activityBuilder={newBuilder}
+    const wrapper = shallow(<ActivityDialog attributes={[]} activityBuilder={newBuilder}
         onDismiss={() => {
             dismissed = true;
         }}
@@ -89,7 +89,7 @@ test("does not invoke the callback when clicking the Save button with invalid va
 });
 
 test("invokes the callback when clicking the Save button", (done) => {
-    const wrapper = shallow(<ActivityDialog attributeTypes={[]} activityBuilder={editBuilder}
+    const wrapper = shallow(<ActivityDialog attributes={[]} activityBuilder={editBuilder}
         onDismiss={throwingCallback}
         onSave={(b) => {
             expect(b).toEqual(editBuilder);

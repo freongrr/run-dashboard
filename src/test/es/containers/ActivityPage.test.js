@@ -8,7 +8,6 @@ import ActivityDialog from "../../../main/es/containers/ActivityDialog";
 test("invokes fetchActivities when mounted", () => {
     const fetchActivities = jest.fn();
     shallow(<ActivityPage
-        attributeTypes={[]}
         isFetching={false}
         activities={[]}
         editedActivity={null}
@@ -29,7 +28,6 @@ test("when editing an activity then ActivityDialog is shown", () => {
     const editedActivity = ({}: any);
 
     const wrapper = shallow(<ActivityPage
-        attributeTypes={[]}
         isFetching={false}
         activities={[]}
         editedActivity={editedActivity}

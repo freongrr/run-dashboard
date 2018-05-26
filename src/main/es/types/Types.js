@@ -8,23 +8,19 @@ export type Activity = {|
     date: string,
     duration: number,
     distance: number,
-    attributes: { [string]: AttributeValue }
+    attributes: { [string]: string }
 |};
 
-export type AggregateOperation = "min" | "max" | "avg" | "count";
-
-// Extra attributes associated with an activity.
-// The output parameter controls whether the attribute can be used to group data (e.g. "City")
-// on a graph, or if it is the data itself ("Total distance per month", "Average distance per month", etc)
-export type AttributeType = {|
+// Attributes associated with an activity:
+// - "core" attributes are the date, distance, etc
+// - "derived" attributes are extracted or calculated from the core attributes
+// - "extra" attributes are dynamic values, similar to tags (e.g. city, temperature, etc)
+export type Attribute = {|
     id: string,
     label: string,
-    type: "string" | "number" | "date",
-    output: boolean,
-    aggregates?: AggregateOperation[]
+    type: "core" | "derived" | "extra",
+    dataType: "string" | "number" | "date"
 |};
-
-export type AttributeValue = string;
 
 /** This is used in the edit dialog */
 export type ActivityBuilder = {|
@@ -32,7 +28,7 @@ export type ActivityBuilder = {|
     date: string,
     duration: string,
     distance: string,
-    attributes: { [string]: AttributeValue }
+    attributes: { [string]: string }
 |};
 
 export type GraphSeriesBuilder = {

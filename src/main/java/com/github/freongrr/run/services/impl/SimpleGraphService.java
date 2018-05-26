@@ -12,7 +12,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.github.freongrr.run.beans.Activity;
@@ -26,7 +26,7 @@ import com.github.freongrr.run.services.Logger;
  * It is mainly used for testing, but could also be used in the "production" code if there is very little data.
  */
 @Service
-@Profile("default")
+@Primary
 final class SimpleGraphService implements GraphService {
 
     private final Logger logger;
@@ -72,6 +72,7 @@ final class SimpleGraphService implements GraphService {
     }
 
     private Function<Activity, String> getGroupingFunction(String grouping) {
+        // TODO : handle "day", "week", "month" and "year" as grouping functions
         if (grouping == null || grouping.isEmpty()) {
             return activity -> getYearAndMonth(activity.getDate());
         } else {
@@ -102,9 +103,10 @@ final class SimpleGraphService implements GraphService {
         return dateString.substring(0, 4 + 1 + 2);
     }
 
+    // TODO : redo with metadata
     private double aggregateValue(GraphDataRequest request, List<Activity> activities) {
         ToDoubleFunction<Activity> extractor = extractor(request.getMeasure());
-        if (request.getMeasure().equals(GraphDataRequest.MEASURE_TIME_1KM)) {
+        if (GraphDataRequest.MEASURE_TIME_1KM.equals(request.getMeasure()) || "speed".equals(request.getMeasure())) {
             return activities.stream().mapToDouble(extractor).average().orElse(0d);
         } else {
             return activities.stream().mapToDouble(extractor).sum();
@@ -112,15 +114,38 @@ final class SimpleGraphService implements GraphService {
     }
 
     private static ToDoubleFunction<Activity> extractor(String measure) {
-        switch (measure) {
+        return activity -> {
+            Object value = extract(activity, measure);
+            return asDouble(value);
+        };
+    }
+
+    private static Object extract(Activity activity, String name) {
+        switch (name) {
+            /* Core attributes */
             case GraphDataRequest.MEASURE_DURATION:
-                return Activity::getDuration;
+                return activity.getDuration();
             case GraphDataRequest.MEASURE_DISTANCE:
-                return Activity::getDistance;
+                return activity.getDistance();
+            /* Derived attributes */
+            case "count":
+                return 1;
             case GraphDataRequest.MEASURE_TIME_1KM:
-                return a -> a.getDuration() * 1000 / a.getDistance();
+                return activity.getDuration() * 1000 / activity.getDistance();
+            case "speed":
+                return (double) activity.getDistance() / (double) activity.getDuration() * 3.6;
+            /* Derived attributes */
             default:
-                throw new IllegalArgumentException("Invalid graph request: " + measure);
+                return activity.getAttribute(name);
+        }
+    }
+
+    private static double asDouble(Object value) {
+        try {
+            return Double.parseDouble(String.valueOf(value));
+        } catch (NumberFormatException e) {
+            // ???
+            return 0;
         }
     }
 }
