@@ -3,7 +3,6 @@
 import type {Attribute, GraphAxisBuilder, GraphBuilder, GraphSeriesBuilder} from "../types/Types";
 import * as DistanceUtils from "../utils/DistanceUtils";
 import * as TimeUtils from "../utils/TimeUtils";
-import {ACTIVITY_ATTRIBUTES} from "./StaticAttributes";
 
 const DEFAULT_BUILDER: GraphBuilder = {
     type: "bar",
@@ -15,11 +14,11 @@ const DEFAULT_BUILDER: GraphBuilder = {
     series: []
 };
 
-export function createBuilder(interval: string, measure: string, grouping: ?string): GraphBuilder {
+export function createBuilder(attributes: Attribute[], interval: string, measure: string, grouping: ?string): GraphBuilder {
     let graphBuilder = DEFAULT_BUILDER;
     try {
-        const measureAttribute = ACTIVITY_ATTRIBUTES.find(p => p.id === measure);
-        const groupingAttribute = grouping ? ACTIVITY_ATTRIBUTES.find(p => p.id === grouping) : null;
+        const measureAttribute = attributes.find(p => p.id === measure);
+        const groupingAttribute = grouping ? attributes.find(p => p.id === grouping) : null;
         if (!measureAttribute) {
             console.warn("Can't create graph without measure");
         } else if (measureAttribute === "extra") {

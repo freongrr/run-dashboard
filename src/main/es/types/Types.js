@@ -12,14 +12,14 @@ export type Activity = {|
 |};
 
 // Attributes associated with an activity:
-// - "core" attributes are the date, distance, etc
-// - "derived" attributes are extracted or calculated from the core attributes
-// - "extra" attributes are dynamic values, similar to tags (e.g. city, temperature, etc)
+// - CORE attributes are the date, distance, etc
+// - DERIVED attributes are extracted or calculated from the core attributes
+// - EXTRA attributes are dynamic values, similar to tags (e.g. city, temperature, etc)
 export type Attribute = {|
     id: string,
     label: string,
-    type: "core" | "derived" | "extra",
-    dataType: "string" | "number" | "date"
+    type: "CORE" | "DERIVED" | "EXTRA",
+    dataType: "STRING" | "NUMBER" | "DATE"
 |};
 
 /** This is used in the edit dialog */

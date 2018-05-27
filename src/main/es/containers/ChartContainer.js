@@ -4,7 +4,7 @@
 import React from "react";
 import {Alert, ControlLabel, Form, FormControl, FormGroup} from "react-bootstrap";
 import * as redux from "react-redux";
-import type {GraphBuilder} from "../types/Types";
+import type {Attribute, GraphBuilder} from "../types/Types";
 import type {AppState} from "../types/AppState";
 import type {Dispatch} from "../redux/actions";
 import * as actions from "../redux/actions";
@@ -12,6 +12,7 @@ import C3Graph from "../components/C3Graph";
 import * as graphBuilderHelper from "../data/graphBuilderHelper";
 
 type ChartContainerProps = {
+    attributes: Attribute[],
     selectedInterval: string,
     selectedMeasure: string,
     selectedGrouping: string,
@@ -51,25 +52,22 @@ export class ChartContainer extends React.Component<ChartContainerProps> {
         ];
 
         // TODO : aggregate?
-        const MEASURES = [
-            {id: "distance", label: "Distance"},
-            {id: "duration", label: "Duration"},
-            {id: "time1km", label: "Time for 1km"},
-            {id: "speed", label: "Speed (km/h)"}
-        ];
+        const MEASURES = this.props.attributes
+            .filter(a => a.dataType === "NUMBER")
+            .map(a => {
+                return {id: a.id, label: a.label};
+            });
 
         // TODO : this is not grouping, this is what we put on the X axis...
-        const GROUPINGS = [
-            {id: "", label: "Time"},
-            {id: "temperature", label: "Temperature"},
-            {id: "city", label: "City"}
-        ];
+        const GROUPINGS = this.props.attributes.map(a => {
+            return {id: a.id, label: a.label};
+        });
 
         // TODO : this forces the C3 graph to be generated, which is inefficient
         // but I can't easily use a reducer because it depends on multiple parts of the state.
         // We should optimize either this component or C3Graph to handle that case 
         const graphBuilder: GraphBuilder = graphBuilderHelper.createBuilder(
-            this.props.selectedInterval, this.props.selectedMeasure, this.props.selectedGrouping
+            this.props.attributes, this.props.selectedInterval, this.props.selectedMeasure, this.props.selectedGrouping
         );
 
         return (
@@ -142,6 +140,7 @@ export class ChartContainer extends React.Component<ChartContainerProps> {
 
 function mapStateToProps(state: AppState): $Shape<ChartContainerProps> {
     return {
+        attributes: state.attributes,
         selectedInterval: state.chartInterval,
         selectedMeasure: state.chartMeasure,
         selectedGrouping: state.chartGrouping,

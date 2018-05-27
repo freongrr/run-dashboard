@@ -28,13 +28,13 @@ const editBuilder: ActivityBuilder = {
 const attributes: Attribute[] = [{
     id: "city",
     label: "City",
-    type: "extra",
-    dataType: "string"
+    type: "EXTRA",
+    dataType: "STRING"
 }, {
     id: "temperature",
     label: "Temperature",
-    type: "extra",
-    dataType: "number"
+    type: "EXTRA",
+    dataType: "NUMBER"
 }];
 
 test("has has date field", () => {

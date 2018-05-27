@@ -5,11 +5,12 @@ import update from "immutability-helper";
 
 import type {Activity, ActivityBuilder, Attribute} from "../types/Types";
 import type {Action} from "./actionBuilders";
-import * as StaticAttributes from "../data/StaticAttributes";
 
-export function attributes(state: Attribute[]): Attribute[] {
-    if (state === undefined || state.length === 0) {
-        return StaticAttributes.ACTIVITY_ATTRIBUTES;
+export function loadingAttributes(state: boolean = false, action: Action): boolean {
+    if (action.type === "LOAD_ATTRIBUTES_START") {
+        return true;
+    } else if (action.type === "LOAD_ATTRIBUTES_SUCCESS" || action.type === "LOAD_ATTRIBUTES_FAILURE") {
+        return false;
     } else {
         return state;
     }
@@ -30,6 +31,14 @@ export function loadingGraph(state: boolean = false, action: Action): boolean {
         return true;
     } else if (action.type === "LOAD_CHART_DATA_SUCCESS" || action.type === "LOAD_CHART_DATA_FAILURE") {
         return false;
+    } else {
+        return state;
+    }
+}
+
+export function attributes(state: Attribute[] = [], action: Action): Attribute[] {
+    if (action.type === "LOAD_ATTRIBUTES_SUCCESS") {
+        return action.attributes;
     } else {
         return state;
     }
@@ -124,9 +133,10 @@ export function error(state: ?Error = null, action: Action): ?Error {
 }
 
 export default combineReducers({
-    attributes,
+    loadingAttributes,
     loadingActivities,
     loadingGraph,
+    attributes,
     activities,
     editedActivity,
     deletedActivity,

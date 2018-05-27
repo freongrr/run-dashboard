@@ -27,8 +27,26 @@ export function overrideRPC(providedRPC: RPC) {
     rpc = providedRPC;
 }
 
+const ATTRIBUTE_API = "/api/attributes";
 const ACTIVITY_API = "/api/activities";
 const CHART_API = "/api/graph"; // TODO : use CHART or GRAPH everywhere
+
+export function fetchAttributes(): ThunkAction {
+    return (dispatch: Dispatch, getState: GetState) => {
+        if (!getState().loadingAttributes) {
+            dispatch(dismissError());
+            dispatch(actionBuilders.loadAttributesStart());
+            rpc.get(ATTRIBUTE_API)
+                .then((attributes) => {
+                    dispatch(actionBuilders.loadAttributesSuccess(attributes));
+                })
+                .catch((error) => {
+                    console.error("Failed to load attributes", error);
+                    dispatch(actionBuilders.loadAttributesFailure(error));
+                });
+        }
+    };
+}
 
 export function fetchActivities(): ThunkAction {
     return (dispatch: Dispatch, getState: GetState) => {

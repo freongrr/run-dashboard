@@ -1,11 +1,10 @@
 package com.github.freongrr.run.services.impl;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
@@ -16,7 +15,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.github.freongrr.run.beans.Activity;
+import com.github.freongrr.run.beans.Attribute;
 import com.github.freongrr.run.services.ActivityService;
+import com.github.freongrr.run.services.AttributeService;
 import com.github.freongrr.run.services.GraphDataRequest;
 import com.github.freongrr.run.services.GraphService;
 import com.github.freongrr.run.services.Logger;
@@ -31,28 +32,30 @@ final class SimpleGraphService implements GraphService {
 
     private final Logger logger;
     private final ActivityService activityService;
+    private final AttributeService attributeService;
 
     @Autowired
-    SimpleGraphService(Logger logger, ActivityService activityService) {
+    SimpleGraphService(Logger logger, ActivityService activityService, AttributeService attributeService) {
         this.logger = logger;
         this.activityService = activityService;
+        this.attributeService = attributeService;
     }
 
     @Override
     public Object[][] getRows(GraphDataRequest request) {
         logger.info("Building graph data for %s", request);
-        Map<String, List<Activity>> groupedActivities = activityService.getAll().stream()
+        Map<?, List<Activity>> groupedActivities = activityService.getAll().stream()
                 .filter(getIntervalFilter(request.getInterval()))
                 .collect(Collectors.groupingBy(getGroupingFunction(request.getGrouping())));
 
-        Set<String> sortedKeys = new TreeSet<>(getComparator(request.getGrouping()));
-        sortedKeys.addAll(groupedActivities.keySet());
+        List<?> sortedKeys = new ArrayList<>(groupedActivities.keySet());
+        sortedKeys.sort((Comparator) getComparator(request.getGrouping()));
 
         logger.info("Graph keys: %s", groupedActivities.keySet());
         return sortedKeys.stream()
                 .map(key -> {
                     Object[] row = new Object[2];
-                    row[0] = key;
+                    row[0] = String.valueOf(key);
                     row[1] = aggregateValue(request, groupedActivities.get(key));
                     return row;
                 })
@@ -71,36 +74,19 @@ final class SimpleGraphService implements GraphService {
         }
     }
 
-    private Function<Activity, String> getGroupingFunction(String grouping) {
+    private Function<Activity, ?> getGroupingFunction(String grouping) {
         // TODO : handle "day", "week", "month" and "year" as grouping functions
-        if (grouping == null || grouping.isEmpty()) {
-            return activity -> getYearAndMonth(activity.getDate());
-        } else {
-            return activity -> {
-                String attribute = activity.getAttribute(grouping);
-                return attribute == null ? "N/A" : attribute;
-            };
-        }
+        return getAttribute(grouping).getExtractor();
     }
 
-    private Comparator<String> getComparator(String grouping) {
-        // TODO : use more metadata
-        if ("temperature".equals(grouping)) {
-            return Comparator.comparingInt(s -> {
-                try {
-                    return Integer.parseInt(s);
-                } catch (NumberFormatException e) {
-                    return Integer.MIN_VALUE;
-                }
-            });
-        } else {
-            return Comparator.naturalOrder();
-        }
+    private Attribute getAttribute(String grouping) {
+        return attributeService.getAttributes().stream()
+                .filter(a -> a.getId().equals(grouping)).findAny()
+                .orElseThrow(() -> new IllegalArgumentException("Can't find attribute " + grouping));
     }
 
-    private static String getYearAndMonth(LocalDate date) {
-        String dateString = date.withDayOfMonth(1).toString();
-        return dateString.substring(0, 4 + 1 + 2);
+    private Comparator<?> getComparator(String grouping) {
+        return getAttribute(grouping).getComparator();
     }
 
     // TODO : redo with metadata
@@ -113,31 +99,9 @@ final class SimpleGraphService implements GraphService {
         }
     }
 
-    private static ToDoubleFunction<Activity> extractor(String measure) {
-        return activity -> {
-            Object value = extract(activity, measure);
-            return asDouble(value);
-        };
-    }
-
-    private static Object extract(Activity activity, String name) {
-        switch (name) {
-            /* Core attributes */
-            case GraphDataRequest.MEASURE_DURATION:
-                return activity.getDuration();
-            case GraphDataRequest.MEASURE_DISTANCE:
-                return activity.getDistance();
-            /* Derived attributes */
-            case "count":
-                return 1;
-            case GraphDataRequest.MEASURE_TIME_1KM:
-                return activity.getDuration() * 1000 / activity.getDistance();
-            case "speed":
-                return (double) activity.getDistance() / (double) activity.getDuration() * 3.6;
-            /* Derived attributes */
-            default:
-                return activity.getAttribute(name);
-        }
+    private ToDoubleFunction<Activity> extractor(String measure) {
+        Function<Activity, ?> extractor = getAttribute(measure).getExtractor();
+        return activity -> asDouble(extractor.apply(activity));
     }
 
     private static double asDouble(Object value) {

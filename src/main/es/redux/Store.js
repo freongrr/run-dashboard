@@ -7,15 +7,16 @@ import type {AppState} from "../types/AppState";
 import rootReducer from "./reducers";
 
 const INITIAL_STATE: AppState = {
-    attributes: [],
+    loadingAttributes: false,
     loadingActivities: false,
     loadingGraph: false,
+    attributes: [],
     activities: [],
     editedActivity: null,
     deletedActivity: null,
     chartInterval: "last12Months",
     chartMeasure: "distance",
-    chartGrouping: "",
+    chartGrouping: "yearAndMonth",
     chartData: [],
     error: null
 };

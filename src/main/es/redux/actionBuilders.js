@@ -1,9 +1,12 @@
 // @flow
 
-import type {Activity, ActivityBuilder} from "../types/Types";
+import type {Activity, ActivityBuilder, Attribute} from "../types/Types";
 
 // TODO : standardize action naming
 export type Action =
+    { type: "LOAD_ATTRIBUTES_START" } |
+    { type: "LOAD_ATTRIBUTES_SUCCESS", attributes: Attribute[] } |
+    { type: "LOAD_ATTRIBUTES_FAILURE", error: Error } |
     { type: "LOAD_ACTIVITIES_START" } |
     { type: "LOAD_ACTIVITIES_SUCCESS", activities: Activity[] } |
     { type: "LOAD_ACTIVITIES_FAILURE", error: Error } |
@@ -18,6 +21,18 @@ export type Action =
     { type: "LOAD_CHART_DATA_SUCCESS", data: number[][] } |
     { type: "LOAD_CHART_DATA_FAILURE", error: Error } |
     { type: "SET_ERROR", error: ?Error };
+
+export function loadAttributesStart(): Action {
+    return {type: "LOAD_ATTRIBUTES_START"};
+}
+
+export function loadAttributesSuccess(attributes: Attribute[]): Action {
+    return {type: "LOAD_ATTRIBUTES_SUCCESS", attributes};
+}
+
+export function loadAttributesFailure(error: Error): Action {
+    return {type: "LOAD_ATTRIBUTES_FAILURE", error};
+}
 
 export function loadActivitiesStart(): Action {
     return {type: "LOAD_ACTIVITIES_START"};

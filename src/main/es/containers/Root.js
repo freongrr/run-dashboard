@@ -9,6 +9,7 @@ import {Provider} from "react-redux";
 import TopBar from "../components/TopBar";
 import Dashboard from "./Dashboard";
 import ActivityPage from "./ActivityPage";
+import * as actions from "../redux/actions";
 
 const store = configureStore();
 
@@ -30,5 +31,9 @@ export default class Root extends React.Component<{}> {
                 </HashRouter>
             </Provider>
         );
+    }
+
+    componentDidMount() {
+        store.dispatch(actions.fetchAttributes());
     }
 }

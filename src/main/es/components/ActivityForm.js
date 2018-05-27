@@ -40,7 +40,7 @@ export default class ActivityForm extends React.Component<ActivityFormProps> {
                     onChange={this.onDistanceChange}
                     validator={ActivityBuilderValidator.hasValidDistance} placeholder={"e.g. \"10.5 km\""}/>
                 {this.props.attributes
-                    .filter(a => a.type === "extra")
+                    .filter(a => a.type === "EXTRA")
                     .map(a => this.createAttributeField(a))}
             </div>
         );
@@ -59,9 +59,9 @@ export default class ActivityForm extends React.Component<ActivityFormProps> {
             value: this.props.activityBuilder.attributes[attribute.id] || "",
             onChange: (e) => this.props.onAttributeFieldChange(attribute, e.target.value)
         };
-        if (attribute.dataType === "number") {
+        if (attribute.dataType === "NUMBER") {
             return <NumberField {...fieldProps}/>;
-        } else if (attribute.dataType === "date") {
+        } else if (attribute.dataType === "DATE") {
             return <DateField {...fieldProps}/>;
         } else {
             return <TextField {...fieldProps}/>;

@@ -3,9 +3,10 @@
 import type {Activity, ActivityBuilder, Attribute} from "./Types";
 
 export type AppState = {
-    attributes: Attribute[],
+    loadingAttributes: boolean,
     loadingActivities: boolean,
     loadingGraph: boolean,
+    attributes: Attribute[],
     activities: Activity[],
     editedActivity: ?ActivityBuilder,
     deletedActivity: ?Activity,
