@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -82,8 +83,13 @@ final class StaticAttributeService implements AttributeService {
                 "Temperature (Celsius)",
                 Attribute.Type.EXTRA,
                 Attribute.DataType.NUMBER,
-                a -> a.getAttribute("temperature"),
-                Comparator.naturalOrder()));
+                getDoubleAttribute("temperature"),
+                Comparator.nullsFirst(Comparator.naturalOrder())));
+    }
+
+    private static Function<Activity, Double> getDoubleAttribute(String attribute) {
+        Function<Activity, String> f = activity -> activity.getAttribute(attribute);
+        return f.andThen(s -> s == null ? null : Double.parseDouble(s));
     }
 
     @Override
