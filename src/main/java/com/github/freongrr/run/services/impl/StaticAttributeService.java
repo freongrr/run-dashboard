@@ -24,25 +24,19 @@ final class StaticAttributeService implements AttributeService {
 
         /* Core Attributes */
 
-        attributes.add(new AttributeImpl<>(
+        attributes.add(newIntAttribute(
                 "duration",
                 "Duration",
                 Attribute.Type.CORE,
-                Attribute.DataType.NUMBER,
                 Activity::getDuration,
-                Comparator.naturalOrder(),
-                i -> i + " s",
-                DefaultBucketBuilder::builder
+                i -> i + " s"
         ));
-        attributes.add(new AttributeImpl<>(
+        attributes.add(newIntAttribute(
                 "distance",
                 "Distance",
                 Attribute.Type.CORE,
-                Attribute.DataType.NUMBER,
                 Activity::getDistance,
-                Comparator.naturalOrder(),
-                i -> i + " m",
-                DefaultBucketBuilder::builder
+                i -> i + " m"
         ));
 
         /* Derived Attributes */
@@ -57,62 +51,90 @@ final class StaticAttributeService implements AttributeService {
                 s -> s,
                 DefaultBucketBuilder::builder
         ));
-        attributes.add(new AttributeImpl<Integer>(
+        attributes.add(newIntAttribute(
                 "count",
                 "Number of runs",
                 Attribute.Type.DERIVED,
-                Attribute.DataType.NUMBER,
                 a -> 1,
-                Comparator.naturalOrder(),
-                String::valueOf,
-                DefaultBucketBuilder::builder
+                String::valueOf
         ));
-        attributes.add(new AttributeImpl<Double>(
+        attributes.add(newDoubleAttribute(
                 "time1km",
                 "Time for 1km",
                 Attribute.Type.DERIVED,
-                Attribute.DataType.NUMBER,
                 a -> a.getDuration() * 1000D / a.getDistance(),
-                Comparator.naturalOrder(),
-                d -> Math.round(d * 100) / 100 + " s/km",
-                DefaultBucketBuilder::builder
+                d -> Math.round(d * 100) / 100 + " s/km"
         ));
-        attributes.add(new AttributeImpl<Double>(
+        attributes.add(newDoubleAttribute(
                 "speed",
                 "Speed (km/h)",
                 Attribute.Type.DERIVED,
-                Attribute.DataType.NUMBER,
                 a -> (double) a.getDistance() / (double) a.getDuration() * 3.6,
-                Comparator.naturalOrder(),
-                d -> Math.round(d * 100) / 100 + " km/hm",
-                DefaultBucketBuilder::builder
+                d -> Math.round(d * 100) / 100 + " km/hm"
         ));
 
         /* Extra attributes */
 
-        attributes.add(new AttributeImpl<>(
+        attributes.add(newStringAttribute(
                 "city",
                 "City",
                 Attribute.Type.EXTRA,
-                Attribute.DataType.STRING,
-                a -> a.getAttribute("city"),
-                Comparator.naturalOrder(),
-                Function.identity(),
-                DefaultBucketBuilder::builder
+                a -> a.getAttribute("city")
         ));
-        attributes.add(new AttributeImpl<>(
+        attributes.add(newDoubleAttribute(
                 "temperature",
                 "Temperature (Celsius)",
                 Attribute.Type.EXTRA,
-                Attribute.DataType.NUMBER,
-                getDoubleAttribute("temperature"),
-                Comparator.nullsFirst(Comparator.naturalOrder()),
-                d -> d.intValue() + " °C",
-                NumericBucketBuilder::new
+                doubleAttributeExtractor("temperature"),
+                d -> d.intValue() + " °C"
         ));
     }
 
-    private static Function<Activity, Double> getDoubleAttribute(String attribute) {
+    private AttributeImpl<String> newStringAttribute(String id, String label, Attribute.Type type,
+            Function<Activity, String> extractor) {
+        return new AttributeImpl<>(
+                id,
+                label,
+                type,
+                Attribute.DataType.STRING,
+                extractor,
+                Comparator.nullsLast(Comparator.naturalOrder()),
+                Function.identity(),
+                DefaultBucketBuilder::builder
+        );
+    }
+
+    private AttributeImpl<Double> newIntAttribute(String id, String label, Attribute.Type type,
+            Function<Activity, Integer> extractor, Function<Integer, String> formatter) {
+        Function<Integer, Double> fromDouble = l -> (double) l;
+        Function<Double, Integer> toDouble = Double::intValue;
+        return new AttributeImpl<>(
+                id,
+                label,
+                type,
+                Attribute.DataType.NUMBER,
+                extractor.andThen(fromDouble),
+                Comparator.nullsLast(Comparator.naturalOrder()),
+                toDouble.andThen(formatter),
+                DoubleBucketBuilder::new
+        );
+    }
+
+    private AttributeImpl<Double> newDoubleAttribute(String id, String label, Attribute.Type type,
+            Function<Activity, Double> extractor, Function<Double, String> formatter) {
+        return new AttributeImpl<>(
+                id,
+                label,
+                type,
+                Attribute.DataType.NUMBER,
+                extractor,
+                Comparator.nullsLast(Comparator.naturalOrder()),
+                formatter,
+                DoubleBucketBuilder::new
+        );
+    }
+
+    private static Function<Activity, Double> doubleAttributeExtractor(String attribute) {
         Function<Activity, String> f = activity -> activity.getAttribute(attribute);
         return f.andThen(s -> s == null ? null : Double.parseDouble(s));
     }

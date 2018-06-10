@@ -11,14 +11,14 @@ import com.github.freongrr.run.beans.Attribute;
 import com.github.freongrr.run.beans.AxisBucket;
 import com.github.freongrr.run.beans.BucketBuilder;
 
-final class NumericBucketBuilder implements BucketBuilder<Double> {
+final class DoubleBucketBuilder implements BucketBuilder<Double> {
 
     // TODO : pass parameters instead (e.g. min number of ticket, max steps)
     private static final int TICKS = 20;
 
     private final Attribute<Double> attribute;
 
-    NumericBucketBuilder(Attribute<Double> attribute) {
+    DoubleBucketBuilder(Attribute<Double> attribute) {
         this.attribute = attribute;
     }
 
@@ -37,16 +37,22 @@ final class NumericBucketBuilder implements BucketBuilder<Double> {
         // e.g. 101 to 199 -> 100, 200 with step of 10
         double min = sortedValues.get(0);
         double max = sortedValues.get(sortedValues.size() - 1);
-        double step = Math.round((max - min) / TICKS);
+        double diff = max - min;
+        double step = diff / TICKS;
         return DoubleStream.iterate(min, d -> d + step)
-                .limit((long) Math.ceil((max - min) / step))
-                .mapToObj(bucketValue -> makeBucket(bucketValue, step))
+                .limit((long) Math.ceil(diff / step))
+                .mapToObj(bucketValue -> makeBucket(bucketValue, min, step))
                 .collect(Collectors.toList());
     }
 
-    private AxisBucket<Double> makeBucket(double bucketValue, double step) {
+    private AxisBucket<Double> makeBucket(double bucketValue, double min, double step) {
         String label = attribute.getFormatter().apply(bucketValue);
-        Predicate<Double> predicate = v -> Math.floor(v / step) * step == bucketValue;
+        Predicate<Double> predicate = v -> adjustValue(v, min, step) == bucketValue;
         return new AxisBucket<>(label, predicate);
+    }
+
+    private static double adjustValue(Double value, double min, double step) {
+        double v = min + (Math.floor((value - min) / step) * step);
+        return v;
     }
 }

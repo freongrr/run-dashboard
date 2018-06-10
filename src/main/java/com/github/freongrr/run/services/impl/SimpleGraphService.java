@@ -87,6 +87,10 @@ final class SimpleGraphService implements GraphService {
                             .map(measureAttributeExtractor)
                             .collect(Collectors.toList());
 
+                    if (bucketValues.isEmpty()) {
+                        logger.warn("Can't find value for bucket " + bucket);
+                    }
+
                     Object[] row = new Object[2];
                     row[0] = bucket.getLabel();
                     row[1] = aggregateValue(request, bucketValues);
@@ -107,7 +111,7 @@ final class SimpleGraphService implements GraphService {
                 .map(d -> d == null ? 0d : d);
         // TODO : redo with metadata
         double sum = valueStream.reduce(0d, (a, b) -> a + b);
-        if ("yearAndMonth".equals(request.getGrouping())) {
+        if ("count".equalsIgnoreCase(request.getMeasure()) || "yearAndMonth".equals(request.getGrouping())) {
             return sum;
         } else {
             return sum / values.size();
