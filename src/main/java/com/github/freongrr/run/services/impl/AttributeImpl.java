@@ -6,24 +6,30 @@ import java.util.function.Function;
 
 import com.github.freongrr.run.beans.Activity;
 import com.github.freongrr.run.beans.Attribute;
+import com.github.freongrr.run.beans.BucketBuilder;
 
-final class AttributeImpl implements Attribute {
+final class AttributeImpl<T> implements Attribute<T> {
 
     private final String id;
     private final String label;
     private final Type type;
     private final DataType dataType;
-    private final Function<Activity, ?> extractor;
-    private final Comparator<?> comparator;
+    private final Function<Activity, T> extractor;
+    private final Comparator<T> comparator;
+    private final Function<T, String> formatter;
+    private final BucketBuilder<T> bucketBuilder;
 
-    AttributeImpl(String id, String label, Type type, DataType dataType, Function<Activity, ?> extractor,
-            Comparator<?> comparator) {
+    AttributeImpl(String id, String label, Type type, DataType dataType, Function<Activity, T> extractor,
+            Comparator<T> comparator, Function<T, String> formatter,
+            Function<Attribute<T>, BucketBuilder<T>> bucketBuilderFactory) {
         this.id = id;
         this.label = label;
         this.type = type;
         this.dataType = dataType;
         this.extractor = extractor;
         this.comparator = comparator;
+        this.formatter = formatter;
+        this.bucketBuilder = bucketBuilderFactory.apply(this);
     }
 
     @Override
@@ -47,13 +53,23 @@ final class AttributeImpl implements Attribute {
     }
 
     @Override
-    public Function<Activity, ?> getExtractor() {
+    public Function<Activity, T> getExtractor() {
         return extractor;
     }
 
     @Override
-    public Comparator<?> getComparator() {
+    public Comparator<T> getComparator() {
         return comparator;
+    }
+
+    @Override
+    public Function<T, String> getFormatter() {
+        return formatter;
+    }
+
+    @Override
+    public BucketBuilder<T> getBucketBuilder() {
+        return bucketBuilder;
     }
 
     @Override

@@ -1,15 +1,12 @@
 package com.github.freongrr.run.services.impl;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -17,9 +14,10 @@ import org.springframework.stereotype.Service;
 
 import com.github.freongrr.run.beans.Activity;
 import com.github.freongrr.run.beans.Attribute;
+import com.github.freongrr.run.beans.AxisBucket;
+import com.github.freongrr.run.beans.GraphDataRequest;
 import com.github.freongrr.run.services.ActivityService;
 import com.github.freongrr.run.services.AttributeService;
-import com.github.freongrr.run.services.GraphDataRequest;
 import com.github.freongrr.run.services.GraphService;
 import com.github.freongrr.run.services.Logger;
 
@@ -45,29 +43,11 @@ final class SimpleGraphService implements GraphService {
     @Override
     public Object[][] getRows(GraphDataRequest request) {
         logger.info("Building graph data for %s", request);
-        Collection<Activity> activities = queryActivitiesInInterval(request);
-        Map<?, List<Activity>> groupedActivities = groupActivities(request, activities);
-
-        List<?> sortedKeys = new ArrayList<>(groupedActivities.keySet());
-        sortedKeys.sort((Comparator) getComparator(request.getGrouping()));
-
-        // TODO : format keys
-
-        logger.info("Graph keys: %s", groupedActivities.keySet());
-        return sortedKeys.stream()
-                .map(key -> {
-                    Object[] row = new Object[2];
-                    row[0] = String.valueOf(key);
-                    row[1] = aggregateValue(request, groupedActivities.get(key));
-                    return row;
-                })
-                .toArray(Object[][]::new);
-    }
-
-    private Collection<Activity> queryActivitiesInInterval(GraphDataRequest request) {
-        return activityService.getAll().stream()
+        Collection<Activity> activities = activityService.getAll().stream()
                 .filter(getIntervalFilter(request.getInterval()))
                 .collect(Collectors.toList());
+
+        return buildRows(request, activities);
     }
 
     private static Predicate<Activity> getIntervalFilter(String interval) {
@@ -82,49 +62,59 @@ final class SimpleGraphService implements GraphService {
         }
     }
 
-    private Map<?, List<Activity>> groupActivities(GraphDataRequest request, Collection<Activity> activities) {
-        Function<Activity, ?> groupingFunction = getGroupingFunction(request.getGrouping(), activities);
-        return activities.stream().collect(Collectors.groupingBy(groupingFunction));
+    private <X> Object[][] buildRows(GraphDataRequest request, Collection<Activity> activities) {
+        Attribute<?> measureAttribute = getAttribute(request.getMeasure());
+        Function<Activity, ?> measureAttributeExtractor = measureAttribute.getExtractor();
+
+        //noinspection unchecked
+        Attribute<X> groupingAttribute = (Attribute<X>) getAttribute(request.getGrouping());
+        Function<Activity, X> groupingAttributeExtractor = groupingAttribute.getExtractor();
+
+        List<X> groupingValues = activities.stream()
+                .map(groupingAttributeExtractor)
+                .collect(Collectors.toList());
+
+        List<AxisBucket<X>> buckets = groupingAttribute.getBucketBuilder().build(groupingValues);
+        logger.info("Building values for: %s", buckets);
+        return buckets.stream()
+                .map((AxisBucket<X> bucket) -> {
+                    Predicate<X> bucketPredicate = bucket.getPredicate();
+                    List<?> bucketValues = activities.stream()
+                            .filter(a -> {
+                                X v = groupingAttributeExtractor.apply(a);
+                                return bucketPredicate.test(v);
+                            })
+                            .map(measureAttributeExtractor)
+                            .collect(Collectors.toList());
+
+                    Object[] row = new Object[2];
+                    row[0] = bucket.getLabel();
+                    row[1] = aggregateValue(request, bucketValues);
+                    return row;
+                })
+                .toArray(Object[][]::new);
     }
 
-    private Function<Activity, ?> getGroupingFunction(String grouping, Collection<Activity> activities) {
-        Attribute attribute = getAttribute(grouping);
-        Function<Activity, ?> extractor = attribute.getExtractor();
+    private Attribute<?> getAttribute(String grouping) {
+        return attributeService.getAttributes().stream()
+                .filter(a -> a.getId().equals(grouping)).findAny()
+                .orElseThrow(() -> new IllegalArgumentException("Can't find attribute " + grouping));
+    }
 
-        if (attribute.getDataType() == Attribute.DataType.NUMBER) {
-            //noinspection unchecked
-            Function<Activity, Double> doubleExtractor = (Function<Activity, Double>) extractor;
-            List<Double> sortedValues = activities.stream()
-                    .map(doubleExtractor)
-                    .filter(Objects::nonNull)
-                    .sorted()
-                    .distinct()
-                    .collect(Collectors.toList());
-            if (!sortedValues.isEmpty()) {
-                double xAxisMin = sortedValues.get(0);
-                double xAxisMax = sortedValues.get(sortedValues.size() - 1);
-                int xAxisInterval;
-                if (xAxisMax - xAxisMin > 20) {
-                    xAxisInterval = (int) Math.ceil((xAxisMax - xAxisMin) / 20);
-                    return doubleExtractor.andThen(d -> {
-                        if (d == null) {
-                            return null;
-                        } else {
-                            int v1 = (int) Math.round(d / xAxisInterval);
-                            double v2 = v1 * xAxisInterval;
-                            return v2;
-                        }
-                    });
-                }
-            }
-        } else if (attribute.getDataType() == Attribute.DataType.DATE) {
-            // TODO : handle "day", "week", "month" and "year" as grouping functions
+    private double aggregateValue(GraphDataRequest request, Collection<?> values) {
+        Stream<Double> valueStream = values.stream()
+                .map(SimpleGraphService::asDoubleOrNull)
+                .map(d -> d == null ? 0d : d);
+        // TODO : redo with metadata
+        double sum = valueStream.reduce(0d, (a, b) -> a + b);
+        if ("yearAndMonth".equals(request.getGrouping())) {
+            return sum;
+        } else {
+            return sum / values.size();
         }
-
-        return extractor::apply;
     }
 
-    private Double asDoubleOrNull(Object rawValue) {
+    private static Double asDoubleOrNull(Object rawValue) {
         if (rawValue instanceof Number) {
             return ((Number) rawValue).doubleValue();
         }
@@ -132,30 +122,6 @@ final class SimpleGraphService implements GraphService {
             return Double.parseDouble(String.valueOf(rawValue));
         } catch (NumberFormatException e) {
             return null;
-        }
-    }
-
-    private Attribute getAttribute(String grouping) {
-        return attributeService.getAttributes().stream()
-                .filter(a -> a.getId().equals(grouping)).findAny()
-                .orElseThrow(() -> new IllegalArgumentException("Can't find attribute " + grouping));
-    }
-
-    private Comparator<?> getComparator(String grouping) {
-        return getAttribute(grouping).getComparator();
-    }
-
-    private double aggregateValue(GraphDataRequest request, List<Activity> activities) {
-        Function<Activity, Double> extractor = getAttribute(request.getMeasure())
-                .getExtractor()
-                .andThen(this::asDoubleOrNull)
-                .andThen(d -> d == null ? 0d : d);
-        // TODO : redo with metadata
-        double sum = activities.stream().map(extractor).reduce(0d, (a, b) -> a + b);
-        if ("yearAndMonth".equals(request.getGrouping())) {
-            return sum;
-        } else {
-            return sum / activities.size();
         }
     }
 }

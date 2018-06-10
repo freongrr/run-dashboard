@@ -1,7 +1,7 @@
-package com.github.freongrr.run.services;
+package com.github.freongrr.run.beans;
 
 /**
- * TODO : documentation
+ * This class represents a request for graph data.
  */
 public final class GraphDataRequest {
 
@@ -12,7 +12,7 @@ public final class GraphDataRequest {
     public static final String ALL_DATA = "all";
     public static final String DURATION_LAST_12_MONTHS = "last12Months";
 
-    // TODO : use enums?
+    // TODO : better names
     private final String interval;
     private final String measure;
     private final String grouping;

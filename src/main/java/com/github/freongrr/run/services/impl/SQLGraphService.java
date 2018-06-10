@@ -13,10 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import com.github.freongrr.run.services.GraphDataRequest;
+import com.github.freongrr.run.beans.GraphDataRequest;
 import com.github.freongrr.run.services.GraphService;
 import com.github.freongrr.run.services.Logger;
 
+/**
+ * TODO : I've added so much to the other implementation that this one is useless...
+ */
 @Service
 @Profile("sql")
 final class SQLGraphService implements GraphService {

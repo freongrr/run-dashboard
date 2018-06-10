@@ -20,71 +20,96 @@ final class StaticAttributeService implements AttributeService {
 
     @Autowired
     StaticAttributeService() {
+        // TODO : proper formatters!
 
         /* Core Attributes */
 
-        attributes.add(new AttributeImpl(
+        attributes.add(new AttributeImpl<>(
                 "duration",
                 "Duration",
                 Attribute.Type.CORE,
                 Attribute.DataType.NUMBER,
                 Activity::getDuration,
-                Comparator.naturalOrder()));
-        attributes.add(new AttributeImpl(
+                Comparator.naturalOrder(),
+                i -> i + " s",
+                DefaultBucketBuilder::builder
+        ));
+        attributes.add(new AttributeImpl<>(
                 "distance",
                 "Distance",
                 Attribute.Type.CORE,
                 Attribute.DataType.NUMBER,
                 Activity::getDistance,
-                Comparator.naturalOrder()));
+                Comparator.naturalOrder(),
+                i -> i + " m",
+                DefaultBucketBuilder::builder
+        ));
 
         /* Derived Attributes */
 
-        attributes.add(new AttributeImpl(
+        attributes.add(new AttributeImpl<String>(
                 "yearAndMonth",
                 "Month",
                 Attribute.Type.DERIVED,
                 Attribute.DataType.STRING,
                 a -> a.getDate().withDayOfMonth(1).toString().substring(0, 7),
-                Comparator.naturalOrder()));
-        attributes.add(new AttributeImpl(
+                Comparator.naturalOrder(),
+                s -> s,
+                DefaultBucketBuilder::builder
+        ));
+        attributes.add(new AttributeImpl<Integer>(
                 "count",
                 "Number of runs",
                 Attribute.Type.DERIVED,
                 Attribute.DataType.NUMBER,
                 a -> 1,
-                Comparator.naturalOrder()));
-        attributes.add(new AttributeImpl(
+                Comparator.naturalOrder(),
+                String::valueOf,
+                DefaultBucketBuilder::builder
+        ));
+        attributes.add(new AttributeImpl<Double>(
                 "time1km",
                 "Time for 1km",
                 Attribute.Type.DERIVED,
                 Attribute.DataType.NUMBER,
-                a -> a.getDuration() * 1000 / a.getDistance(),
-                Comparator.naturalOrder()));
-        attributes.add(new AttributeImpl(
+                a -> a.getDuration() * 1000D / a.getDistance(),
+                Comparator.naturalOrder(),
+                d -> Math.round(d * 100) / 100 + " s/km",
+                DefaultBucketBuilder::builder
+        ));
+        attributes.add(new AttributeImpl<Double>(
                 "speed",
                 "Speed (km/h)",
                 Attribute.Type.DERIVED,
                 Attribute.DataType.NUMBER,
                 a -> (double) a.getDistance() / (double) a.getDuration() * 3.6,
-                Comparator.naturalOrder()));
+                Comparator.naturalOrder(),
+                d -> Math.round(d * 100) / 100 + " km/hm",
+                DefaultBucketBuilder::builder
+        ));
 
         /* Extra attributes */
 
-        attributes.add(new AttributeImpl(
+        attributes.add(new AttributeImpl<>(
                 "city",
                 "City",
                 Attribute.Type.EXTRA,
                 Attribute.DataType.STRING,
                 a -> a.getAttribute("city"),
-                Comparator.naturalOrder()));
-        attributes.add(new AttributeImpl(
+                Comparator.naturalOrder(),
+                Function.identity(),
+                DefaultBucketBuilder::builder
+        ));
+        attributes.add(new AttributeImpl<>(
                 "temperature",
                 "Temperature (Celsius)",
                 Attribute.Type.EXTRA,
                 Attribute.DataType.NUMBER,
                 getDoubleAttribute("temperature"),
-                Comparator.nullsFirst(Comparator.naturalOrder())));
+                Comparator.nullsFirst(Comparator.naturalOrder()),
+                d -> d.intValue() + " °C",
+                NumericBucketBuilder::new
+        ));
     }
 
     private static Function<Activity, Double> getDoubleAttribute(String attribute) {

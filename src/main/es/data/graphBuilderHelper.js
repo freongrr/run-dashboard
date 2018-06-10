@@ -4,6 +4,8 @@ import type {Attribute, GraphAxisBuilder, GraphBuilder, GraphSeriesBuilder} from
 import * as DistanceUtils from "../utils/DistanceUtils";
 import * as TimeUtils from "../utils/TimeUtils";
 
+// TODO : we should be able to do (most of) that on the server 
+
 const DEFAULT_BUILDER: GraphBuilder = {
     type: "bar",
     time: false,
@@ -14,15 +16,17 @@ const DEFAULT_BUILDER: GraphBuilder = {
     series: []
 };
 
-export function createBuilder(attributes: Attribute[], interval: string, measure: string, grouping: ?string): GraphBuilder {
+export function createBuilder(attributes: Attribute[], interval: string, measure: string, grouping: string): GraphBuilder {
     let graphBuilder = DEFAULT_BUILDER;
     try {
         const measureAttribute = attributes.find(p => p.id === measure);
-        const groupingAttribute = grouping ? attributes.find(p => p.id === grouping) : null;
+        const groupingAttribute = attributes.find(p => p.id === grouping);
         if (!measureAttribute) {
             console.warn("Can't create graph without measure");
         } else if (measureAttribute === "extra") {
             console.warn("Can't create graph for " + measureAttribute.id);
+        } else if (!groupingAttribute) {
+            console.warn("Can't create graph without grouping");
         } else {
             graphBuilder = doCreateBuilder(interval, measureAttribute, groupingAttribute);
         }
@@ -32,10 +36,10 @@ export function createBuilder(attributes: Attribute[], interval: string, measure
     return graphBuilder;
 }
 
-function doCreateBuilder(interval: string, measureAttribute: Attribute, groupingAttribute: ?Attribute): GraphBuilder {
-    console.log(`Create graph builder for interval=${interval}, measure=${measureAttribute.id}, grouping=${groupingAttribute ? groupingAttribute.id : ""}`);
+function doCreateBuilder(interval: string, measureAttribute: Attribute, groupingAttribute: Attribute): GraphBuilder {
+    console.log(`Create graph builder for interval=${interval}, measure=${measureAttribute.id}, grouping=${groupingAttribute.id}`);
 
-    const axis = createHorizontalAxis(interval);
+    const axis = createHorizontalAxis(groupingAttribute);
     const series = createSeries(measureAttribute);
 
     // example of day (XY) graph:
@@ -57,16 +61,11 @@ function doCreateBuilder(interval: string, measureAttribute: Attribute, grouping
     };
 }
 
-function createHorizontalAxis(interval: string): GraphAxisBuilder {
-    switch (interval) {
-    case "all":
-    case "last12Months":
-    default:
-        return {
-            name: "Month",
-            format: (value: number) => "" + value
-        };
-    }
+function createHorizontalAxis(groupingAttribute: Attribute): GraphAxisBuilder {
+    return {
+        name: groupingAttribute.label,
+        format: (value: any) => "" + value
+    };
 }
 
 // TODO : generate the labels from metadata
@@ -91,15 +90,13 @@ function createSeries(attribute: Attribute): GraphSeriesBuilder {
             format: (value: number) => TimeUtils.formatMinuteSeconds(value),
             secondY: false
         };
-    // TODO
-    case "speed":
+    default:
+        // throw new Error("Unexpected attribute: " + attribute.id);
+        console.warn("Unexpected attribute: " + attribute.id);
         return {
             name: attribute.label,
             format: (value: number) => "" + value,
             secondY: false
         };
-    default:
-        throw new Error("Unexpected attribute: " + attribute.id);
     }
 }
-
