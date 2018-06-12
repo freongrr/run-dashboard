@@ -17,7 +17,7 @@ const INITIAL_STATE: AppState = {
     chartInterval: "last12Months",
     chartMeasure: "distance",
     chartGrouping: "yearAndMonth",
-    chartData: [],
+    chartData: {rows: []},
     error: null
 };
 

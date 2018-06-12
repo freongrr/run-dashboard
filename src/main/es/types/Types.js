@@ -31,6 +31,17 @@ export type ActivityBuilder = {|
     attributes: { [string]: string }
 |};
 
+
+export type GraphDataRow = {
+    axisLabel: string,
+    rawValue: number,
+    valueLabel: string
+};
+
+export type GraphData = {
+    rows: GraphDataRow[]
+};
+
 export type GraphSeriesBuilder = {
     name: string,
     secondY: boolean,

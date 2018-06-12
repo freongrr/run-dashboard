@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.github.freongrr.run.beans.Activity;
 import com.github.freongrr.run.beans.Attribute;
 import com.github.freongrr.run.beans.AxisBucket;
+import com.github.freongrr.run.beans.GraphData;
 import com.github.freongrr.run.beans.GraphDataRequest;
 import com.github.freongrr.run.services.ActivityService;
 import com.github.freongrr.run.services.AttributeService;
@@ -41,13 +42,13 @@ final class SimpleGraphService implements GraphService {
     }
 
     @Override
-    public Object[][] getRows(GraphDataRequest request) {
+    public GraphData getData(GraphDataRequest request) {
         logger.info("Building graph data for %s", request);
         Collection<Activity> activities = activityService.getAll().stream()
                 .filter(getIntervalFilter(request.getInterval()))
                 .collect(Collectors.toList());
 
-        return buildRows(request, activities);
+        return new GraphData(buildRows(request, activities));
     }
 
     private static Predicate<Activity> getIntervalFilter(String interval) {
@@ -62,9 +63,10 @@ final class SimpleGraphService implements GraphService {
         }
     }
 
-    private <X> Object[][] buildRows(GraphDataRequest request, Collection<Activity> activities) {
-        Attribute<?> measureAttribute = getAttribute(request.getMeasure());
-        Function<Activity, ?> measureAttributeExtractor = measureAttribute.getExtractor();
+    private <X> GraphData.Row[] buildRows(GraphDataRequest request, Collection<Activity> activities) {
+        Attribute<Double> measureAttribute = getMeasureAttribute(request);
+        Function<Double, String> measureAttributeFormatter = measureAttribute.getFormatter();
+        Function<Activity, Double> measureAttributeExtractor = measureAttribute.getExtractor();
 
         //noinspection unchecked
         Attribute<X> groupingAttribute = (Attribute<X>) getAttribute(request.getGrouping());
@@ -91,12 +93,21 @@ final class SimpleGraphService implements GraphService {
                         logger.warn("Can't find value for bucket " + bucket);
                     }
 
-                    Object[] row = new Object[2];
-                    row[0] = bucket.getLabel();
-                    row[1] = aggregateValue(request, bucketValues);
-                    return row;
+                    String bucketLabel = bucket.getLabel();
+                    double value = aggregateValue(request, bucketValues);
+                    String valueLabel = measureAttributeFormatter.apply(value);
+                    return new GraphData.Row(bucketLabel, value, valueLabel);
                 })
-                .toArray(Object[][]::new);
+                .toArray(GraphData.Row[]::new);
+    }
+
+    private Attribute<Double> getMeasureAttribute(GraphDataRequest request) {
+        Attribute<?> measureAttribute = getAttribute(request.getMeasure());
+        if (measureAttribute.getDataType() != Attribute.DataType.NUMBER) {
+            throw new IllegalArgumentException("Non-numeric measure attribute: " + measureAttribute);
+        }
+        //noinspection unchecked
+        return (Attribute<Double>) measureAttribute;
     }
 
     private Attribute<?> getAttribute(String grouping) {

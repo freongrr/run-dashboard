@@ -4,7 +4,7 @@
 import React from "react";
 import {Alert, ControlLabel, Form, FormControl, FormGroup} from "react-bootstrap";
 import * as redux from "react-redux";
-import type {Attribute, GraphBuilder} from "../types/Types";
+import type {Attribute, GraphBuilder, GraphData} from "../types/Types";
 import type {AppState} from "../types/AppState";
 import type {Dispatch} from "../redux/actions";
 import * as actions from "../redux/actions";
@@ -16,7 +16,7 @@ type ChartContainerProps = {
     selectedInterval: string,
     selectedMeasure: string,
     selectedGrouping: string,
-    chartData: mixed[][],
+    chartData: GraphData,
     error: ?Error,
     fetchChartData: () => void,
     updateChartInterval: (interval: string) => void,
@@ -98,7 +98,7 @@ export class ChartContainer extends React.Component<ChartContainerProps> {
 
                 {this.props.error
                     ? <Alert bsStyle="danger"><h4>Error</h4>{this.props.error.toString()}</Alert>
-                    : <C3Graph id="chartGoesHere" builder={graphBuilder} rows={this.props.chartData}/>}
+                    : <C3Graph id="chartGoesHere" builder={graphBuilder} data={this.props.chartData}/>}
 
             </div>
         );

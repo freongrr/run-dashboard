@@ -44,7 +44,7 @@ describe("loadingGraph", () => {
     });
 
     test("is set to false when loading chart data succeeds", () => {
-        const action = actionBuilders.loadChartDataSuccess([]);
+        const action = actionBuilders.loadChartDataSuccess({rows: []});
         const fetching = reducers.loadingGraph(true, action);
 
         expect(fetching).toEqual(false);

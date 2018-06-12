@@ -1,5 +1,6 @@
 package com.github.freongrr.run.services;
 
+import com.github.freongrr.run.beans.GraphData;
 import com.github.freongrr.run.beans.GraphDataRequest;
 
 /**
@@ -8,10 +9,10 @@ import com.github.freongrr.run.beans.GraphDataRequest;
 public interface GraphService {
 
     /**
-     * Builds a graph according to the given request and returns a array of data.
+     * Builds a graph according to the given request and returns rows of data.
      *
      * @param request the graph request
-     * @return an array of rows
+     * @return a instance of {@link GraphData}
      */
-    Object[][] getRows(GraphDataRequest request);
+    GraphData getData(GraphDataRequest request);
 }

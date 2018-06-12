@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.freongrr.run.beans.GraphData;
 import com.github.freongrr.run.beans.GraphDataRequest;
 import com.github.freongrr.run.services.GraphService;
 import com.github.freongrr.run.services.Logger;
@@ -25,13 +26,13 @@ public class GraphController extends HttpServlet {
     }
 
     @RequestMapping(path = "/api/graph", method = RequestMethod.GET)
-    public Object[][] getGraph(
+    public GraphData getGraph(
             @RequestParam("interval") String interval,
             @RequestParam("measure") String measure,
             @RequestParam("grouping") String grouping) {
 
         GraphDataRequest request = new GraphDataRequest(interval, measure, grouping);
         logger.info("Querying graph for " + request);
-        return source.getRows(request);
+        return source.getData(request);
     }
 }

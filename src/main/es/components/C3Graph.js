@@ -2,13 +2,13 @@
 "use strict";
 
 // TODO : import c3 here to have webpack bundle it for us?
-import type {GraphBuilder} from "../types/Types";
+import type {GraphBuilder, GraphData} from "../types/Types";
 import React from "react";
 
 type C3GraphProps = {
     id: string,
     builder: GraphBuilder,
-    rows: any[][]
+    data: GraphData
 };
 
 export default class C3Graph extends React.Component<*> {
@@ -25,7 +25,7 @@ export default class C3Graph extends React.Component<*> {
     }
 
     shouldComponentUpdate(nextProps: C3GraphProps) {
-        return nextProps.builder !== this.props.builder || nextProps.rows !== this.props.rows;
+        return nextProps.builder !== this.props.builder || nextProps.data !== this.props.data;
     }
 
     componentDidUpdate() {
@@ -47,7 +47,7 @@ export default class C3Graph extends React.Component<*> {
             headers.push(id);
         });
 
-        const rows = [headers].concat(this.props.rows);
+        const rows = [headers].concat(this.props.data.rows.map(r => [r.axisLabel, r.rawValue]));
 
         // TODO : only if the data has really changed...
         window.c3.generate({

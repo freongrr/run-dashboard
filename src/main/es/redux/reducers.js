@@ -3,7 +3,7 @@
 import {combineReducers} from "redux";
 import update from "immutability-helper";
 
-import type {Activity, ActivityBuilder, Attribute} from "../types/Types";
+import type {Activity, ActivityBuilder, Attribute, GraphData} from "../types/Types";
 import type {Action} from "./actionBuilders";
 
 export function loadingAttributes(state: boolean = false, action: Action): boolean {
@@ -114,7 +114,7 @@ export function chartGrouping(state: string = "", action: Action): string {
     }
 }
 
-export function chartData(state: number[][] = [], action: Action): number[][] {
+export function chartData(state: GraphData = {rows: []}, action: Action): GraphData {
     if (action.type === "LOAD_CHART_DATA_SUCCESS") {
         return action.data;
     } else {

@@ -1,6 +1,6 @@
 // @flow
 
-import type {Activity, ActivityBuilder, Attribute} from "./Types";
+import type {Activity, ActivityBuilder, Attribute, GraphData} from "./Types";
 
 export type AppState = {
     loadingAttributes: boolean,
@@ -13,6 +13,6 @@ export type AppState = {
     chartInterval: string,
     chartMeasure: string,
     chartGrouping: string,
-    chartData: mixed[][],
+    chartData: GraphData,
     error: ?Error
 };

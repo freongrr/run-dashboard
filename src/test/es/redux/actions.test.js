@@ -97,7 +97,7 @@ describe("fetchChartData", () => {
 
         assertLater(done, () => {
             expect(dispatch).toHaveBeenCalledWith(actionBuilders.loadChartDataStart());
-            expect(dispatch).toHaveBeenCalledWith(actionBuilders.loadChartDataSuccess([]));
+            expect(dispatch).toHaveBeenCalledWith(actionBuilders.loadChartDataSuccess({rows: []}));
         });
     });
 
