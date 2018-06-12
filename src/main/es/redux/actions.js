@@ -10,30 +10,56 @@ import DummyRPC from "../utils/DummyRPC";
 import * as CopyTools from "../data/CopyTools";
 
 export type Dispatch = (action: Action | ThunkAction) => void;
-type GetState = () => AppState;
-type ThunkAction = (dispatch: Dispatch, getState: GetState) => void;
+export type GetState = () => AppState;
+export type ThunkAction = (dispatch: Dispatch, getState: GetState) => void;
+
+const useRealBackendInDev = true;
 
 // TODO : inject service interface in store state?
 let rpc;
-if (process.env.NODE_ENV === "production") {
+if (useRealBackendInDev || process.env.NODE_ENV === "production") {
     rpc = new RPC();
 } else {
     rpc = new DummyRPC();
 }
 
-const ACTIVITY_API = "/api/activities";
+export function overrideRPC(providedRPC: RPC) {
+    rpc = providedRPC;
+}
 
-export function fetchActivitiesIfNeeded(): ThunkAction {
+const ATTRIBUTE_API = "/api/attributes";
+const ACTIVITY_API = "/api/activities";
+const CHART_API = "/api/graph"; // TODO : use CHART or GRAPH everywhere
+
+export function fetchAttributes(): ThunkAction {
     return (dispatch: Dispatch, getState: GetState) => {
-        if (!getState().isFetching) {
-            dispatch(actionBuilders.requestActivities());
-            rpc.get(ACTIVITY_API)
-                .then((json) => {
-                    const activities = (json: any);
-                    dispatch(actionBuilders.receivedActivities(activities));
+        if (!getState().loadingAttributes) {
+            dispatch(dismissError());
+            dispatch(actionBuilders.loadAttributesStart());
+            rpc.get(ATTRIBUTE_API)
+                .then((attributes) => {
+                    dispatch(actionBuilders.loadAttributesSuccess(attributes));
                 })
                 .catch((error) => {
-                    dispatch(actionBuilders.setError(error));
+                    console.error("Failed to load attributes", error);
+                    dispatch(actionBuilders.loadAttributesFailure(error));
+                });
+        }
+    };
+}
+
+export function fetchActivities(): ThunkAction {
+    return (dispatch: Dispatch, getState: GetState) => {
+        if (!getState().loadingActivities) {
+            dispatch(dismissError());
+            dispatch(actionBuilders.loadActivitiesStart());
+            rpc.get(ACTIVITY_API)
+                .then((activities) => {
+                    dispatch(actionBuilders.loadActivitiesSuccess(activities));
+                })
+                .catch((error) => {
+                    console.error("Failed to load activities", error);
+                    dispatch(actionBuilders.loadActivitiesFailure(error));
                 });
         }
     };
@@ -68,6 +94,7 @@ export function saveActivity(builder: ActivityBuilder): ThunkAction {
                 dispatch(actionBuilders.activitySaved(updatedActivity));
             })
             .catch((error) => {
+                console.error("Failed to load activities", error);
                 dispatch(actionBuilders.setError(error));
             });
     };
@@ -95,6 +122,47 @@ export function deleteActivity(): ThunkAction {
                 });
         }
     };
+}
+
+export function updateChartInterval(interval: string): ThunkAction {
+    return (dispatch: Dispatch) => {
+        dispatch(actionBuilders.setChartInterval(interval));
+        dispatch(doFetchChartData);
+    };
+}
+
+export function updateChartMeasure(measure: string): ThunkAction {
+    return (dispatch: Dispatch) => {
+        dispatch(actionBuilders.setChartMeasure(measure));
+        dispatch(doFetchChartData);
+    };
+}
+
+export function updateChartGrouping(grouping: string): ThunkAction {
+    return (dispatch: Dispatch) => {
+        dispatch(actionBuilders.setChartGrouping(grouping));
+        dispatch(doFetchChartData);
+    };
+}
+
+export function fetchChartData() {
+    return doFetchChartData;
+}
+
+export function doFetchChartData(dispatch: Dispatch, getState: GetState) {
+    if (!getState().loadingGraph) {
+        dispatch(dismissError());
+        dispatch(actionBuilders.loadChartDataStart());
+        const {chartInterval, chartMeasure, chartGrouping} = getState();
+        rpc.get(`${CHART_API}?interval=${chartInterval}&measure=${chartMeasure}&grouping=${chartGrouping}`)
+            .then((data) => {
+                dispatch(actionBuilders.loadChartDataSuccess(data));
+            })
+            .catch((error) => {
+                console.error("Failed to load chart data", error);
+                dispatch(actionBuilders.loadChartDataFailure(error));
+            });
+    }
 }
 
 export function dismissError(): Action {

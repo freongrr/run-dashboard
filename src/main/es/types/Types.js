@@ -8,17 +8,19 @@ export type Activity = {|
     date: string,
     duration: number,
     distance: number,
-    attributes: { [string]: AttributeValue }
+    attributes: { [string]: string }
 |};
 
-// Metadata, used for grouping activities on a graphs (it would be pointless to graph it):
-export type AttributeType = {|
+// Attributes associated with an activity:
+// - CORE attributes are the date, distance, etc
+// - DERIVED attributes are extracted or calculated from the core attributes
+// - EXTRA attributes are dynamic values, similar to tags (e.g. city, temperature, etc)
+export type Attribute = {|
     id: string,
     label: string,
-    type: "string" | "number" | "date"
+    type: "CORE" | "DERIVED" | "EXTRA",
+    dataType: "STRING" | "NUMBER" | "DATE"
 |};
-
-export type AttributeValue = string;
 
 /** This is used in the edit dialog */
 export type ActivityBuilder = {|
@@ -26,7 +28,7 @@ export type ActivityBuilder = {|
     date: string,
     duration: string,
     distance: string,
-    attributes: { [string]: AttributeValue }
+    attributes: { [string]: string }
 |};
 
 export type GraphSeriesBuilder = {
@@ -37,13 +39,12 @@ export type GraphSeriesBuilder = {
 
 export type GraphAxisBuilder = {
     name: string,
-    format: (value: number) => string
+    format: (value: mixed) => string
 };
 
 export type GraphBuilder = {
     type: "line" | "bar",
     time: boolean,
     x: GraphAxisBuilder,
-    series: Array<GraphSeriesBuilder>
+    series: GraphSeriesBuilder[]
 };
-

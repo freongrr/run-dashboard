@@ -3,30 +3,49 @@
 import {combineReducers} from "redux";
 import update from "immutability-helper";
 
-import type {Activity, ActivityBuilder, AttributeType} from "../types/Types";
+import type {Activity, ActivityBuilder, Attribute} from "../types/Types";
 import type {Action} from "./actionBuilders";
-import * as AttributeTypes from "../data/AttributeTypes";
 
-export function attributeTypes(state: AttributeType[]): AttributeType[] {
-    if (state === undefined || state.length === 0) {
-        return AttributeTypes.ACTIVITY_ATTRIBUTES;
-    } else {
-        return state;
-    }
-}
-
-export function isFetching(state: boolean = false, action: Action): boolean {
-    if (action.type === "REQUEST_ACTIVITIES") {
+export function loadingAttributes(state: boolean = false, action: Action): boolean {
+    if (action.type === "LOAD_ATTRIBUTES_START") {
         return true;
-    } else if (action.type === "RECEIVED_ACTIVITIES") {
+    } else if (action.type === "LOAD_ATTRIBUTES_SUCCESS" || action.type === "LOAD_ATTRIBUTES_FAILURE") {
         return false;
     } else {
         return state;
     }
 }
 
+export function loadingActivities(state: boolean = false, action: Action): boolean {
+    if (action.type === "LOAD_ACTIVITIES_START") {
+        return true;
+    } else if (action.type === "LOAD_ACTIVITIES_SUCCESS" || action.type === "LOAD_ACTIVITIES_FAILURE") {
+        return false;
+    } else {
+        return state;
+    }
+}
+
+export function loadingGraph(state: boolean = false, action: Action): boolean {
+    if (action.type === "LOAD_CHART_DATA_START") {
+        return true;
+    } else if (action.type === "LOAD_CHART_DATA_SUCCESS" || action.type === "LOAD_CHART_DATA_FAILURE") {
+        return false;
+    } else {
+        return state;
+    }
+}
+
+export function attributes(state: Attribute[] = [], action: Action): Attribute[] {
+    if (action.type === "LOAD_ATTRIBUTES_SUCCESS") {
+        return action.attributes;
+    } else {
+        return state;
+    }
+}
+
 export function activities(state: Activity[] = [], action: Action): Activity[] {
-    if (action.type === "RECEIVED_ACTIVITIES") {
+    if (action.type === "LOAD_ACTIVITIES_SUCCESS") {
         return action.activities;
     } else if (action.type === "ACTIVITY_SAVED") {
         const updatedActivity = action.activity;
@@ -71,21 +90,59 @@ export function deletedActivity(state: ?Activity = null, action: Action): ?Activ
     }
 }
 
+export function chartInterval(state: string = "last12Months", action: Action): string {
+    if (action.type === "SET_CHART_INTERVAL") {
+        return action.interval;
+    } else {
+        return state;
+    }
+}
+
+export function chartMeasure(state: string = "distance", action: Action): string {
+    if (action.type === "SET_CHART_MEASURE") {
+        return action.measure;
+    } else {
+        return state;
+    }
+}
+
+export function chartGrouping(state: string = "", action: Action): string {
+    if (action.type === "SET_CHART_GROUPING") {
+        return action.grouping;
+    } else {
+        return state;
+    }
+}
+
+export function chartData(state: mixed[][] = [], action: Action): mixed[][] {
+    if (action.type === "LOAD_CHART_DATA_SUCCESS") {
+        return action.data;
+    } else {
+        return state;
+    }
+}
+
 export function error(state: ?Error = null, action: Action): ?Error {
-    if (action.type === "SET_ERROR") {
+    if (action.type === "LOAD_ACTIVITIES_FAILURE" ||
+        action.type === "LOAD_CHART_DATA_FAILURE" ||
+        action.type === "SET_ERROR") {
         return action.error;
     } else {
         return state;
     }
 }
 
-// TODO : add a bunch of stuff
-
 export default combineReducers({
-    attributeTypes,
-    isFetching,
+    loadingAttributes,
+    loadingActivities,
+    loadingGraph,
+    attributes,
     activities,
     editedActivity,
     deletedActivity,
+    chartInterval,
+    chartMeasure,
+    chartGrouping,
+    chartData,
     error
 });

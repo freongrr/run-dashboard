@@ -1,33 +1,17 @@
-.text-inactive {
-  color: #888;
-}
-
-.dashboard-graph {
-  padding: 1em;
-
-  form {
-    padding: 1em 0;
-
-    label {
-      padding-right: 1em;
-    }
-  }
-}
+@import "Dashboard";
+@import "ActivityPage";
 
 #content {
-  margin-bottom: 2em;
+  padding: 3em 0;
+}
+
+.text-inactive {
+  color: #888;
 }
 
 .subTitle {
   h1 {
     font-size: 24px;
-  }
-}
-
-.ActivityPage {
-
-  .btn-toolbar {
-    margin-bottom: 1em;
   }
 }
 

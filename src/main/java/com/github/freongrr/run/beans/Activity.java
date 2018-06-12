@@ -58,6 +58,10 @@ public final class Activity {
         this.attributes = new HashMap<>(attributes);
     }
 
+    public String getAttribute(String attribute) {
+        return attributes.get(attribute);
+    }
+
     public void setAttribute(String attribute, String value) {
         this.attributes.put(attribute, value);
     }

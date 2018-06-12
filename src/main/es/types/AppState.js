@@ -1,12 +1,18 @@
 // @flow
 
-import type {Activity, ActivityBuilder, AttributeType} from "./Types";
+import type {Activity, ActivityBuilder, Attribute} from "./Types";
 
 export type AppState = {
-    attributeTypes: AttributeType[],
-    isFetching: boolean,
+    loadingAttributes: boolean,
+    loadingActivities: boolean,
+    loadingGraph: boolean,
+    attributes: Attribute[],
     activities: Activity[],
     editedActivity: ?ActivityBuilder,
     deletedActivity: ?Activity,
+    chartInterval: string,
+    chartMeasure: string,
+    chartGrouping: string,
+    chartData: mixed[][],
     error: ?Error
 };

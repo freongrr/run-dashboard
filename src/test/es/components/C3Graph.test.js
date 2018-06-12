@@ -14,7 +14,7 @@ describe("C3Graph", () => {
             time: true,
             x: {
                 name: "date",
-                format: (n: number) => n.toString(),
+                format: (v: mixed) => (v: any),
             },
             series: []
         };

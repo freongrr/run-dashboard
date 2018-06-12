@@ -1,6 +1,6 @@
 // @flow
 
-import type {Activity, ActivityBuilder, AttributeValue} from "../types/Types";
+import type {Activity, ActivityBuilder} from "../types/Types";
 import * as TimeUtils from "../utils/TimeUtils";
 import * as DistanceUtils from "../utils/DistanceUtils";
 
@@ -30,7 +30,7 @@ export function cloneActivityBuilder(builder: ActivityBuilder): ActivityBuilder 
     return clone;
 }
 
-export function cloneAttributeValues(values: { [string]: AttributeValue }): { [string]: AttributeValue } {
+export function cloneAttributeValues(values: { [string]: string }): { [string]: string } {
     const copy = {};
     Object.keys(values).forEach(k => copy[k] = values[k]);
     return copy;

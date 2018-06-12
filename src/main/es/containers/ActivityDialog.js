@@ -1,6 +1,6 @@
 // @flow
 
-import type {ActivityBuilder, AttributeType} from "../types/Types";
+import type {ActivityBuilder, Attribute} from "../types/Types";
 import React from "react";
 import Modal from "react-bootstrap/lib/Modal";
 import Button from "react-bootstrap/lib/Button";
@@ -14,7 +14,7 @@ import ActivityForm from "../components/ActivityForm";
 
 type ActivityDialogProps = {
     activityBuilder: ActivityBuilder,
-    attributeTypes: AttributeType[],
+    attributes: Attribute[],
     onDismiss: () => void,
     onSave: (ActivityBuilder) => void
 };
@@ -44,7 +44,7 @@ export class ActivityDialog extends React.Component<ActivityDialogProps, Activit
 
                 <Modal.Body>
                     <ActivityForm
-                        attributeTypes={this.props.attributeTypes}
+                        attributes={this.props.attributes}
                         activityBuilder={this.state.builder}
                         onMainFieldChange={this.onMainFieldChange}
                         onAttributeFieldChange={this.onAttributeFieldChange}/>
@@ -68,9 +68,9 @@ export class ActivityDialog extends React.Component<ActivityDialogProps, Activit
         this.setState({builder: updatedBuilder});
     };
 
-    onAttributeFieldChange = (attributeType: AttributeType, newValue: string) => {
+    onAttributeFieldChange = (attribute: Attribute, newValue: string) => {
         const updatedBuilder = CopyTools.cloneActivityBuilder(this.state.builder);
-        updatedBuilder.attributes[attributeType.id] = newValue;
+        updatedBuilder.attributes[attribute.id] = newValue;
         this.setState({builder: updatedBuilder});
     };
 
@@ -89,7 +89,7 @@ export class ActivityDialog extends React.Component<ActivityDialogProps, Activit
 
 function mapStateToProps(state: AppState): $Shape<ActivityDialogProps> {
     return {
-        attributeTypes: state.attributeTypes
+        attributes: state.attributes
     };
 }
 

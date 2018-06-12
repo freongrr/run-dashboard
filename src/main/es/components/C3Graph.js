@@ -8,7 +8,7 @@ import React from "react";
 type C3GraphProps = {
     id: string,
     builder: GraphBuilder,
-    rows: any[][]
+    rows: mixed[][]
 };
 
 export default class C3Graph extends React.Component<*> {
@@ -49,6 +49,11 @@ export default class C3Graph extends React.Component<*> {
 
         const rows = [headers].concat(this.props.rows);
 
+        const xValueFormatter = (index: number) => {
+            const value = this.props.rows[index][0];
+            return builder.x.format(value);
+        };
+
         // TODO : only if the data has really changed...
         window.c3.generate({
             bindto: "#" + this.props.id,
@@ -64,7 +69,7 @@ export default class C3Graph extends React.Component<*> {
                 names: series_names
             },
             axis: {
-                x: this.buildXAxis(),
+                x: this.buildXAxis(xValueFormatter),
                 y: this.buildYAxis(s => !s.secondY),
                 y2: this.buildYAxis(s => s.secondY)
             },
@@ -94,7 +99,7 @@ export default class C3Graph extends React.Component<*> {
         });
     }
 
-    buildXAxis() {
+    buildXAxis(formatter: number => string) {
         const xAxis = {};
 
         // TODO : this does not use the name or formatter of this.props.builder.x
@@ -111,7 +116,8 @@ export default class C3Graph extends React.Component<*> {
             xAxis.tick = {
                 culling: {
                     max: 13
-                }
+                },
+                format: formatter
             };
         }
 
@@ -128,6 +134,7 @@ export default class C3Graph extends React.Component<*> {
         }
 
         if (series.length === 1) {
+            // TODO : parametrize major/minor ticks
             yAxis.tick = {
                 format: series[0].format
             };

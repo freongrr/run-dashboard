@@ -32,6 +32,7 @@
         "jest": false,
         "describe": false,
         "test": false,
+        "beforeEach": false,
         "afterEach": false,
         "expect": false
     }

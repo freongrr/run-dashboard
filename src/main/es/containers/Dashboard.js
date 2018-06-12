@@ -10,6 +10,7 @@ import type {Activity} from "../types/Types";
 import type {Dispatch} from "../redux/actions";
 import * as actions from "../redux/actions";
 import type {AppState} from "../types/AppState";
+import ChartContainer from "./ChartContainer";
 
 type DashboardProps = {
     activities: Activity[],
@@ -26,7 +27,7 @@ export class Dashboard extends React.Component<DashboardProps> {
                 </PageHeader>
 
                 <div className="dashboard-graph">
-                    TODO : add graph back
+                    <ChartContainer/>
                 </div>
 
                 <PageHeader className="subTitle">
@@ -54,7 +55,7 @@ function mapStateToProps(state: AppState): $Shape<DashboardProps> {
 
 function mapDispatchToProps(dispatch: Dispatch): $Shape<DashboardProps> {
     return {
-        fetchActivities: () => dispatch(actions.fetchActivitiesIfNeeded())
+        fetchActivities: () => dispatch(actions.fetchActivities())
     };
 }
 

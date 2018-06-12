@@ -1,7 +1,7 @@
 // @flow
 "use strict";
 
-import type {Activity, ActivityBuilder, AttributeType} from "../types/Types";
+import type {Activity, ActivityBuilder} from "../types/Types";
 import type {AppState} from "../types/AppState";
 import type {Dispatch} from "../redux/actions";
 import * as actions from "../redux/actions";
@@ -16,8 +16,8 @@ import ActivityDialog from "./ActivityDialog";
 import ErrorDialog from "../components/ErrorDialog";
 import DeleteDialog from "../components/DeleteDialog";
 
+// TODO : split into multiple connected components (e.g. edit dialog, list, etc)
 type ActivityPageProps = {
-    attributeTypes: AttributeType[],
     isFetching: boolean,
     activities: Activity[],
     editedActivity: ?ActivityBuilder,
@@ -76,13 +76,19 @@ export class ActivityPage extends React.Component<ActivityPageProps> {
 }
 
 function mapStateToProps(state: AppState): $Shape<ActivityPageProps> {
-    return state;
+    return {
+        isFetching: state.loadingActivities,
+        activities: state.activities,
+        editedActivity: state.editedActivity,
+        deletedActivity: state.deletedActivity,
+        error: state.error
+    };
 }
 
 // TODO : is there a way to test this?
 function mapDispatchToProps(dispatch: Dispatch): $Shape<ActivityPageProps> {
     return {
-        fetchActivities: () => dispatch(actions.fetchActivitiesIfNeeded()),
+        fetchActivities: () => dispatch(actions.fetchActivities()),
         startAddActivity: () => dispatch(actions.startAddActivity()),
         startEditActivity: (a) => dispatch(actions.startEditActivity(a)),
         startDeleteActivity: (a) => dispatch(actions.startDeleteActivity(a)),
