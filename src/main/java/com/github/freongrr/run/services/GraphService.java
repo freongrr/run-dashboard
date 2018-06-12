@@ -8,7 +8,8 @@ import com.github.freongrr.run.beans.GraphDataRequest;
 public interface GraphService {
 
     /**
-     * Builds a graph according to the given request and returns a array of data.
+     * Builds a graph according to the given request and returns a array of data. The first value in each row is the
+     * value on the axis. It can be any type (e.g. "March 2018"), the other values are {@link Double}.
      *
      * @param request the graph request
      * @return an array of rows

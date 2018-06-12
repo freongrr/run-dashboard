@@ -16,19 +16,16 @@ final class AttributeImpl<T> implements Attribute<T> {
     private final DataType dataType;
     private final Function<Activity, T> extractor;
     private final Comparator<T> comparator;
-    private final Function<T, String> formatter;
     private final BucketBuilder<T> bucketBuilder;
 
     AttributeImpl(String id, String label, Type type, DataType dataType, Function<Activity, T> extractor,
-            Comparator<T> comparator, Function<T, String> formatter,
-            Function<Attribute<T>, BucketBuilder<T>> bucketBuilderFactory) {
+            Comparator<T> comparator, Function<Attribute<T>, BucketBuilder<T>> bucketBuilderFactory) {
         this.id = id;
         this.label = label;
         this.type = type;
         this.dataType = dataType;
         this.extractor = extractor;
         this.comparator = comparator;
-        this.formatter = formatter;
         this.bucketBuilder = bucketBuilderFactory.apply(this);
     }
 
@@ -60,11 +57,6 @@ final class AttributeImpl<T> implements Attribute<T> {
     @Override
     public Comparator<T> getComparator() {
         return comparator;
-    }
-
-    @Override
-    public Function<T, String> getFormatter() {
-        return formatter;
     }
 
     @Override

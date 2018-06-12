@@ -33,9 +33,8 @@ final class DefaultBucketBuilder<T> implements BucketBuilder<T> {
     }
 
     private AxisBucket<T> makeBucket(T bucketValue) {
-        String label = attribute.getFormatter().apply(bucketValue);
         Predicate<T> predicate = v -> Objects.equals(v, bucketValue);
-        return new AxisBucket<>(label, predicate);
+        return new AxisBucket<>(bucketValue, predicate);
     }
 
     static <X> DefaultBucketBuilder<X> builder(Attribute<X> attribute) {

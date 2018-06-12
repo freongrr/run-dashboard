@@ -92,7 +92,7 @@ final class SimpleGraphService implements GraphService {
                     }
 
                     Object[] row = new Object[2];
-                    row[0] = bucket.getLabel();
+                    row[0] = bucket.getValueOrLabel();
                     row[1] = aggregateValue(request, bucketValues);
                     return row;
                 })
@@ -109,9 +109,11 @@ final class SimpleGraphService implements GraphService {
         Stream<Double> valueStream = values.stream()
                 .map(SimpleGraphService::asDoubleOrNull)
                 .map(d -> d == null ? 0d : d);
-        // TODO : redo with metadata
         double sum = valueStream.reduce(0d, (a, b) -> a + b);
-        if ("count".equalsIgnoreCase(request.getMeasure()) || "yearAndMonth".equals(request.getGrouping())) {
+        // TODO : redo with metadata
+        boolean forceSum = "count".equals(request.getMeasure()) || "yearAndMonth".equals(request.getGrouping());
+        boolean forceAverage = "speed".equals(request.getMeasure()) || "temperature".equals(request.getMeasure());
+        if (forceSum && !forceAverage) {
             return sum;
         } else {
             return sum / values.size();

@@ -29,7 +29,6 @@ public final class DoubleBucketBuilderTest {
         //noinspection unchecked
         Attribute<Double> attribute = mock(Attribute.class);
         when(attribute.getComparator()).thenReturn(Comparator.naturalOrder());
-        when(attribute.getFormatter()).thenReturn(Object::toString);
 
         builder = new DoubleBucketBuilder(attribute);
     }
@@ -43,13 +42,13 @@ public final class DoubleBucketBuilderTest {
     @Test
     public void when_there_are_values_use_min_as_first_bucket() {
         List<AxisBucket<Double>> buckets = builder.build(Arrays.asList(20d, 10d, 15d, 30d));
-        assertThat(first(buckets).getLabel(), equalTo("10.0"));
+        assertThat(first(buckets).getValueOrLabel(), equalTo(10d));
     }
 
     @Test
     public void when_there_are_values_use_max_as_start_of_last_bucket() {
         List<AxisBucket<Double>> buckets = builder.build(Arrays.asList(0d, 40d));
-        assertThat(last(buckets).getLabel(), equalTo("38.0"));
+        assertThat(last(buckets).getValueOrLabel(), equalTo(38d));
     }
 
     @Test

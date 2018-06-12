@@ -11,19 +11,19 @@ import java.util.function.Predicate;
  */
 public final class AxisBucket<T> {
 
-    private final String label;
+    private final Object valueOrLabel;
     private final Predicate<T> predicate;
 
-    public AxisBucket(String label, Predicate<T> predicate) {
-        this.label = label;
+    public AxisBucket(Object valueOrLabel, Predicate<T> predicate) {
+        this.valueOrLabel = valueOrLabel;
         this.predicate = predicate;
     }
 
     /**
-     * @return the label of the bucket (e.g. "June 2018" or "10-20°C")
+     * @return the value that represents the bucket of a friendly label (e.g. "June 2018" or "10-20°C")
      */
-    public String getLabel() {
-        return label;
+    public Object getValueOrLabel() {
+        return valueOrLabel;
     }
 
     /**
@@ -41,17 +41,17 @@ public final class AxisBucket<T> {
             return false;
         }
         AxisBucket<?> that = (AxisBucket<?>) o;
-        return Objects.equals(label, that.label) &&
+        return Objects.equals(valueOrLabel, that.valueOrLabel) &&
                 Objects.equals(predicate, that.predicate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(label, predicate);
+        return Objects.hash(valueOrLabel, predicate);
     }
 
     @Override
     public String toString() {
-        return label;
+        return String.valueOf(valueOrLabel);
     }
 }

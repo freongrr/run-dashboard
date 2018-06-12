@@ -114,7 +114,7 @@ export function chartGrouping(state: string = "", action: Action): string {
     }
 }
 
-export function chartData(state: number[][] = [], action: Action): number[][] {
+export function chartData(state: mixed[][] = [], action: Action): mixed[][] {
     if (action.type === "LOAD_CHART_DATA_SUCCESS") {
         return action.data;
     } else {

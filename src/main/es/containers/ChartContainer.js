@@ -67,7 +67,7 @@ export class ChartContainer extends React.Component<ChartContainerProps> {
         // but I can't easily use a reducer because it depends on multiple parts of the state.
         // We should optimize either this component or C3Graph to handle that case 
         const graphBuilder: GraphBuilder = graphBuilderHelper.createBuilder(
-            this.props.attributes, this.props.selectedInterval, this.props.selectedMeasure, this.props.selectedGrouping
+            this.props.attributes, this.props.selectedMeasure, this.props.selectedGrouping
         );
 
         return (

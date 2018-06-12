@@ -46,9 +46,8 @@ final class DoubleBucketBuilder implements BucketBuilder<Double> {
     }
 
     private AxisBucket<Double> makeBucket(double bucketValue, double min, double step) {
-        String label = attribute.getFormatter().apply(bucketValue);
         Predicate<Double> predicate = v -> adjustValue(v, min, step) == bucketValue;
-        return new AxisBucket<>(label, predicate);
+        return new AxisBucket<>(bucketValue, predicate);
     }
 
     private static double adjustValue(Double value, double min, double step) {

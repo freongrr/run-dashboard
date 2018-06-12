@@ -28,49 +28,40 @@ final class StaticAttributeService implements AttributeService {
                 "duration",
                 "Duration",
                 Attribute.Type.CORE,
-                Activity::getDuration,
-                i -> i + " s"
+                Activity::getDuration
         ));
         attributes.add(newIntAttribute(
                 "distance",
                 "Distance",
                 Attribute.Type.CORE,
-                Activity::getDistance,
-                i -> i + " m"
+                Activity::getDistance
         ));
 
         /* Derived Attributes */
 
-        attributes.add(new AttributeImpl<String>(
+        attributes.add(newStringAttribute(
                 "yearAndMonth",
                 "Month",
                 Attribute.Type.DERIVED,
-                Attribute.DataType.STRING,
-                a -> a.getDate().withDayOfMonth(1).toString().substring(0, 7),
-                Comparator.naturalOrder(),
-                s -> s,
-                DefaultBucketBuilder::builder
+                a -> a.getDate().withDayOfMonth(1).toString().substring(0, 7)
         ));
         attributes.add(newIntAttribute(
                 "count",
                 "Number of runs",
                 Attribute.Type.DERIVED,
-                a -> 1,
-                String::valueOf
+                a -> 1
         ));
         attributes.add(newDoubleAttribute(
                 "time1km",
                 "Time for 1km",
                 Attribute.Type.DERIVED,
-                a -> a.getDuration() * 1000D / a.getDistance(),
-                d -> Math.round(d * 100) / 100 + " s/km"
+                a -> a.getDuration() * 1000D / a.getDistance()
         ));
         attributes.add(newDoubleAttribute(
                 "speed",
                 "Speed (km/h)",
                 Attribute.Type.DERIVED,
-                a -> (double) a.getDistance() / (double) a.getDuration() * 3.6,
-                d -> Math.round(d * 100) / 100 + " km/hm"
+                a -> (double) a.getDistance() / (double) a.getDuration() * 3.6
         ));
 
         /* Extra attributes */
@@ -85,8 +76,7 @@ final class StaticAttributeService implements AttributeService {
                 "temperature",
                 "Temperature (Celsius)",
                 Attribute.Type.EXTRA,
-                doubleAttributeExtractor("temperature"),
-                d -> d.intValue() + " °C"
+                doubleAttributeExtractor("temperature")
         ));
     }
 
@@ -99,29 +89,25 @@ final class StaticAttributeService implements AttributeService {
                 Attribute.DataType.STRING,
                 extractor,
                 Comparator.nullsLast(Comparator.naturalOrder()),
-                Function.identity(),
                 DefaultBucketBuilder::builder
         );
     }
 
     private AttributeImpl<Double> newIntAttribute(String id, String label, Attribute.Type type,
-            Function<Activity, Integer> extractor, Function<Integer, String> formatter) {
-        Function<Integer, Double> fromDouble = l -> (double) l;
-        Function<Double, Integer> toDouble = Double::intValue;
+            Function<Activity, Integer> extractor) {
         return new AttributeImpl<>(
                 id,
                 label,
                 type,
                 Attribute.DataType.NUMBER,
-                extractor.andThen(fromDouble),
+                extractor.andThen(l -> (double) l),
                 Comparator.nullsLast(Comparator.naturalOrder()),
-                toDouble.andThen(formatter),
                 DoubleBucketBuilder::new
         );
     }
 
     private AttributeImpl<Double> newDoubleAttribute(String id, String label, Attribute.Type type,
-            Function<Activity, Double> extractor, Function<Double, String> formatter) {
+            Function<Activity, Double> extractor) {
         return new AttributeImpl<>(
                 id,
                 label,
@@ -129,7 +115,6 @@ final class StaticAttributeService implements AttributeService {
                 Attribute.DataType.NUMBER,
                 extractor,
                 Comparator.nullsLast(Comparator.naturalOrder()),
-                formatter,
                 DoubleBucketBuilder::new
         );
     }

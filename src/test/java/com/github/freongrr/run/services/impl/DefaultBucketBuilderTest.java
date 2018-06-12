@@ -27,7 +27,6 @@ public class DefaultBucketBuilderTest {
         //noinspection unchecked
         Attribute<String> attribute = mock(Attribute.class);
         when(attribute.getComparator()).thenReturn(Comparator.naturalOrder());
-        when(attribute.getFormatter()).thenReturn(Object::toString);
 
         builder = DefaultBucketBuilder.builder(attribute);
     }
@@ -41,7 +40,7 @@ public class DefaultBucketBuilderTest {
     @Test
     public void when_values_contain_duplicates_then_builder_return_them_as_one_bucket() {
         List<AxisBucket<String>> buckets = builder.build(Arrays.asList("foo", "bar", "foo"));
-        List<String> bucketLabels = buckets.stream().map(AxisBucket::getLabel).collect(Collectors.toList());
-        assertThat(bucketLabels, equalTo(Arrays.asList("bar", "foo")));
+        List<Object> bucketValues = buckets.stream().map(AxisBucket::getValueOrLabel).collect(Collectors.toList());
+        assertThat(bucketValues, equalTo(Arrays.asList("bar", "foo")));
     }
 }

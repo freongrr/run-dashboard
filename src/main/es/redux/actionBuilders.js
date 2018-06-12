@@ -18,7 +18,7 @@ export type Action =
     { type: "SET_CHART_MEASURE", measure: string } |
     { type: "SET_CHART_GROUPING", grouping: string } |
     { type: "LOAD_CHART_DATA_START" } |
-    { type: "LOAD_CHART_DATA_SUCCESS", data: number[][] } |
+    { type: "LOAD_CHART_DATA_SUCCESS", data: mixed[][] } |
     { type: "LOAD_CHART_DATA_FAILURE", error: Error } |
     { type: "SET_ERROR", error: ?Error };
 
@@ -78,7 +78,7 @@ export function loadChartDataStart(): Action {
     return {type: "LOAD_CHART_DATA_START"};
 }
 
-export function loadChartDataSuccess(data: number[][]): Action {
+export function loadChartDataSuccess(data: mixed[][]): Action {
     return {type: "LOAD_CHART_DATA_SUCCESS", data};
 }
 

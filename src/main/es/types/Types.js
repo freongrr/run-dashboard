@@ -39,7 +39,7 @@ export type GraphSeriesBuilder = {
 
 export type GraphAxisBuilder = {
     name: string,
-    format: (value: number) => string
+    format: (value: mixed) => string
 };
 
 export type GraphBuilder = {

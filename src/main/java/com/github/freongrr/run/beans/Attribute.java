@@ -54,12 +54,6 @@ public interface Attribute<T> {
     Comparator<T> getComparator();
 
     /**
-     * @return a function that formats a value of this attribute
-     */
-    @JsonIgnore
-    Function<T, String> getFormatter();
-
-    /**
      * @return a function that build a list of buckets from a collection of values of this attribute
      */
     @JsonIgnore

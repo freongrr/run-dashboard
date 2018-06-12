@@ -4,19 +4,20 @@ import type {Attribute, GraphAxisBuilder, GraphBuilder, GraphSeriesBuilder} from
 import * as DistanceUtils from "../utils/DistanceUtils";
 import * as TimeUtils from "../utils/TimeUtils";
 
-// TODO : we should be able to do (most of) that on the server 
+// TODO : do we really need to go through these intermediate objects? 
 
 const DEFAULT_BUILDER: GraphBuilder = {
     type: "bar",
     time: false,
     x: {
         name: "x",
-        format: (value: number) => "" + value
+        format: (value: mixed) => "" + (value: any)
     },
     series: []
 };
 
-export function createBuilder(attributes: Attribute[], interval: string, measure: string, grouping: string): GraphBuilder {
+// TODO : pass attributes directly
+export function createBuilder(attributes: Attribute[], measure: string, grouping: string): GraphBuilder {
     let graphBuilder = DEFAULT_BUILDER;
     try {
         const measureAttribute = attributes.find(p => p.id === measure);
@@ -28,7 +29,7 @@ export function createBuilder(attributes: Attribute[], interval: string, measure
         } else if (!groupingAttribute) {
             console.warn("Can't create graph without grouping");
         } else {
-            graphBuilder = doCreateBuilder(interval, measureAttribute, groupingAttribute);
+            graphBuilder = doCreateBuilder(measureAttribute, groupingAttribute);
         }
     } catch (e) {
         console.warn("Error reducing graph builder", e);
@@ -36,23 +37,9 @@ export function createBuilder(attributes: Attribute[], interval: string, measure
     return graphBuilder;
 }
 
-function doCreateBuilder(interval: string, measureAttribute: Attribute, groupingAttribute: Attribute): GraphBuilder {
-    console.log(`Create graph builder for interval=${interval}, measure=${measureAttribute.id}, grouping=${groupingAttribute.id}`);
-
+function doCreateBuilder(measureAttribute: Attribute, groupingAttribute: Attribute): GraphBuilder {
     const axis = createHorizontalAxis(groupingAttribute);
     const series = createSeries(measureAttribute);
-
-    // example of day (XY) graph:
-    // return {
-    //     type: "bar",
-    //     time: true,
-    //     x: {
-    //         name: "Day",
-    //         format: (value: number) => "" + value
-    //     },
-    //     series: [distanceSeries]
-    // };
-
     return {
         type: "bar",
         time: false,
@@ -62,41 +49,40 @@ function doCreateBuilder(interval: string, measureAttribute: Attribute, grouping
 }
 
 function createHorizontalAxis(groupingAttribute: Attribute): GraphAxisBuilder {
+    const numValueFormatter = getValueFormatter(groupingAttribute);
     return {
         name: groupingAttribute.label,
-        format: (value: any) => "" + value
+        format: (value: mixed) => {
+            if (typeof value === "string") {
+                return value;
+            } else {
+                return numValueFormatter((value: any));
+            }
+        }
     };
 }
 
-// TODO : generate the labels from metadata
 function createSeries(attribute: Attribute): GraphSeriesBuilder {
-    const attributeId = attribute.id;
-    switch (attributeId) {
+    return {
+        name: attribute.label,
+        format: getValueFormatter(attribute),
+        secondY: false
+    };
+}
+
+function getValueFormatter(attribute: Attribute): (value: number) => string {
+    switch (attribute.id) {
     case "distance":
-        return {
-            name: attribute.label,
-            format: (value: number) => DistanceUtils.formatKm(value),
-            secondY: false
-        };
+        return (value: number) => DistanceUtils.formatKm(value);
     case "duration":
-        return {
-            name: attribute.label,
-            format: (value: number) => TimeUtils.formatHourMinutes(value),
-            secondY: false
-        };
+        return (value: number) => TimeUtils.formatHourMinutes(value);
     case "time1km":
-        return {
-            name: attribute.label,
-            format: (value: number) => TimeUtils.formatMinuteSeconds(value),
-            secondY: false
-        };
+        return (value: number) => TimeUtils.formatMinuteSeconds(value);
+    case "speed":
+        return (value: number) => DistanceUtils.formatKm(value * 1000) + "/h";
+    case "temperature":
+        return (value: number) => Math.round(value * 10)/10 + " °C";
     default:
-        // throw new Error("Unexpected attribute: " + attribute.id);
-        console.warn("Unexpected attribute: " + attribute.id);
-        return {
-            name: attribute.label,
-            format: (value: number) => "" + value,
-            secondY: false
-        };
+        return (value: number) => "" + value;
     }
 }
