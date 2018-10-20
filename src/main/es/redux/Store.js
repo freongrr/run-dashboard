@@ -2,7 +2,7 @@
 
 import * as redux from "redux";
 import reduxThunk from "redux-thunk";
-import * as reduxLogger from "redux-logger";
+import {composeWithDevTools} from "redux-devtools-extension";
 import type {AppState} from "../types/AppState";
 import rootReducer from "./reducers";
 
@@ -21,12 +21,10 @@ const INITIAL_STATE: AppState = {
     error: null
 };
 
-export default function (preLoadedState: ?AppState = INITIAL_STATE) {
+export default function (preLoadedState: AppState = INITIAL_STATE) {
     return redux.createStore(
         rootReducer,
         preLoadedState,
-        redux.applyMiddleware(
-            reduxThunk,
-            reduxLogger.createLogger())
-    );
+        composeWithDevTools(
+            redux.applyMiddleware(reduxThunk)));
 }

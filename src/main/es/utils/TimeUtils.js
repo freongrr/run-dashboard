@@ -1,5 +1,6 @@
 // @flow
-"use strict";
+
+import RegExpMatcher from "./RegExpMatcher";
 
 const MM_SS_REG_EXP = new RegExp(/^(\d+):([0-5]\d)$/i);
 const HH_MM_SS_REG_EXP = new RegExp(/^(\d+):([0-5]\d):([0-5]\d)$/i);
@@ -16,44 +17,45 @@ const SECOND_REG_EXP = new RegExp(/(\d+)\s*(?:seconds|second|sec|s)(?=\b|\d)/i);
  * @returns {string}
  */
 export function parseDuration(durationString: string): number {
-    let str = durationString
+    const str = durationString
         .replace(/\band\b/ig, "")
         .replace(/,/ig, "")
         .replace(/\bzero\b/ig, "0")
         .replace(/\bone\b/ig, "1");
 
-    let matches;
+    const matcher = new RegExpMatcher(str);
+
     let hours = 0;
     let minutes = 0;
     let seconds = 0;
 
-    if ((matches = MM_SS_REG_EXP.exec(str)) != null) {
-        minutes = parseInt(matches[1]);
-        seconds = parseInt(matches[2]);
-    } else if ((matches = HH_MM_SS_REG_EXP.exec(str)) != null) {
-        hours = parseInt(matches[1]);
-        minutes = parseInt(matches[2]);
-        seconds = parseInt(matches[3]);
-    } else if ((matches = NUMBER_REG_EXP.exec(str)) != null) {
-        minutes = parseInt(matches[1]);
+    if (matcher.match(MM_SS_REG_EXP)) {
+        minutes = parseInt(matcher.group(1));
+        seconds = parseInt(matcher.group(2));
+    } else if (matcher.match(HH_MM_SS_REG_EXP)) {
+        hours = parseInt(matcher.group(1));
+        minutes = parseInt(matcher.group(2));
+        seconds = parseInt(matcher.group(3));
+    } else if (matcher.match(NUMBER_REG_EXP)) {
+        minutes = parseInt(matcher.group(1));
     } else {
-        if ((matches = HOUR_REG_EXP.exec(str)) != null) {
-            hours = parseInt(matches[1]);
-            str = str.replace(HOUR_REG_EXP, "").trim();
+        if (matcher.match(HOUR_REG_EXP)) {
+            hours = parseInt(matcher.group(1));
+            matcher.replace(HOUR_REG_EXP, "").trim();
         }
 
-        if ((matches = MINUTES_REG_EXP.exec(str)) != null) {
-            minutes = parseInt(matches[1]);
-            str = str.replace(MINUTES_REG_EXP, "").trim();
+        if (matcher.match(MINUTES_REG_EXP)) {
+            minutes = parseInt(matcher.group(1));
+            matcher.replace(MINUTES_REG_EXP, "").trim();
         }
 
-        if ((matches = SECOND_REG_EXP.exec(str)) != null) {
-            seconds = parseInt(matches[1]);
-            str = str.replace(SECOND_REG_EXP, "").trim();
+        if (matcher.match(SECOND_REG_EXP)) {
+            seconds = parseInt(matcher.group(1));
+            matcher.replace(SECOND_REG_EXP, "").trim();
         }
 
-        if (str.length > 0) {
-            throw new Error(`Unexpected: '${str}'`);
+        if (matcher.length() > 0) {
+            throw new Error(`Unexpected: '${matcher.input()}'`);
         }
     }
 
@@ -76,13 +78,13 @@ export function formatHourMinutes(durationInSeconds: number): string {
 
         let interval = "";
 
-        if (hours == 1) {
+        if (hours === 1) {
             interval += hours + " hour ";
         } else if (hours > 0) {
             interval += hours + " hours ";
         }
 
-        if (hours == 0 || minutes > 0) {
+        if (hours === 0 || minutes > 0) {
             interval += minutes + " min";
         }
 
@@ -98,7 +100,7 @@ export function formatHourMinutes(durationInSeconds: number): string {
  */
 export function formatMinuteSeconds(durationInSeconds: number): string {
     const roundedSeconds = Math.round(durationInSeconds);
-    
+
     const minutes = Math.floor(roundedSeconds / 60);
     const seconds = roundedSeconds % 60;
 

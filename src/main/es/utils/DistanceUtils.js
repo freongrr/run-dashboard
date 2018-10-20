@@ -1,5 +1,6 @@
 // @flow
-"use strict";
+
+import RegExpMatcher from "./RegExpMatcher";
 
 const KM_REG_EXP = new RegExp(/(\d+(?:\.\d+)?)\s*(?:kilo meters|kilo meter|kilometers|kilometer|kilos|kilo|kms|km|k)(?=\b|\d)/i);
 const METER_REG_EXP = new RegExp(/(\d+)\s*(?:meters|meter|m)(?=\b|\d)/i);
@@ -11,35 +12,35 @@ const NUMBER_REG_EXP = new RegExp(/^(\d+(?:\.\d+)?)$/);
  * @returns {string}
  */
 export function parseDistance(distanceString: string): number {
-    let str = distanceString
+    const str = distanceString
         .replace(/\band\b/ig, "")
         .replace(/,/ig, "")
         .replace(/\bzero\b/ig, "0")
         .replace(/\bone\b/ig, "1");
 
-    let matches;
+    const matcher = new RegExpMatcher(str);
+
     let kilometers = 0;
     let meters = 0;
 
-    if ((matches = NUMBER_REG_EXP.exec(str)) != null) {
-        kilometers = parseFloat(matches[1]);
+    if (matcher.match(NUMBER_REG_EXP)) {
+        kilometers = parseFloat(matcher.group(1));
     } else {
-        if ((matches = KM_REG_EXP.exec(str)) != null) {
-            kilometers = parseFloat(matches[1]);
-            str = str.replace(KM_REG_EXP, "").trim();
+        if (matcher.match(KM_REG_EXP)) {
+            kilometers = parseFloat(matcher.group(1));
+            matcher.replace(KM_REG_EXP, "").trim();
         }
 
-        if ((matches = METER_REG_EXP.exec(str)) != null) {
-            meters = parseInt(matches[1]);
-            str = str.replace(METER_REG_EXP, "").trim();
-        } else if ((matches = NUMBER_REG_EXP.exec(str)) != null) {
-            meters = parseFloat(matches[1]);
-            str = str.replace(NUMBER_REG_EXP, "").trim();
+        if (matcher.match(METER_REG_EXP)) {
+            meters = parseInt(matcher.group(1));
+            matcher.replace(METER_REG_EXP, "").trim();
+        } else if (matcher.match(NUMBER_REG_EXP)) {
+            meters = parseFloat(matcher.group(1));
+            matcher.replace(NUMBER_REG_EXP, "").trim();
         }
 
-
-        if (str.length > 0) {
-            throw new Error(`Unexpected: '${str}'`);
+        if (matcher.length() > 0) {
+            throw new Error(`Unexpected: '${matcher.input()}'`);
         }
     }
 

@@ -1,17 +1,17 @@
 {
   "presets": [
-    ["env", { "modules": false }],
-    "react",
-    "flow"
+    ["@babel/preset-env", {"modules": false}],
+    "@babel/preset-react",
+    "@babel/preset-flow"
   ],
   "plugins": [
-    "transform-class-properties",
-    "transform-flow-strip-types"
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-transform-flow-strip-types"
   ],
   "env": {
     "test": {
       "plugins": [
-        "transform-es2015-modules-commonjs"
+        "@babel/plugin-transform-modules-commonjs"
       ]
     }
   }

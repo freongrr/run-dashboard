@@ -29,6 +29,7 @@ const includeAssets = [
 
 module.exports = {
     entry: APP_DIR + "/main.js",
+    devtool: "source-map",
     output: {
         path: BUILD_DIR,
         filename: "[name].bundle.js"
